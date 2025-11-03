@@ -49,6 +49,9 @@ public class Users {
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     private List<GameRooms> createdRooms = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomPlayers> roomPlayers = new ArrayList<>();
+
     public Users() {
     }
 
@@ -62,7 +65,7 @@ public class Users {
         this.profileImage = profileImage;
     }
 
-    public Integer getId() {
+    public Integer getUserId() {
         return userId;
     }
 
@@ -116,10 +119,6 @@ public class Users {
 
     public void setProfileImage(String profileImage) {
         this.profileImage = profileImage;
-    }
-
-    public List<GameRooms> getCreatedRooms() {
-        return createdRooms;
     }
 
     @Override

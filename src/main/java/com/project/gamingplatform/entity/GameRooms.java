@@ -5,7 +5,9 @@ import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "game_rooms")
@@ -34,6 +36,9 @@ public class GameRooms {
 
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = false;
+
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomPlayers> roomPlayers = new ArrayList<>();
 
     public GameRooms() {
     }
