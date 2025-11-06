@@ -9,10 +9,8 @@ import java.util.Date;
 public class GamingplatformApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GamingplatformApplication.class, args);
-	}
-
-
+        SpringApplication.run(GamingplatformApplication.class, args);
+    }
 }
 
 

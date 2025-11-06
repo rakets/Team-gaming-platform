@@ -41,7 +41,7 @@ public class Users {
 
     @Column(name = "global_role")
     @Enumerated(EnumType.STRING)
-    private GlobalRole globalRole;
+    private GlobalRole globalRole = GlobalRole.PLAYER;
 
     @Column(name = "profile_image")
     private String profileImage;
@@ -55,14 +55,13 @@ public class Users {
     public Users() {
     }
 
-    public Users(String username, String email, String password, boolean isActive, GlobalRole globalRole, String profileImage) {
+    public Users(String username, String email, String password, boolean isActive, GlobalRole globalRole) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.registrationDate = new Date();
         this.isActive = isActive;
         this.globalRole = globalRole;
-        this.profileImage = profileImage;
     }
 
     public Integer getUserId() {
