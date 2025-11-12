@@ -19,7 +19,7 @@
     <h2>Регистрация</h2>
 
     <!-- Thymeleaf form: expect model attribute named "user" (th:object="${user}") -->
-    <form th:action="@{/users/register}"
+    <form th:action="@{/register/new}"
           th:object="${user}" method="post">
         <!-- CSRF token (Spring Security) -->
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
