@@ -40,42 +40,19 @@ public class WebSecurityConfig {
                         .successHandler(customAuthenticationSuccessHandler)) // !!!!!!!
                 .logout(logout -> logout
                         .logoutUrl("/logout")
-                    .logoutSuccessUrl("/")
+                        .logoutSuccessUrl("/")
                 ).cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable());
+//                .csrf(csrf -> csrf.disable());
+                .csrf(Customizer.withDefaults());
         return httpSecurity.build();
     }
 
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(customUserDetailService);
         authenticationProvider.setPasswordEncoder(passwordEncoder());
         return authenticationProvider;
     }
-
-//    @Bean
-//    protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
-//        httpSecurity
-//                .authorizeHttpRequests(auth -> auth
-//                        .requestMatchers(publicUrl).permitAll()
-//                        .anyRequest().authenticated()
-//                )
-//                .formLogin(form -> form
-//                        .loginPage("/login")
-//                        .permitAll()
-//                        .defaultSuccessUrl("/dashboard", true)
-//                )
-//                .logout(logout -> logout
-//                        .logoutUrl("/logout")
-//                        .logoutSuccessUrl("/")
-//                        .permitAll()
-//                )
-
-    /// /                .csrf(csrf -> csrf.disable());
-//                .csrf(Customizer.withDefaults()); //!!!!!! что это
-//
-//        return httpSecurity.build();
-//    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

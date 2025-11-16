@@ -3,6 +3,10 @@ package com.project.gamingplatform.service;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.repository.UsersRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,30 +24,21 @@ public class UsersService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    // конструтор без шифрования
-//    @Autowired
-//    public UsersService(UsersRepository usersRepository) {
-//        this.usersRepository = usersRepository;
-//    }
-
     public Users addNew(Users users){
         users.setPassword(passwordEncoder.encode(users.getPassword()));
         Users savedUser = usersRepository.save(users);
         return savedUser;
-
-//        users.setActive(true);
-//        users.setRegistrationDate(new Date(System.currentTimeMillis()));
-//        //encrypt user password during registration
-//        users.setPassword(passwordEncoder.encode(users.getPassword()));
-//        //-----------
-//        Users savedUsers = usersRepository.save(users);
-//        int userTypeId = users.getUserTypeId().getUserTypeId();
-//        if(userTypeId == 1){
-//            recruiterProfileRepository.save(new RecruiterProfile(savedUsers));
-//        } else {
-//            jobSeekerProfileRepository.save(new JobSeekerProfile(savedUsers));
-//        }
-//        return savedUsers;
+    }
+    //get current user from DB
+    public Users getCurrentUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(!(authentication instanceof AnonymousAuthenticationToken)){
+            String username = authentication.getName();
+            Users users = getUsersByUsername(username).orElseThrow(() ->
+                    new UsernameNotFoundException("User not found"));
+            return users;
+        }
+        return null;
     }
 
     public Optional<Users> getUsersByUsername(String username){

@@ -24,7 +24,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         boolean hasPlayerRole = authentication.getAuthorities().stream().allMatch( p -> p
                 .getAuthority().equals("ROLE_PLAYER"));
         if(hasAdminRole || hasPlayerRole){
-            response.sendRedirect("/dashboard");
+            response.sendRedirect("/dashboard/");
         }
     }
 }
