@@ -16,6 +16,7 @@ public class RoomPlayers {
     @JoinColumn(name = "room_id")
     private GameRooms room;
 
+    //Связь с Users
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")                               // связь с составным ключом
     @JoinColumn(name = "user_id")

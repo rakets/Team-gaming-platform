@@ -49,8 +49,28 @@ public class Users {
     @OneToMany(mappedBy = "createdBy", cascade = CascadeType.ALL)
     private List<GameRooms> createdRooms = new ArrayList<>();
 
+    //Связь с RoomPlayers
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomPlayers> roomPlayers = new ArrayList<>();
+
+    //Связь с GameResults
+    @OneToMany(mappedBy = "winnerUserId", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GameResults> gameResults = new ArrayList<>();
+
+    //Связь с PlayerRoles
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlayerRoles> playerRoles = new ArrayList<>();
+
+    //Связь с Votes
+    @OneToMany(mappedBy = "userVoter", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Votes> usersVoter = new ArrayList<>();
+    //Связь с Votes
+    @OneToMany(mappedBy = "userTarget", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Votes> usersTarget = new ArrayList<>();
+
+    //Связь с PlayerCards
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PlayerCards> playerCards = new ArrayList<>();
 
     public Users() {
     }

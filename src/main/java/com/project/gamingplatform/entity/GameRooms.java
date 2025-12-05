@@ -37,8 +37,12 @@ public class GameRooms {
     @Column(name = "is_active", nullable = false)
     private Boolean isActive = false;
 
+    //связь с Users
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomPlayers> roomPlayers = new ArrayList<>();
+    //связь с GameSession
+    @OneToMany(mappedBy = "sessionId", cascade = CascadeType.ALL)
+    private List<GameSessions> gameSessions = new ArrayList<>();
 
     public GameRooms() {
     }
