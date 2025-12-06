@@ -1,6 +1,7 @@
 package com.project.gamingplatform.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 import java.util.Date;
 
@@ -13,7 +14,8 @@ public class Votes {
     @Column(name = "vote_id")
     private Integer voteId;
 
-    @Column(name="round_num")
+    @Column(name="round_num", nullable = false)
+    @NotNull
     private int roundNum;
 
     @Column(name = "created_at", updatable = false, insertable = false)
