@@ -1,10 +1,12 @@
 package com.project.gamingplatform.entity;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
 
 import java.io.Serializable;
 import java.util.Objects;
 
+@Embeddable
 public class PlayerCardsId implements Serializable {
     @Column(name = "session_id")
     private Integer sessionId;

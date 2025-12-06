@@ -36,6 +36,11 @@ public class PlayerCards {
         this.session = session;
         this.user = user;
         this.bunkerCards = bunkerCards;
+        this.id = new PlayerCardsId(
+                session.getSessionId(),
+                user.getUserId(),
+                bunkerCards.getCardId()
+        );
     }
 
     public PlayerCardsId getId() {

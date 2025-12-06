@@ -69,7 +69,9 @@ public class Users {
     private List<Votes> usersTarget = new ArrayList<>();
 
     //Связь с PlayerCards
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    //убрано cascade = CascadeType.ALL, orphanRemoval = true, потому что будет цепная реакция(
+    // удаляешь пользователя → удаляются его PlayerCards → каскадно удалятся карты → каскадно удалится карточка в BunkerCards → каскадно удалятся другие PlayerCards: цепная реакция.)
+    @OneToMany(mappedBy = "user")
     private List<PlayerCards> playerCards = new ArrayList<>();
 
     public Users() {

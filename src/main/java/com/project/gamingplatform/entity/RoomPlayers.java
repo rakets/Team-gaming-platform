@@ -39,7 +39,9 @@ public class RoomPlayers {
         this.room = room;
         this.user = user;
         this.roleInRoom = roleInRoom;
-        this.id = new RoomPlayersId(room.getRoomId(), user.getUserId());
+        this.id = new RoomPlayersId(
+                room.getRoomId(),
+                user.getUserId());
         this.joinedAt = new Date();
     }
 

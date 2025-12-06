@@ -33,7 +33,8 @@ public class BunkerCards {
     private String categorySet;
 
     //связь с PlayerCards
-    @OneToMany(mappedBy = "bunkerCards", cascade = CascadeType.ALL, orphanRemoval = true)
+    //убираем , cascade = CascadeType.ALL, orphanRemoval = true, потому что если удалить карту из справочника — удалится вся игровая статистика, где она встречалась.
+    @OneToMany(mappedBy = "bunkerCards")
     private List<PlayerCards> playerCards = new ArrayList<>();
 
     public BunkerCards() {
