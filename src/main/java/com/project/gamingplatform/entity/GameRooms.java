@@ -41,7 +41,7 @@ public class GameRooms {
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomPlayers> roomPlayers = new ArrayList<>();
     //связь с GameSession
-    @OneToMany(mappedBy = "sessionId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "gameRooms", cascade = CascadeType.ALL)
     private List<GameSessions> gameSessions = new ArrayList<>();
 
     public GameRooms() {

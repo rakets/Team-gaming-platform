@@ -31,7 +31,7 @@ public class GameSessions {
     @Column(name = "current_round")
     private int currentRound = 1;
 
-
+    //связь с GameRooms
     @ManyToOne(fetch =  FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private GameRooms gameRooms;
