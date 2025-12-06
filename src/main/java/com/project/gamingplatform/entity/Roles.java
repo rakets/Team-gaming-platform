@@ -28,7 +28,7 @@ public class Roles {
     private List<GameResults> winnersGame = new ArrayList<>();
 
     //Связь с PlayerRoles
-    @OneToMany(mappedBy = "rolesId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "roles", cascade = CascadeType.ALL)
     private List<PlayerRoles> playerRoles = new ArrayList<>();
 
     public Roles() {

@@ -26,7 +26,7 @@ public class PlayerRoles {
     //Связь с Roles
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "role_id")
-    private Roles rolesId;
+    private Roles roles;
 
     @Column(name = "assigned_at", updatable = false, insertable = false)
     @Temporal(TemporalType.TIMESTAMP)
@@ -36,7 +36,10 @@ public class PlayerRoles {
     }
 
     public PlayerRoles(GameSessions session, Users user) {
-        this.id = new PlayerRolesId(session.getSessionId(), user.getUserId());
+        this.id = new PlayerRolesId(
+                session.getSessionId(),
+                user.getUserId()
+        );
         this.session = session;
         this.user = user;
         this.assignedAt = new Date();
@@ -66,12 +69,12 @@ public class PlayerRoles {
         this.user = user;
     }
 
-    public Roles getRolesId() {
-        return rolesId;
+    public Roles getRoles() {
+        return roles;
     }
 
-    public void setRolesId(Roles rolesId) {
-        this.rolesId = rolesId;
+    public void setRoles(Roles roles) {
+        this.roles = roles;
     }
 
     public Date getAssignedAt() {
@@ -85,9 +88,9 @@ public class PlayerRoles {
     @Override
     public String toString() {
         return "PlayerRoles{" +
-                "session=" + session +
-                ", user=" + user +
-                ", rolesId=" + rolesId +
+                "session=" + (session != null ? session.getSessionId() : null) +
+                ", user=" + (user != null ? user.getUserId() : null) +
+                ", roles=" + (roles != null ? roles.getRoleId() : null) +
                 ", assignedAt=" + assignedAt +
                 '}';
     }
