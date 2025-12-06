@@ -1,6 +1,8 @@
 package com.project.gamingplatform.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
@@ -14,12 +16,14 @@ public class BunkerCards {
     @Column(name = "card_id")
     private Integer cardId;
 
-    @Column(name = "card_type")
+    @Column(name = "card_type", nullable = false)
     @Enumerated(EnumType.STRING)
+    @NotNull
     private CardType cardType;
 
-    @Column(name = "card_name")
+    @Column(name = "card_name", nullable = false)
     @Size(max = 50)
+    @NotEmpty
     private String cardName;
 
     @Column(name = "description")
