@@ -18,7 +18,7 @@ public class GameResults {
     private Date endedAt;
 
     //связь с GameSession
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "session_id", unique = true, nullable = false, insertable = true, updatable = true)
     private GameSessions gameSessions;
 
@@ -29,7 +29,7 @@ public class GameResults {
 
     //связь с Users
     @ManyToOne
-    @JoinColumn(name = "winner_user_id", nullable = false)
+    @JoinColumn(name = "winner_user_id", nullable = true)  //В SQL — NULL ALLOWED
     private Users winnerUserId;
 
     public GameResults() {
