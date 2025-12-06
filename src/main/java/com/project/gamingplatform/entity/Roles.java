@@ -2,6 +2,7 @@ package com.project.gamingplatform.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
@@ -12,11 +13,11 @@ import java.util.List;
 public class Roles {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "role_id")
+    @Column(name = "role_id", nullable = false)
     private Integer roleId;
 
-    @Column(name = "role_name")
-    @NotEmpty
+    @Column(name = "role_name",  nullable = false)
+    @NotNull
     @Size(max = 50)
     private String roleName;
 
@@ -24,7 +25,7 @@ public class Roles {
     private String description;
 
     //связь с GameResults
-    @OneToMany(mappedBy = "winnerRoleId", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "winnerRoleId")
     private List<GameResults> winnersGame = new ArrayList<>();
 
     //Связь с PlayerRoles
@@ -73,7 +74,6 @@ public class Roles {
                 "roleId=" + roleId +
                 ", roleName='" + roleName + '\'' +
                 ", description='" + description + '\'' +
-                ", winnersGame=" + winnersGame +
                 '}';
     }
 }
