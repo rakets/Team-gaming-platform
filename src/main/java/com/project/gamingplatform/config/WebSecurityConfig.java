@@ -28,7 +28,7 @@ public class WebSecurityConfig {
 
     @Bean
     protected SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-//        httpSecurity.authenticationProvider(authenticationProvider());
+        httpSecurity.authenticationProvider(authenticationProvider());
 
         httpSecurity
                 .authorizeHttpRequests(auth -> {
@@ -47,6 +47,7 @@ public class WebSecurityConfig {
         return httpSecurity.build();
     }
 
+    @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(customUserDetailService);
