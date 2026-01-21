@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Game Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+</head>
+
+<body>
+
+<header class="navbar navbar-dark bg-dark px-4">
+    <span class="navbar-brand">Game Rooms</span>
+    <label th:text="${username}" class="navbar-brand"></label>
+    <!--    <div class="collapse navbar-collapse" id="navbarToggler">-->
+    <!--        <ul>-->
+    <!--            <li class="nav-item active" sec:authorize="hasAuthority('ROLE_ADMIN')">&ndash;&gt;-->
+    <!--                <a class="nav-link" th:href="@{/dashboard/}">-->
+    <!--                    <p>Hello ADMIN</p>-->
+    <!--                    <i class="fas fa-search"></i> Search for Room-->
+    <!--                </a>-->
+    <!--            </li>-->
+    <!--            <li class="nav-item active" sec:authorize="hasAuthority('ROLE_PLAYER')">&ndash;&gt;-->
+    <!--                <a class="nav-link" th:href="@{/dashboard/}">-->
+    <!--                    <p>Hello PLAYER</p>-->
+    <!--                    <i class="fas fa-search"></i> Search for Room-->
+    <!--                </a>-->
+    <!--            </li>-->
+    <!--        </ul>-->
+
+    <!--        <ul class="navbar-nav m-auto mt-2 mt-lg-0">-->
+    <!--            <li class="nav-item active" sec:authorize="hasAuthority('ADMIN')">-->
+    <!--                <a class="nav-link" th:href="@{/dashboard/}">-->
+    <!--                    <i class="fas fa-search"></i> Search for Room-->
+    <!--                </a>-->
+    <!--            </li>-->
+    <!--            <li class="nav-item" sec:authorize="hasAuthority('ADMIN')">-->
+    <!--                <a class="nav-link" th:href="@{/dashboard/add}">-->
+    <!--                    <i class="fa-solid fa-file-circle-plus"></i> Create New Room-->
+    <!--                </a>-->
+    <!--            </li>-->
+    <!--            <li class="nav-item" sec:authorize="hasAuthority('ADMIN')">-->
+    <!--                <a class="nav-link" th:href="@{/job-seeker-profile/}">-->
+    <!--                    <i class="fa-solid fa-pencil"></i> Edit Profile-->
+    <!--                </a>-->
+    <!--            </li>-->
+    <!--            <li class="nav-item active" sec:authorize="hasAuthority('ADMIN')">-->
+    <!--                <a class="nav-link" th:href="@{/dashboard/}">-->
+    <!--                    <i class="fa-solid fa-eye"></i> View Your Room-->
+    <!--                </a>-->
+    <!--            </li>-->
+    <!--        </ul>-->
+    <!--    </div>-->
+    <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
+</header>
+
+<div class="container mt-4">
+    <p sec:authorize="hasAuthority('ROLE_ADMIN')">Hello ADMIN</p>
+    <p sec:authorize="hasAuthority('ROLE_PLAYER')">Hello PLAYER</p>
+
+    <!-- Заголовок -->
+    <h2 class="mb-3">Game Rooms Dashboard</h2>
+
+    <!-- Поиск игровой комнаты -->
+    <form th:action="@{/dashboard}" method="get" class="mb-4">
+        <div class="input-group">
+            <input type="text"
+                   name="search"
+                   class="form-control"
+                   placeholder="Search for a game room..."
+                   th:value="${search}">
+            <button class="btn btn-primary" type="submit">
+                <i class="fa fa-search"></i> Search
+            </button>
+        </div>
+    </form>
+
+    <!--    create new room-->
+    <div>
+        <button class="btn btn-primary" onclick="window.location='/room/new'">Create New Room</button>
+    </div>
+
+    <!-- list of game rooms -->
+    <div th:if="${rooms != null}">
+        <div th:each="room : ${rooms}" class="card mb-2">
+            <div class="card-body d-flex justify-content-between align-items-center">
+
+                <div>
+                    <h5 th:text="${room.name}">Room Name</h5>
+                    <p class="mb-0">
+                        Players: <span th:text="${room.players}">0</span> /
+                        <span th:text="${room.maxPlayers}">10</span>
+                    </p>
+                </div>
+
+                <a th:href="@{/room/{id}(id=${room.id})}"
+                   class="btn btn-success">
+                    Join Room
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${rooms == null or #lists.isEmpty(rooms)}">
+        <p class="text-muted">No rooms found.</p>
+    </div>
+
+</div>
+
+<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</body>
+</html>
