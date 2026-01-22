@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Game Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+</head>
+
+<body>
+
+<header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <span class="navbar-brand">Game Rooms</span>
+    <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
+</header>
+
+<a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5 col-lg-4">
+
+            <div class="card shadow border-0 rounded-3">
+                <div class="card-body p-4">
+
+                    <h3 class="text-center mb-4 fw-bold">Create New Room</h3>
+
+                    <form th:action="@{/dashboard/room/new}" th:object="${room}" method="post">
+
+                        <div class="mb-3">
+                            <label for="roomName" class="form-label fw-bold">Room name</label>
+                            <input id="roomName"
+                                   type="text"
+                                   class="form-control"
+                                   th:field="*{roomName}"
+                                   th:classappend="${#fields.hasErrors('roomName')} ? 'is-invalid' : ''"
+                                   placeholder="Enter room name" />
+
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('roomName')}" th:errors="*{roomName}"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="numPlayers" class="form-label fw-bold">Number of players</label>
+                            <input id="numPlayers"
+                                   type="number"
+                                   class="form-control"
+                                   th:field="*{numPlayers}"
+                                   th:classappend="${#fields.hasErrors('numPlayers')} ? 'is-invalid' : ''"
+                                   placeholder="4"
+                                   min="4" max="10"/>
+
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('numPlayers')}" th:errors="*{numPlayers}"></div>
+                        </div>
+
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary fw-bold py-2">Create room</button>
+                        </div>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</body>
+</html>

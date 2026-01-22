@@ -46,8 +46,8 @@
 
     <!--    create new room-->
     <div>
-        <button class="btn btn-primary" onclick="window.location='/room/new'">Create New Room</button>
-        <button class="btn btn-primary" onclick="window.location='/room/new'">View My Rooms</button>
+        <a class="btn btn-primary" th:href="@{/dashboard/room/new}" method="get">Create New Room</a>
+        <button class="btn btn-primary">View My Rooms</button>
     </div>
 
     <!-- list of game rooms -->
