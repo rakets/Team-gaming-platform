@@ -11,6 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class GameRoomsService {
     private final GameRoomsRepository gameRoomsRepository;
@@ -36,5 +39,24 @@ public class GameRoomsService {
         gameRoom.setMaxPlayers(room.getNumPlayers());
 
         gameRoomsRepository.save(gameRoom);
+    }
+
+    public List<GameRoomsDTO> findAllGameRoomsByUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Users users = userDetails.getUser();
+
+        List<GameRooms> gameRoomsList = gameRoomsRepository.findAllByCreatedBy(users);
+
+        List<GameRoomsDTO> gameRoomsDTOList = new ArrayList<GameRoomsDTO>();
+        for(GameRooms gameRoom : gameRoomsList){
+            GameRoomsDTO gameRoomDTO = new GameRoomsDTO();
+            gameRoomDTO.setRoomId(gameRoom.getRoomId());
+            gameRoomDTO.setRoomName(gameRoom.getRoomName());
+            gameRoomDTO.setNumPlayers(gameRoom.getMaxPlayers());
+
+            gameRoomsDTOList.add(gameRoomDTO);
+        }
+        return gameRoomsDTOList;
     }
 }

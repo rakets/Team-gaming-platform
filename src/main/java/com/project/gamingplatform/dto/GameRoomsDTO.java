@@ -7,6 +7,8 @@ import lombok.Data;
 
 @Data
 public class GameRoomsDTO {
+    private int roomId;
+
     @NotBlank(message = "Name of room can't be empty.")
     private String roomName;
 

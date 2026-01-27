@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Game Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+</head>
+
+<body>
+
+<header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <span class="navbar-brand">Game Rooms</span>
+    <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
+</header>
+
+<a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
+
+<div class="container mt-4">
+    <p>Hello <label th:text="${username}"></label></p>
+
+    <h2 class="mb-3">Game Rooms Dashboard</h2>
+
+    <!-- list of game rooms -->
+    <div th:if="${rooms != null}">
+        <div th:each="room : ${rooms}" class="card mb-2">
+            <div class="card-body d-flex justify-content-between align-items-center">
+
+                <div>
+                    <h5 th:text="${room.roomName}">Room Name</h5>
+                    <p class="mb-0">
+                        Players: <span th:text="${room.numPlayers}">0</span> / <span>10</span>
+                    </p>
+                </div>
+
+                <a th:href="@{/room/{id}(id=${room.roomId})}" class="btn btn-success">
+                    Join
+                </a>
+
+                <a th:href="@{/room/{id}(id=${room.roomId})}" class="btn btn-danger">
+                    Delete
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+    <div th:if="${rooms == null or #lists.isEmpty(rooms)}">
+        <p class="text-muted">No rooms found.</p>
+    </div>
+
+</div>
+<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</body>
+</html>
