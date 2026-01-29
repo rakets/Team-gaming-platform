@@ -49,4 +49,14 @@ public class GameRoomsController {
         model.addAttribute("rooms", gameRoomsDTOList);
         return "roomsList";
     }
+
+    @GetMapping("/searchRoom")
+    public String searchGameRoom(Model model,
+                                 @RequestParam(value = "roomName", required = false) String roomName) {
+        log.info("Search initiated for room : room {}", roomName);
+        GameRoomsDTO gameRoomsDTO = gameRoomsService.findGameRoomByRoomName(roomName);
+        model.addAttribute("roomName", roomName);
+        model.addAttribute("room", gameRoomsDTO);
+        return "dashboard";
+    }
 }
