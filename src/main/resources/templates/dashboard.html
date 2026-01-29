@@ -31,49 +31,38 @@
     <h2 class="mb-3">Game Rooms Dashboard</h2>
 
     <!-- Поиск игровой комнаты -->
-    <form th:action="@{/dashboard}" method="get" class="mb-4">
+    <form th:action="@{/dashboard/searchRoom}" method="get" class="mb-4">
         <div class="input-group">
-            <input type="text"
-                   name="search"
-                   class="form-control"
-                   placeholder="Search for a game room..."
-                   th:value="${search}">
-            <button class="btn btn-primary" type="submit">
-                <i class="fa fa-search"></i> Search
-            </button>
+            <input type="text" name="roomName" class="form-control" placeholder="Search for a game room...">
+            <button class="btn btn-primary" type="submit"><i class="fa fa-search"></i> Search</button>
         </div>
     </form>
 
     <!--    create new room-->
     <div>
-        <button class="btn btn-primary" onclick="window.location='/room/new'">Create New Room</button>
-        <button class="btn btn-primary" onclick="window.location='/room/new'">View My Rooms</button>
+        <a class="btn btn-primary" th:href="@{/dashboard/room/new}" method="get">Create New Room</a>
+        <a class="btn btn-primary" th:href="@{/dashboard/myRoom}">View My Rooms</a>
     </div>
-
+    <br>
     <!-- list of game rooms -->
-    <div th:if="${rooms != null}">
-        <div th:each="room : ${rooms}" class="card mb-2">
-            <div class="card-body d-flex justify-content-between align-items-center">
-
-                <div>
-                    <h5 th:text="${room.name}">Room Name</h5>
-                    <p class="mb-0">
-                        Players: <span th:text="${room.players}">0</span> /
-                        <span th:text="${room.maxPlayers}">10</span>
-                    </p>
-                </div>
-
-                <a th:href="@{/room/{id}(id=${room.id})}"
-                   class="btn btn-success">
-                    Join Room
-                </a>
-
+    <div th:if="${room != null}">
+        <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+                <h5 th:text="${room.roomName}">Room Name</h5>
+                <p class="mb-0">
+                    Players: <span th:text="${room.numPlayers}">0</span> / <span>10</span>
+                </p>
             </div>
+
+            <a th:href="@{/room/{id}(id=${room.roomId})}"
+               class="btn btn-success">
+                Join Room
+            </a>
         </div>
     </div>
 
-    <div th:if="${rooms == null or #lists.isEmpty(rooms)}">
-        <p class="text-muted">No rooms found.</p>
+    <div th:if="${room == null}">
+        <p>No rooms found.</p>
     </div>
 
 </div>

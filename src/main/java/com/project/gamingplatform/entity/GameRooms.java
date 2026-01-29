@@ -83,6 +83,10 @@ public class GameRooms {
         return createdBy;
     }
 
+    public void setCreatedBy(Users createdBy) {
+        this.createdBy = createdBy;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
