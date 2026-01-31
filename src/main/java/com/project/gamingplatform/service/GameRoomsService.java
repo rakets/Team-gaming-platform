@@ -72,12 +72,12 @@ public class GameRoomsService {
                 .orElse(null);
     }
 
-//    public GameRoomsDTO findGameRoomById(int id) {
-//        GameRooms gameRooms = gameRoomsRepository.findById(id)
-//                .orElseThrow(() -> new RuntimeException("Room not found."));
-//        GameRoomsDTO gameRoomsDTO = convertEntityGameRoomToDto(gameRooms);
-//        return gameRoomsDTO;
-//    }
+    public GameRoomsDTO findGameRoomById(int id) {
+        GameRooms gameRooms = gameRoomsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Room not found."));
+        GameRoomsDTO gameRoomsDTO = convertEntityGameRoomToDto(gameRooms);
+        return gameRoomsDTO;
+    }
 
     //method for convert entity GameRooms to GameRoomsDTO
     public GameRoomsDTO convertEntityGameRoomToDto(GameRooms gameRoom) {

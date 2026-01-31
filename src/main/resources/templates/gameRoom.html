@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Game Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+</head>
+
+<body>
+
+<header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+    <span class="navbar-brand">Game Rooms</span>
+    <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
+</header>
+
+<a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
+
+<div class="container mt-4">
+    <p> Game Room : <label th:text="${room.roomName}"></label></p>
+</div>
+<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+</body>
+</html>

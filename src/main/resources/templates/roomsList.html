@@ -36,13 +36,8 @@
                     </p>
                 </div>
 
-                <a th:href="@{/room/{id}(id=${room.roomId})}" class="btn btn-success">
-                    Join
-                </a>
-
-                <a th:href="@{/room/{id}(id=${room.roomId})}" class="btn btn-danger">
-                    Delete
-                </a>
+                <a th:href="@{/dashboard/join-room/{id}(id=${room.roomId})}" class="btn btn-success">Join</a>
+                <a th:href="@{/room/{id}(id=${room.roomId})}" class="btn btn-danger">Delete</a>
 
             </div>
         </div>

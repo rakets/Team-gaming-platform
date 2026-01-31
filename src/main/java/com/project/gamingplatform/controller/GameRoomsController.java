@@ -1,7 +1,9 @@
 package com.project.gamingplatform.controller;
 
 import com.project.gamingplatform.dto.GameRoomsDTO;
+import com.project.gamingplatform.entity.GameRooms;
 import com.project.gamingplatform.service.GameRoomsService;
+import com.project.gamingplatform.service.RoomPlayersService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,10 +20,12 @@ import java.util.List;
 public class GameRoomsController {
 
     private final GameRoomsService gameRoomsService;
+    private final RoomPlayersService roomPlayersService;
 
     @Autowired
-    public GameRoomsController(GameRoomsService gameRoomsService) {
+    public GameRoomsController(GameRoomsService gameRoomsService, RoomPlayersService roomPlayersService) {
         this.gameRoomsService = gameRoomsService;
+        this.roomPlayersService = roomPlayersService;
     }
 
     @GetMapping("/room/new")
@@ -58,5 +62,13 @@ public class GameRoomsController {
         model.addAttribute("roomName", roomName);
         model.addAttribute("room", gameRoomsDTO);
         return "dashboard";
+    }
+
+    @GetMapping("/join-room/{id}")
+    public String joinGameRoom(Model model,
+                               @PathVariable("id") int id){
+        GameRoomsDTO gameRoomsDTO = gameRoomsService.findGameRoomById(id);
+        model.addAttribute("room", gameRoomsDTO);
+        return "gameRoom";
     }
 }
