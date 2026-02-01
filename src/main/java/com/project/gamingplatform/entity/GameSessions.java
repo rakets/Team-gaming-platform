@@ -52,8 +52,8 @@ public class GameSessions {
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PlayerCards> playerCards = new ArrayList<>();
 
-    public GameSessions() {
-        this.startedAt =  new Date();
+    public GameSessions(GameRooms gameRooms) {
+        this.gameRooms = gameRooms;
     }
 
     public Integer getSessionId() {

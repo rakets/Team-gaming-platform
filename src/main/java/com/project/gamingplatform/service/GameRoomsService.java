@@ -25,21 +25,25 @@ public class GameRoomsService {
     private final GameRoomsRepository gameRoomsRepository;
     private final UsersRepository usersRepository;
     private final RoomPlayersService roomPlayersService;
+    private final GameSessionsService gameSessionsService;
 
     @Autowired
-    public GameRoomsService(GameRoomsRepository gameRoomsRepository, UsersRepository usersRepository, RoomPlayersService roomPlayersService) {
+    public GameRoomsService(GameRoomsRepository gameRoomsRepository, UsersRepository usersRepository, RoomPlayersService roomPlayersService, GameSessionsService gameSessionsService) {
         this.gameRoomsRepository = gameRoomsRepository;
         this.usersRepository = usersRepository;
         this.roomPlayersService = roomPlayersService;
+        this.gameSessionsService = gameSessionsService;
     }
 
     @Transactional
     public void saveGameRoom(GameRoomsDTO room) {
         GameRooms gameRoom = convertGameRoomDtoToEntity(room);
+        //saving to GameRooms
         GameRooms currentGameRoom = gameRoomsRepository.save(gameRoom);
-
         //saving to RoomPlayers
         roomPlayersService.saveRoomPlayers(currentGameRoom);
+        //saving to GameSessions
+        gameSessionsService.saveGameSession(gameRoom);
     }
 
     public List<GameRoomsDTO> findAllGameRoomsByUser() {
@@ -74,7 +78,7 @@ public class GameRoomsService {
 
     public GameRoomsDTO findGameRoomById(int id) {
         GameRooms gameRooms = gameRoomsRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Room not found."));
+                .orElseThrow(() -> new RuntimeException("The room was not found, when user tried search room."));
         GameRoomsDTO gameRoomsDTO = convertEntityGameRoomToDto(gameRooms);
         return gameRoomsDTO;
     }
@@ -101,5 +105,16 @@ public class GameRoomsService {
         gameRoom.setRoomName(gameRoomsDTO.getRoomName());
         gameRoom.setMaxPlayers(gameRoomsDTO.getNumPlayers());
         return gameRoom;
+    }
+
+    public GameRoomsDTO joinToGameRoom(int id){
+        //take current game room from bd
+        GameRooms gameRoom = gameRoomsRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("The room was not found when the player tried to join the room."));
+        //join to room
+        roomPlayersService.joinToRoomPlayer(gameRoom);
+
+        GameRoomsDTO gameRoomsDTO = findGameRoomById(id);
+        return gameRoomsDTO;
     }
 }

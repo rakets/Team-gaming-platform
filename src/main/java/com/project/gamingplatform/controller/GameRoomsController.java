@@ -67,8 +67,10 @@ public class GameRoomsController {
     @GetMapping("/join-room/{id}")
     public String joinGameRoom(Model model,
                                @PathVariable("id") int id){
-        GameRoomsDTO gameRoomsDTO = gameRoomsService.findGameRoomById(id);
-        model.addAttribute("room", gameRoomsDTO);
+//        GameRoomsDTO gameRoomsDTO = gameRoomsService.findGameRoomById(id);
+//        model.addAttribute("room", gameRoomsDTO);
+
+        model.addAttribute("room", gameRoomsService.joinToGameRoom(id));
         return "gameRoom";
     }
 }

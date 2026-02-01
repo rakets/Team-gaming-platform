@@ -6,6 +6,7 @@ import com.project.gamingplatform.repository.GameRoomsRepository;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
 import com.project.gamingplatform.util.CustomUserDetails;
 import jakarta.transaction.Transactional;
+import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,14 +29,26 @@ public class RoomPlayersService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Users user = userDetails.getUser();
 
-        //create new RoomPlayer
+        //save new RoomPlayer as MODERATOR
         RoomPlayers roomPlayers = new RoomPlayers(savedGameRoom, user, RoleInRoom.MODERATOR);
         roomPlayersRepository.save(roomPlayers);
     }
 
-    // connect to RoomPlayer as PLAYER
-//    public void connectToRoomPlayer(){
-//
-//    }
+    // join to RoomPlayer as PLAYER
+    public void joinToRoomPlayer(GameRooms gameRoom){
+        //take current user from context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Users user = userDetails.getUser();
+        if(roomPlayersRepository.existsByRoomAndUser(gameRoom, user)){
+            return;
+        }
+
+
+        //save new RoomPlayer as PLAYER
+        RoomPlayers roomPlayers = new RoomPlayers(gameRoom, user, RoleInRoom.PLAYER);
+        roomPlayersRepository.save(roomPlayers);
+    }
+
 
 }
