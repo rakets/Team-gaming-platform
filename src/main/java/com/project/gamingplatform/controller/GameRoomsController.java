@@ -1,12 +1,24 @@
 package com.project.gamingplatform.controller;
 
 import com.project.gamingplatform.dto.GameRoomsDTO;
+import com.project.gamingplatform.dto.MessageType;
+import com.project.gamingplatform.dto.UserActivityDTO;
 import com.project.gamingplatform.entity.GameRooms;
+import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.service.GameRoomsService;
 import com.project.gamingplatform.service.RoomPlayersService;
+import com.project.gamingplatform.util.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -21,11 +33,13 @@ public class GameRoomsController {
 
     private final GameRoomsService gameRoomsService;
     private final RoomPlayersService roomPlayersService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    public GameRoomsController(GameRoomsService gameRoomsService, RoomPlayersService roomPlayersService) {
+    public GameRoomsController(GameRoomsService gameRoomsService, RoomPlayersService roomPlayersService, SimpMessagingTemplate messagingTemplate) {
         this.gameRoomsService = gameRoomsService;
         this.roomPlayersService = roomPlayersService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @GetMapping("/room/new")
@@ -67,10 +81,23 @@ public class GameRoomsController {
     @GetMapping("/join-room/{id}")
     public String joinGameRoom(Model model,
                                @PathVariable("id") int id){
-//        GameRoomsDTO gameRoomsDTO = gameRoomsService.findGameRoomById(id);
-//        model.addAttribute("room", gameRoomsDTO);
-
-        model.addAttribute("room", gameRoomsService.joinToGameRoom(id));
+        GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(id);
+        model.addAttribute("room", gameRoomsDTO);
         return "gameRoom";
     }
+
+//    public UserActivityDTO addUser(@DestinationVariable("id") int id,
+//    @MessageMapping("/room/{id}/newUser")
+//    @SendTo("/topic/room/{id}")
+//    public void addUser(@DestinationVariable("id") int roomId,
+//                                   @Payload UserActivityDTO message,
+//                                   SimpMessageHeaderAccessor headerAccessor){
+//        // Сохраняем данные в сессию сокета, чтобы достать их при дисконнекте
+//        headerAccessor.getSessionAttributes().put("username", message.getUsername());
+//        headerAccessor.getSessionAttributes().put("roomId", roomId);
+//
+//        message.setType(MessageType.JOIN);
+//
+//        System.out.println(String.format("room id: %n %s player %s", roomId, message.getType(), message.getUsername()));
+//    }
 }

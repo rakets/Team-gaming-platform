@@ -1,6 +1,8 @@
 package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.dto.GameRoomsDTO;
+import com.project.gamingplatform.dto.MessageType;
+import com.project.gamingplatform.dto.UserActivityDTO;
 import com.project.gamingplatform.entity.GameRooms;
 import com.project.gamingplatform.entity.RoleInRoom;
 import com.project.gamingplatform.entity.RoomPlayers;
@@ -12,6 +14,7 @@ import com.project.gamingplatform.util.CustomUserDetails;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -26,13 +29,15 @@ public class GameRoomsService {
     private final UsersRepository usersRepository;
     private final RoomPlayersService roomPlayersService;
     private final GameSessionsService gameSessionsService;
+    private final SimpMessagingTemplate messagingTemplate;
 
     @Autowired
-    public GameRoomsService(GameRoomsRepository gameRoomsRepository, UsersRepository usersRepository, RoomPlayersService roomPlayersService, GameSessionsService gameSessionsService) {
+    public GameRoomsService(GameRoomsRepository gameRoomsRepository, UsersRepository usersRepository, RoomPlayersService roomPlayersService, GameSessionsService gameSessionsService, SimpMessagingTemplate messagingTemplate) {
         this.gameRoomsRepository = gameRoomsRepository;
         this.usersRepository = usersRepository;
         this.roomPlayersService = roomPlayersService;
         this.gameSessionsService = gameSessionsService;
+        this.messagingTemplate = messagingTemplate;
     }
 
     @Transactional
@@ -107,6 +112,7 @@ public class GameRoomsService {
         return gameRoom;
     }
 
+    @Transactional
     public GameRoomsDTO joinToGameRoom(int id){
         //take current game room from bd
         GameRooms gameRoom = gameRoomsRepository.findById(id)
@@ -115,6 +121,15 @@ public class GameRoomsService {
         roomPlayersService.joinToRoomPlayer(gameRoom);
 
         GameRoomsDTO gameRoomsDTO = findGameRoomById(id);
+
+        //        ------  websocket ---------
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Users user = userDetails.getUser();
+
+        UserActivityDTO joinMessage = new UserActivityDTO(user.getUsername(), MessageType.JOIN);
+        messagingTemplate.convertAndSend("/topic/room/" + id, joinMessage);
+        //        ------  websocket ---------
         return gameRoomsDTO;
     }
 }
