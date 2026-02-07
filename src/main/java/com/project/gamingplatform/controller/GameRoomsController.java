@@ -97,7 +97,7 @@ public class GameRoomsController {
         return "gameRoom";
     }
 
-    @PostMapping("/clean-room/{id}")
+    @DeleteMapping("/clean-room/{id}")
     public String cleanGameRoom(@PathVariable("id") int id){
         roomPlayersService.cleanRoomPlayers(id);
         return "redirect:/dashboard/join-room/" + id;

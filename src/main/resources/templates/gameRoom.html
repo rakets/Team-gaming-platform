@@ -21,12 +21,21 @@
 
 <!--clean room-->
 <div th:if="${room.isCurrentUserModerator == true}">
-    <form th:action="@{/dashboard/clean-room/{id}(id=${room.roomId})}" method="post">
+    <form th:action="@{/dashboard/clean-room/{id}(id=${room.roomId})}" th:method="delete">
         <button type="submit" class="btn btn-warning">
             Clean Room
         </button>
     </form>
 </div>
+
+<!--   ready / unready   -->
+<!--<div th:if="${room.isCurrentUserModerator == true}">-->
+<!--    <form th:action="@{/dashboard/clean-room/{id}(id=${room.roomId})}" method="post">-->
+<!--        <button type="submit" class="btn btn-warning">-->
+<!--            Clean Room-->
+<!--        </button>-->
+<!--    </form>-->
+<!--</div>-->
 
 <div class="container mt-4">
     <p> Game Room : <label th:text="${room.roomName}"></label></p>
