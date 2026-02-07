@@ -19,6 +19,15 @@
 
 <a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
 
+<!--clean room-->
+<div th:if="${room.isCurrentUserModerator == true}">
+    <form th:action="@{/dashboard/clean-room/{id}(id=${room.roomId})}" method="post">
+        <button type="submit" class="btn btn-warning">
+            Clean Room
+        </button>
+    </form>
+</div>
+
 <div class="container mt-4">
     <p> Game Room : <label th:text="${room.roomName}"></label></p>
 </div>
@@ -30,8 +39,8 @@
         <div th:each="player : ${players}" class="col-md-4 player-card">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title" th:text="${player.user.username}">Username</h5>
-                    <p class="card-text">Status: <span th:text="${player.roleInRoom}">PLAYER</span></p>
+                    <h5 class="card-title" th:text="${player.username}">Username</h5>
+                    <p class="card-text">Role: <span th:text="${player.gameRole}">PLAYER</span></p>
                 </div>
             </div>
         </div>
@@ -60,7 +69,6 @@
     // Подписка на личный канал уведомлений пользователя
     // Путь: /user/queue/notifications
     // Spring Security автоматически определяет текущего пользователя.
-    console.log('/topic/room/' + roomId);
     stompClient.subscribe('/topic/room/' + roomId, function (notification) {
     console.log("Raw message received:", notification); // Если notification.body придет пустым или битым, здесь будет ошибка
     showNotification(JSON.parse(notification.body)); // Обрабатка входящего JSON-сообщение
@@ -68,14 +76,14 @@
 
     }, function (error) {
     console.error('STOMP Error:', error);
-        setTimeout(connect, 5000);
+//        setTimeout(connect, 5000);
     });
     }
 
     function showNotification(message) {
         // { username: "Nagibator2000", role: "PLAYER" }
         var username = message.username;
-        var role = message.role;
+        var roleInRoom = message.roleInRoom;
 
         var exists = false;
         $('#players-container .card-title').each(function(){
@@ -92,7 +100,7 @@
                     <div class="col-md-4 player-card">
                         <div class="card bg-success text-white"> <div class="card-body">
                                 <h5 class="card-title">${username}</h5>
-                                <p class="card-text">Status: <span>${role}</span></p>
+                                <p class="card-text">Role: <span>${roleInRoom}</span></p>
                             </div>
                         </div>
                     </div>

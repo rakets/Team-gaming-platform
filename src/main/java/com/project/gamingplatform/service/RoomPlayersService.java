@@ -1,6 +1,7 @@
 package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.dto.GameRoomsDTO;
+import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.*;
 import com.project.gamingplatform.repository.GameRoomsRepository;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
@@ -10,7 +11,11 @@ import org.apache.catalina.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class RoomPlayersService {
@@ -35,6 +40,7 @@ public class RoomPlayersService {
     }
 
     // join to RoomPlayer as PLAYER
+    @Transactional
     public void joinToRoomPlayer(GameRooms gameRoom){
         //take current user from context
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -50,5 +56,8 @@ public class RoomPlayersService {
         roomPlayersRepository.save(roomPlayers);
     }
 
-
+    @Transactional
+    public void cleanRoomPlayers(int idGameRoom){
+        roomPlayersRepository.deleteAllPlayersExceptModerator(idGameRoom);
+    }
 }

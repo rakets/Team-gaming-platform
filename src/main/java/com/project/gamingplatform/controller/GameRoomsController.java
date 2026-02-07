@@ -3,10 +3,12 @@ package com.project.gamingplatform.controller;
 import com.project.gamingplatform.dto.GameRoomsDTO;
 import com.project.gamingplatform.dto.MessageType;
 import com.project.gamingplatform.dto.UserActivityDTO;
+import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.GameRooms;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.service.GameRoomsService;
 import com.project.gamingplatform.service.RoomPlayersService;
+import com.project.gamingplatform.service.UsersService;
 import com.project.gamingplatform.util.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +20,14 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -34,12 +38,14 @@ public class GameRoomsController {
     private final GameRoomsService gameRoomsService;
     private final RoomPlayersService roomPlayersService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UsersService usersService;
 
     @Autowired
-    public GameRoomsController(GameRoomsService gameRoomsService, RoomPlayersService roomPlayersService, SimpMessagingTemplate messagingTemplate) {
+    public GameRoomsController(GameRoomsService gameRoomsService, RoomPlayersService roomPlayersService, SimpMessagingTemplate messagingTemplate, UsersService usersService) {
         this.gameRoomsService = gameRoomsService;
         this.roomPlayersService = roomPlayersService;
         this.messagingTemplate = messagingTemplate;
+        this.usersService = usersService;
     }
 
     @GetMapping("/room/new")
@@ -80,10 +86,21 @@ public class GameRoomsController {
 
     @GetMapping("/join-room/{id}")
     public String joinGameRoom(Model model,
-                               @PathVariable("id") int id){
+                               @PathVariable("id") int id,
+                               @AuthenticationPrincipal CustomUserDetails userDetails){
         GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(id);
+
+        List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
+        System.out.println(usersDTOList);
+        model.addAttribute("players", usersDTOList);
         model.addAttribute("room", gameRoomsDTO);
         return "gameRoom";
+    }
+
+    @PostMapping("/clean-room/{id}")
+    public String cleanGameRoom(@PathVariable("id") int id){
+        roomPlayersService.cleanRoomPlayers(id);
+        return "redirect:/dashboard/join-room/" + id;
     }
 
 //    public UserActivityDTO addUser(@DestinationVariable("id") int id,

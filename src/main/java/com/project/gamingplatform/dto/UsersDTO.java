@@ -1,0 +1,13 @@
+package com.project.gamingplatform.dto;
+
+import com.project.gamingplatform.entity.GlobalRole;
+import com.project.gamingplatform.entity.RoleInRoom;
+import lombok.Data;
+
+@Data
+public class UsersDTO {
+    private Integer userId;
+    private String username;
+    private GlobalRole globalRole;
+    private RoleInRoom gameRole;
+}

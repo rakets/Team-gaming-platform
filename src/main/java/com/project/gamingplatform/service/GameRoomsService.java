@@ -94,6 +94,14 @@ public class GameRoomsService {
         gameRoomsDTO.setRoomId(gameRoom.getRoomId());
         gameRoomsDTO.setRoomName(gameRoom.getRoomName());
         gameRoomsDTO.setNumPlayers(gameRoom.getMaxPlayers());
+        gameRoomsDTO.setCreatedBy(gameRoom.getCreatedBy().getUserId());
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Users users = userDetails.getUser();
+        if (users.getUserId().equals(gameRoomsDTO.getCreatedBy())) {
+            gameRoomsDTO.setCurrentUserModerator(true);
+        }
         return gameRoomsDTO;
     }
 
@@ -127,9 +135,18 @@ public class GameRoomsService {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         Users user = userDetails.getUser();
 
-        UserActivityDTO joinMessage = new UserActivityDTO(user.getUsername(), MessageType.JOIN);
+        UserActivityDTO joinMessage = new UserActivityDTO();
+        joinMessage.setUsername(user.getUsername());
+        if(gameRoomsDTO.getCreatedBy().equals(user.getUserId())){
+            joinMessage.setRoleInRoom(RoleInRoom.MODERATOR);
+        } else {
+            joinMessage.setRoleInRoom(RoleInRoom.PLAYER);
+        }
         messagingTemplate.convertAndSend("/topic/room/" + id, joinMessage);
         //        ------  websocket ---------
         return gameRoomsDTO;
     }
+
+
+
 }
