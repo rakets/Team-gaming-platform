@@ -1,19 +1,13 @@
 package com.project.gamingplatform.service;
 
-import com.project.gamingplatform.dto.GameRoomsDTO;
-import com.project.gamingplatform.dto.MessageType;
-import com.project.gamingplatform.dto.UserActivityDTO;
+import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.entity.GameRooms;
-import com.project.gamingplatform.entity.RoleInRoom;
-import com.project.gamingplatform.entity.RoomPlayers;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.repository.GameRoomsRepository;
-import com.project.gamingplatform.repository.RoomPlayersRepository;
-import com.project.gamingplatform.repository.UsersRepository;
 import com.project.gamingplatform.util.CustomUserDetails;
+import com.project.gamingplatform.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,18 +20,19 @@ import java.util.List;
 @Slf4j
 public class GameRoomsService {
     private final GameRoomsRepository gameRoomsRepository;
-    private final UsersRepository usersRepository;
     private final RoomPlayersService roomPlayersService;
     private final GameSessionsService gameSessionsService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final UsersService usersService;
+    private final WebSocketService webSocketService;
 
-    @Autowired
-    public GameRoomsService(GameRoomsRepository gameRoomsRepository, UsersRepository usersRepository, RoomPlayersService roomPlayersService, GameSessionsService gameSessionsService, SimpMessagingTemplate messagingTemplate) {
+    public GameRoomsService(GameRoomsRepository gameRoomsRepository, RoomPlayersService roomPlayersService, GameSessionsService gameSessionsService, SimpMessagingTemplate messagingTemplate, UsersService usersService, WebSocketService webSocketService) {
         this.gameRoomsRepository = gameRoomsRepository;
-        this.usersRepository = usersRepository;
         this.roomPlayersService = roomPlayersService;
         this.gameSessionsService = gameSessionsService;
         this.messagingTemplate = messagingTemplate;
+        this.usersService = usersService;
+        this.webSocketService = webSocketService;
     }
 
     @Transactional
@@ -96,12 +91,14 @@ public class GameRoomsService {
         gameRoomsDTO.setNumPlayers(gameRoom.getMaxPlayers());
         gameRoomsDTO.setCreatedBy(gameRoom.getCreatedBy().getUserId());
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Users users = userDetails.getUser();
-        if (users.getUserId().equals(gameRoomsDTO.getCreatedBy())) {
-            gameRoomsDTO.setCurrentUserModerator(true);
-        }
+//------------- если вдруг понадобится понимать этот пользователь PLAYER или MODERATOR ----------
+//        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+//        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+//        Users users = userDetails.getUser();
+//        if (users.getUserId().equals(gameRoomsDTO.getCreatedBy())) {
+//            gameRoomsDTO.setCurrentUserModerator(true);
+//        }
+// ------------- если вдруг понадобится понимать этот пользователь PLAYER или MODERATOR ----------
         return gameRoomsDTO;
     }
 
@@ -121,29 +118,26 @@ public class GameRoomsService {
     }
 
     @Transactional
-    public GameRoomsDTO joinToGameRoom(int id){
+    public GameRoomsDTO joinToGameRoom(int rooId) {
         //take current game room from bd
-        GameRooms gameRoom = gameRoomsRepository.findById(id)
+        GameRooms gameRoom = gameRoomsRepository.findById(rooId)
                 .orElseThrow(() -> new RuntimeException("The room was not found when the player tried to join the room."));
-        //join to room
-        roomPlayersService.joinToRoomPlayer(gameRoom);
+        roomPlayersService.joinToRoomPlayer(gameRoom); //join to room
+        GameRoomsDTO gameRoomsDTO = findGameRoomById(rooId);
 
-        GameRoomsDTO gameRoomsDTO = findGameRoomById(id);
+        webSocketService.joinToGameRoom(gameRoomsDTO); //websocket
 
-        //        ------  websocket ---------
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Users user = userDetails.getUser();
-
-        UserActivityDTO joinMessage = new UserActivityDTO();
-        joinMessage.setUsername(user.getUsername());
-        if(gameRoomsDTO.getCreatedBy().equals(user.getUserId())){
-            joinMessage.setRoleInRoom(RoleInRoom.MODERATOR);
-        } else {
-            joinMessage.setRoleInRoom(RoleInRoom.PLAYER);
-        }
-        messagingTemplate.convertAndSend("/topic/room/" + id, joinMessage);
-        //        ------  websocket ---------
         return gameRoomsDTO;
+    }
+
+    //ОТ RoomPlayersController -> пометка пользователя как ready -> RoomPlayersService.userIsReady
+    public void userIsReady(int roomId) {
+        // получение комнаты и пользователя
+        GameRoomsDTO gameRoomsDTO = findGameRoomById(roomId);
+        UsersDTO usersDTO = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
+        // сохранение ready в бд
+        roomPlayersService.userIsReady(usersDTO.getUserId(), gameRoomsDTO.getRoomId());
+        //websocket
+        webSocketService.userIsReady(usersDTO, roomId);
     }
 }

@@ -8,6 +8,9 @@
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
 </head>
 
 <body>
@@ -20,7 +23,7 @@
 <a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
 
 <!--clean room-->
-<div th:if="${room.isCurrentUserModerator == true}">
+<div th:if="${currentUser.gameRole.name() == 'MODERATOR'}">
     <form th:action="@{/dashboard/clean-room/{id}(id=${room.roomId})}" th:method="delete">
         <button type="submit" class="btn btn-warning">
             Clean Room
@@ -28,17 +31,16 @@
     </form>
 </div>
 
-<!--   ready / unready   -->
-<!--<div th:if="${room.isCurrentUserModerator == true}">-->
-<!--    <form th:action="@{/dashboard/clean-room/{id}(id=${room.roomId})}" method="post">-->
-<!--        <button type="submit" class="btn btn-warning">-->
-<!--            Clean Room-->
-<!--        </button>-->
-<!--    </form>-->
-<!--</div>-->
+<!--Ready-->
+<button id="readyBtn" type="button" class="btn btn-success">Ready</button>
 
+<!--Player data-->
 <div class="container mt-4">
     <p> Game Room : <label th:text="${room.roomName}"></label></p>
+    <p> Player : <label th:text="${currentUser.username}"></label></p>
+    <div id="page-data" th:data-username="${currentUser.username}"></div>
+    <p> Role : <label th:text="${currentUser.gameRole.name()}"></label></p>
+    <p> Status :  <label id="current-user-status" th:text="${currentUser.readyStatus.name()}"></label></p>
 </div>
 
 <!--игроки-->
@@ -50,6 +52,9 @@
                 <div class="card-body">
                     <h5 class="card-title" th:text="${player.username}">Username</h5>
                     <p class="card-text">Role: <span th:text="${player.gameRole}">PLAYER</span></p>
+                    <p class="card-text">Status: <span th:id="'user-status-' + ${player.userId}"
+                                                       th:text="${player.readyStatus}"></span>
+                    </p>
                 </div>
             </div>
         </div>
@@ -66,55 +71,115 @@
 <script type="text/javascript" th:inline="javascript">
     var stompClient = null;
     var roomId = [[${room.roomId}]];
+    const currentUsername = document.getElementById('page-data').dataset.username;
+    console.log(currentUsername);
 
-    function connect() {
-    // Подключение к WebSocket endpoint '/WsGameRoom'
-    var socket = new SockJS('/WsGameRoom');
-    stompClient = Stomp.over(socket);
+    const token = $('meta[name="_csrf"]').attr('content');
+    const header = $('meta[name="_csrf_header"]').attr('content');
 
-    stompClient.connect({}, function (frame) {
-    console.log('Connected to WebSocket: ' + frame);
+    //    нажатие на ready
+    document.getElementById('readyBtn').addEventListener('click', clickReady);
 
-    // Подписка на личный канал уведомлений пользователя
-    // Путь: /user/queue/notifications
-    // Spring Security автоматически определяет текущего пользователя.
-    stompClient.subscribe('/topic/room/' + roomId, function (notification) {
-    console.log("Raw message received:", notification); // Если notification.body придет пустым или битым, здесь будет ошибка
-    showNotification(JSON.parse(notification.body)); // Обрабатка входящего JSON-сообщение
-    });
-
-    }, function (error) {
-    console.error('STOMP Error:', error);
-//        setTimeout(connect, 5000);
-    });
+    function clickReady(){
+        fetch('/roomPlayers/ready/' + roomId, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                [header]: token
+            },
+            body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
+        }).then(response => {
+            if (response.ok) {
+                console.log('User marked as READY in BD');
+                // кнопка отключается после клика
+                $('#readyBtn').hide();
+                //        this.disabled = true;
+            }
+        })
+            .catch(err => console.error(err));
     }
 
-    function showNotification(message) {
-        // { username: "Nagibator2000", role: "PLAYER" }
+    function connect() {
+        // Подключение к WebSocket endpoint '/WsGameRoom'
+        var socket = new SockJS('/WsGameRoom');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            console.log('Connected to WebSocket: ' + frame);
+
+            // Подписка на личный канал уведомлений пользователя
+            // Путь: /user/queue/notifications
+            // Spring Security автоматически определяет текущего пользователя.
+            stompClient.subscribe('/topic/room/' + roomId, function (notification) {
+                console.log("Raw message received:", JSON.parse(notification.body)); // Если notification.body придет пустым или битым, здесь будет ошибка
+                checkNotification(JSON.parse(notification.body)); // Обрабатка входящего JSON-сообщение
+            });
+
+        }, function (error) {
+            console.error('STOMP Error:', error);
+    //        setTimeout(connect, 5000);
+        });
+    }
+
+    function checkNotification(message){
+        if(message.messageType === "JOIN" || message.messageType === "LEAVE"){
+            showJoinNotification(message);
+        } else {
+            showReadyNotification(message);
+        }
+    }
+
+    function showJoinNotification(message) {
+        var userId = message.userId;
         var username = message.username;
-        var roleInRoom = message.roleInRoom;
+        var gameRole = message.gameRole;
+        var readyStatus = message.readyStatus;
+        console.log("message:", message);
 
         var exists = false;
         $('#players-container .card-title').each(function(){
-
-        if($(this).text() === username){
-            exists = true;
-        }
+            if($(this).text() === username){
+                exists = true;
+            }
         });
         if(exists) {
             console.log("player is already , skeep");
             return;
         } else {
             var newPlayerHtml = `
-                    <div class="col-md-4 player-card">
-                        <div class="card bg-success text-white"> <div class="card-body">
-                                <h5 class="card-title">${username}</h5>
-                                <p class="card-text">Role: <span>${roleInRoom}</span></p>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            $('#players-container').append(newPlayerHtml);
+            <div class="col-md-4 player-card">
+                                    <div class="card bg-success text-white"> <div class="card-body">
+                                            <h5 class="card-title">${username}</h5>
+                                            <p class="card-text">Role: <span>${gameRole}</span></p>
+                                            <p class="card-text">Status: <span id="user-status-${userId}">${readyStatus}</span>
+                                            </p>
+                                    </div>
+                                    </div>
+                                </div>
+                            `;
+                $('#players-container').append(newPlayerHtml);
+        }
+    }
+
+    function showReadyNotification(message){
+        var userId = message.userId;
+        var username = message.username;
+        var readyStatus = message.readyStatus;
+
+        console.log('message.username: ', message.username);
+        console.log('currentUsername: ', currentUsername);
+
+        if (username === currentUsername) {
+            $('#current-user-status').text(message.readyStatus);
+            let readyUser = document.getElementById('user-status-' + userId);
+            if (readyUser) {
+                readyUser.textContent = readyStatus;
+            };
+        } else {
+            let readyUser = document.getElementById('user-status-' + userId);
+            if (readyUser) {
+                readyUser.textContent = readyStatus;
+            };
         }
     }
     // Подключение при полной загрузке страницы

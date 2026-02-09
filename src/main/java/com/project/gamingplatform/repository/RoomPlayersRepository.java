@@ -20,4 +20,8 @@ public interface RoomPlayersRepository extends JpaRepository<RoomPlayers, RoomPl
     @Modifying
     @Query("DELETE FROM RoomPlayers r WHERE r.room.roomId = :idGameRoom AND r.roleInRoom = 'PLAYER'")
     void deleteAllPlayersExceptModerator(@Param("idGameRoom") int idGameRoom);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE RoomPlayers r SET r.isReady = true WHERE r.id.userId = :userId AND r.id.roomId = :roomId")
+    void updateUserAsReady(@Param("userId") int userId, @Param("roomId") int roomId);
 }

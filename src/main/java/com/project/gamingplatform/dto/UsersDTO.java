@@ -10,4 +10,9 @@ public class UsersDTO {
     private String username;
     private GlobalRole globalRole;
     private RoleInRoom gameRole;
+
+//    для кнопки Ready
+    private ReadyStatus readyStatus;
+
+    private MessageType messageType; // JOIN / LEAVE
 }

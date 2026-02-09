@@ -1,33 +1,19 @@
 package com.project.gamingplatform.controller;
 
 import com.project.gamingplatform.dto.GameRoomsDTO;
-import com.project.gamingplatform.dto.MessageType;
-import com.project.gamingplatform.dto.UserActivityDTO;
 import com.project.gamingplatform.dto.UsersDTO;
-import com.project.gamingplatform.entity.GameRooms;
-import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.service.GameRoomsService;
 import com.project.gamingplatform.service.RoomPlayersService;
 import com.project.gamingplatform.service.UsersService;
-import com.project.gamingplatform.util.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -86,12 +72,12 @@ public class GameRoomsController {
 
     @GetMapping("/join-room/{id}")
     public String joinGameRoom(Model model,
-                               @PathVariable("id") int id,
-                               @AuthenticationPrincipal CustomUserDetails userDetails){
+                               @PathVariable("id") int id){
         GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(id);
-
         List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
-        System.out.println(usersDTOList);
+        UsersDTO currentUser = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
+
+        model.addAttribute("currentUser", currentUser);
         model.addAttribute("players", usersDTOList);
         model.addAttribute("room", gameRoomsDTO);
         return "gameRoom";

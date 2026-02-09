@@ -19,7 +19,10 @@ public class GameRoomsDTO {
     private int numPlayers;
 
     private Integer createdBy;
-    private boolean isCurrentUserModerator;
+
+    //------------- если вдруг понадобится понимать этот пользователь PLAYER или MODERATOR ----------
+//    private boolean isCurrentUserModerator;
+    //------------- если вдруг понадобится понимать этот пользователь PLAYER или MODERATOR ----------
 
     private List<UsersDTO> usersInRoom; //list of users in this room
 }
