@@ -24,4 +24,10 @@ public interface RoomPlayersRepository extends JpaRepository<RoomPlayers, RoomPl
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE RoomPlayers r SET r.isReady = true WHERE r.id.userId = :userId AND r.id.roomId = :roomId")
     void updateUserAsReady(@Param("userId") int userId, @Param("roomId") int roomId);
+
+    @Query("SELECT r FROM RoomPlayers r WHERE r.id.roomId = :roomId")
+    List<RoomPlayers> findAllRoomPlayersByRoomId(@Param("roomId") int roomId);
+
+    @Query("SELECT r.isReady FROM RoomPlayers r WHERE r.id.userId = :userId AND r.id.roomId = :roomId")
+    boolean isUserReadyInRoom(@Param("roomId") int roomId, @Param("userId") int userId);
 }

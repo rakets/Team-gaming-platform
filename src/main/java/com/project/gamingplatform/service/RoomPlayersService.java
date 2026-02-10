@@ -2,6 +2,7 @@ package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.dto.GameRoomsDTO;
 import com.project.gamingplatform.dto.ReadyStatus;
+import com.project.gamingplatform.dto.RoomPlayersDTO;
 import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.*;
 import com.project.gamingplatform.repository.GameRoomsRepository;
@@ -21,15 +22,12 @@ import java.util.List;
 @Service
 public class RoomPlayersService {
     private final RoomPlayersRepository roomPlayersRepository;
-    private final UsersService usersService;
     private final GameRoomsRepository gameRoomsRepository;
 
     @Autowired
     public RoomPlayersService(RoomPlayersRepository roomPlayersRepository,
-                              UsersService usersService,
                               GameRoomsRepository gameRoomsRepository) {
         this.roomPlayersRepository = roomPlayersRepository;
-        this.usersService = usersService;
         this.gameRoomsRepository = gameRoomsRepository;
     }
 
@@ -72,5 +70,14 @@ public class RoomPlayersService {
     public void userIsReady(int userId, int roomId){
         // сохранение ready в бд
         roomPlayersRepository.updateUserAsReady(userId, roomId);
+    }
+
+    public List<RoomPlayers> findAllRoomPlayersByRoomId(int roomId){
+        List<RoomPlayers> roomPlayersList = roomPlayersRepository.findAllRoomPlayersByRoomId(roomId);
+        return roomPlayersList;
+    }
+
+    public boolean isUserReadyInRoom(int roomId, int userId){
+        return roomPlayersRepository.isUserReadyInRoom(roomId, userId);
     }
 }

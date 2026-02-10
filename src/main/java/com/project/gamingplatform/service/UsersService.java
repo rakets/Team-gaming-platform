@@ -2,9 +2,11 @@ package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.dto.GameRoomsDTO;
 import com.project.gamingplatform.dto.ReadyStatus;
+import com.project.gamingplatform.dto.RoomPlayersDTO;
 import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.GameRooms;
 import com.project.gamingplatform.entity.RoleInRoom;
+import com.project.gamingplatform.entity.RoomPlayers;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.repository.UsersRepository;
 import com.project.gamingplatform.util.CustomUserDetails;
@@ -26,11 +28,13 @@ import java.util.Optional;
 public class UsersService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RoomPlayersService roomPlayersService;
 
     @Autowired
-    public UsersService(UsersRepository usersRepository, PasswordEncoder passwordEncoder) {
+    public UsersService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, RoomPlayersService roomPlayersService) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
+        this.roomPlayersService = roomPlayersService;
     }
 
     public Users addNew(Users users) {
@@ -55,7 +59,12 @@ public class UsersService {
     public UsersDTO getCurrentUsersDtoRegardingCurrentRoom(GameRoomsDTO gameRoomsDTO){
         Users currentUser = getCurrentUser();
         UsersDTO usersDTO = convertEntityUserToDto(currentUser);
+
+        boolean statusReady = roomPlayersService.isUserReadyInRoom(gameRoomsDTO.getRoomId(), usersDTO.getUserId());
+        isUserReadyInRoom(statusReady, usersDTO);
+
         whoIsModerator(usersDTO, gameRoomsDTO);
+
         return  usersDTO;
     }
 
@@ -68,30 +77,30 @@ public class UsersService {
         usersDTO.setUserId(user.getUserId());
         usersDTO.setUsername(user.getUsername());
         usersDTO.setGlobalRole(user.getGlobalRole());
-        usersDTO.setGameRole(RoleInRoom.PLAYER);
-        usersDTO.setReadyStatus(ReadyStatus.UNREADY);
         return usersDTO;
     }
 
     public List<UsersDTO> findAllUsersByGameRoom(GameRoomsDTO gameRoomsDTO) {
-        List<Users> usersList = usersRepository.findAllUsersByRoomId(gameRoomsDTO.getRoomId());
+        List<RoomPlayers> roomPlayersList = roomPlayersService.findAllRoomPlayersByRoomId(gameRoomsDTO.getRoomId());
         List<UsersDTO> usersDTOList = new ArrayList<>();
-        for (Users user : usersList) {
-            UsersDTO usersDTO = convertEntityUserToDto(user);
+        for (RoomPlayers roomPlayers : roomPlayersList) {
+            UsersDTO usersDTO = convertEntityUserToDto(roomPlayers.getUser());
+
             whoIsModerator(usersDTO, gameRoomsDTO);
+            isUserReadyInRoom(roomPlayers.getIsReady(), usersDTO);
+
             usersDTOList.add(usersDTO);
         }
-//        whoIsModerator(usersDTOList, gameRoomsDTO.getCreatedBy());
         return usersDTOList;
     }
 
-//    public void whoIsModerator(List<UsersDTO> usersDTOList, Integer idGameRoom){
-//        for(UsersDTO usersDTO : usersDTOList){
-//            if(idGameRoom.equals(usersDTO.getUserId())){
-//                usersDTO.setGameRole(RoleInRoom.MODERATOR);
-//            }
-//        }
-//    }
+    public void isUserReadyInRoom(boolean statusReady, UsersDTO usersDTO){
+        if (statusReady){
+            usersDTO.setReadyStatus(ReadyStatus.READY);
+        }
+    }
+
+
 
     public void whoIsModerator(UsersDTO usersDTO, GameRoomsDTO gameRoomsDTO) {
         if (gameRoomsDTO.getCreatedBy().equals(usersDTO.getUserId())) {

@@ -9,10 +9,10 @@ public class UsersDTO {
     private Integer userId;
     private String username;
     private GlobalRole globalRole;
-    private RoleInRoom gameRole;
+    private RoleInRoom gameRole = RoleInRoom.PLAYER;
 
 //    для кнопки Ready
-    private ReadyStatus readyStatus;
+    private ReadyStatus readyStatus = ReadyStatus.UNREADY;
 
     private MessageType messageType; // JOIN / LEAVE
 }
