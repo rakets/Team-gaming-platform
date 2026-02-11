@@ -22,4 +22,10 @@ public class RoomPlayersController {
         gameRoomsService.userIsReady(roomId);
         return ResponseEntity.ok().build(); // пустой ответ, 200 OK
     }
+
+    @PatchMapping("/unready/{roomId}")
+    public ResponseEntity<Void> unReady(@PathVariable int roomId) {
+        gameRoomsService.userIsUnReady(roomId);
+        return ResponseEntity.ok().build(); // пустой ответ, 200 OK
+    }
 }

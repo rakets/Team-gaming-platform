@@ -33,6 +33,8 @@
 
 <!--Ready-->
 <button id="readyBtn" type="button" class="btn btn-success">Ready</button>
+<!--Unready-->
+<button id="unreadyBtn" type="button" class="btn btn-danger" style="display: none;">Unready</button>
 
 <!--Player data-->
 <div class="container mt-4">
@@ -79,6 +81,8 @@
 
     //    нажатие на ready
     document.getElementById('readyBtn').addEventListener('click', clickReady);
+    //    нажатие на Unready
+    document.getElementById('unreadyBtn').addEventListener('click', clickUnReady);
 
     function clickReady(){
         fetch('/roomPlayers/ready/' + roomId, {
@@ -93,7 +97,26 @@
                 console.log('User marked as READY in BD');
                 // кнопка отключается после клика
                 $('#readyBtn').hide();
-                //        this.disabled = true;
+                $('#unreadyBtn').fadeIn();
+            }
+        })
+            .catch(err => console.error(err));
+    }
+
+    function clickUnReady(){
+        fetch('/roomPlayers/unready/' + roomId, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                [header]: token
+            },
+            body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
+        }).then(response => {
+            if (response.ok) {
+                console.log('User marked as UNREADY in BD');
+                // кнопка отключается после клика
+                $('#unreadyBtn').hide();
+                $('#readyBtn').fadeIn();
             }
         })
             .catch(err => console.error(err));

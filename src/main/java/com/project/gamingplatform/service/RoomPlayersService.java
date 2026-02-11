@@ -72,6 +72,12 @@ public class RoomPlayersService {
         roomPlayersRepository.updateUserAsReady(userId, roomId);
     }
 
+    @Transactional
+    public void userIsUnready(int userId, int roomId){
+        // сохранение ready в бд
+        roomPlayersRepository.updateUserAsUnready(userId, roomId);
+    }
+
     public List<RoomPlayers> findAllRoomPlayersByRoomId(int roomId){
         List<RoomPlayers> roomPlayersList = roomPlayersRepository.findAllRoomPlayersByRoomId(roomId);
         return roomPlayersList;

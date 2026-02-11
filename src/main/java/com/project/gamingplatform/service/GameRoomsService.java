@@ -130,6 +130,7 @@ public class GameRoomsService {
         return gameRoomsDTO;
     }
 
+//  !!!!  ПЕРЕНЕСТИ В RoomPlayersService
     //ОТ RoomPlayersController -> пометка пользователя как ready -> RoomPlayersService.userIsReady
     public void userIsReady(int roomId) {
         // получение комнаты и пользователя
@@ -139,5 +140,15 @@ public class GameRoomsService {
         roomPlayersService.userIsReady(usersDTO.getUserId(), gameRoomsDTO.getRoomId());
         //websocket
         webSocketService.userIsReady(usersDTO, roomId);
+    }
+    //  !!!!  ПЕРЕНЕСТИ В RoomPlayersService
+    public void userIsUnReady(int roomId) {
+        // получение комнаты и пользователя
+        GameRoomsDTO gameRoomsDTO = findGameRoomById(roomId);
+        UsersDTO usersDTO = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
+        // сохранение ready в бд
+        roomPlayersService.userIsUnready(usersDTO.getUserId(), gameRoomsDTO.getRoomId());
+        //websocket
+        webSocketService.userIsUnReady(usersDTO, roomId);
     }
 }

@@ -64,4 +64,9 @@ public class WebSocketService {
         user.setReadyStatus(ReadyStatus.READY);
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
     }
+
+    public void userIsUnReady(UsersDTO user, int roomId){
+        user.setReadyStatus(ReadyStatus.UNREADY);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
+    }
 }
