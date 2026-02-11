@@ -24,7 +24,7 @@
 
 <!--clean room-->
 <div th:if="${currentUser.gameRole.name() == 'MODERATOR'}">
-    <form th:action="@{/dashboard/clean-room/{id}(id=${room.roomId})}" th:method="delete">
+    <form th:action="@{/dashboard/clean-room/{roomId}/{userId}(roomId=${room.roomId}, userId=${currentUser.userId})}" th:method="delete">
         <button type="submit" class="btn btn-warning">
             Clean Room
         </button>

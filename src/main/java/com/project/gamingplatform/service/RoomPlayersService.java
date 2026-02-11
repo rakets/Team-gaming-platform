@@ -62,8 +62,9 @@ public class RoomPlayersService {
     }
 
     @Transactional
-    public void cleanRoomPlayers(int idGameRoom){
-        roomPlayersRepository.deleteAllPlayersExceptModerator(idGameRoom);
+    public void cleanRoomPlayers(int roomId, int userId){
+        roomPlayersRepository.deleteAllPlayersExceptModerator(roomId);
+        roomPlayersRepository.updateUserAsUnready(userId, roomId);
     }
     // ОТ GameRoomsService -> бд
     @Transactional

@@ -83,10 +83,10 @@ public class GameRoomsController {
         return "gameRoom";
     }
 
-    @DeleteMapping("/clean-room/{id}")
-    public String cleanGameRoom(@PathVariable("id") int id){
-        roomPlayersService.cleanRoomPlayers(id);
-        return "redirect:/dashboard/join-room/" + id;
+    @DeleteMapping("/clean-room/{roomId}/{userId}")
+    public String cleanGameRoom(@PathVariable("roomId") int roomId, @PathVariable("userId") int userId){
+        roomPlayersService.cleanRoomPlayers(roomId, userId);
+        return "redirect:/dashboard/join-room/" + roomId;
     }
 
 //    public UserActivityDTO addUser(@DestinationVariable("id") int id,
