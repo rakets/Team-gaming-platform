@@ -8,6 +8,8 @@
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+
 
     <meta name="_csrf" th:content="${_csrf.token}"/>
     <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
@@ -31,10 +33,21 @@
     </form>
 </div>
 
-<!--Ready-->
-<button id="readyBtn" type="button" class="btn btn-success">Ready</button>
-<!--Unready-->
-<button id="unreadyBtn" type="button" class="btn btn-danger" style="display: none;">Unready</button>
+<!-- Ready -->
+<button id="readyBtn"
+        type="button"
+        class="btn btn-success"
+        th:classappend="${currentUser.readyStatus.name() == 'READY'} ? ' hidden' : ''">
+    Ready
+</button>
+<!-- Unready -->
+<button id="unreadyBtn"
+        type="button"
+        class="btn btn-danger"
+        th:classappend="${currentUser.readyStatus.name() == 'UNREADY'} ? ' hidden' : ''">
+    Unready
+</button>
+
 
 <!--Player data-->
 <div class="container mt-4">
@@ -90,14 +103,37 @@
             headers: {
                 'Content-Type': 'application/json',
                 [header]: token
+        },
+        body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
+        }).then(response => {
+            if (response.ok) {
+                console.log('User marked as READY in BD');
+                // кнопка отключается после клика
+                //                $('#readyBtn').hide();
+                //                $('#unreadyBtn').fadeIn();
+                $('#readyBtn').addClass('hidden');
+                $('#unreadyBtn').removeClass('hidden');
+            }
+        })
+            .catch(err => console.error(err));
+    }
+
+    function clickReady(){
+        fetch('/roomPlayers/ready/' + roomId, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                [header]: token
             },
             body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
         }).then(response => {
             if (response.ok) {
                 console.log('User marked as READY in BD');
                 // кнопка отключается после клика
-                $('#readyBtn').hide();
-                $('#unreadyBtn').fadeIn();
+//                $('#readyBtn').hide();
+//                $('#unreadyBtn').fadeIn();
+                $('#readyBtn').addClass('hidden');
+                $('#unreadyBtn').removeClass('hidden');
             }
         })
             .catch(err => console.error(err));
@@ -115,8 +151,10 @@
             if (response.ok) {
                 console.log('User marked as UNREADY in BD');
                 // кнопка отключается после клика
-                $('#unreadyBtn').hide();
-                $('#readyBtn').fadeIn();
+//                $('#unreadyBtn').hide();
+//                $('#readyBtn').fadeIn();
+                $('#unreadyBtn').addClass('hidden');
+                $('#readyBtn').removeClass('hidden');
             }
         })
             .catch(err => console.error(err));
@@ -193,12 +231,15 @@
         console.log('currentUsername: ', currentUsername);
 
         if (username === currentUsername) {
+            //замена статуса у себя
             $('#current-user-status').text(message.readyStatus);
+            //замена статуса у себя в общем списке
             let readyUser = document.getElementById('user-status-' + userId);
             if (readyUser) {
                 readyUser.textContent = readyStatus;
             };
         } else {
+            //замена статуса у другого игрока в общем списке
             let readyUser = document.getElementById('user-status-' + userId);
             if (readyUser) {
                 readyUser.textContent = readyStatus;
