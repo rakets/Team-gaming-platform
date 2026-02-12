@@ -64,6 +64,7 @@ public class RoomPlayersService {
     @Transactional
     public void cleanRoomPlayers(int roomId, int userId){
         roomPlayersRepository.deleteAllPlayersExceptModerator(roomId);
+        //установка статуса UNREADY у модератора
         roomPlayersRepository.updateUserAsUnready(userId, roomId);
     }
     // ОТ GameRoomsService -> бд

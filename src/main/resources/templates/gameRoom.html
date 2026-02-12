@@ -171,7 +171,16 @@
         var socket = new SockJS('/WsGameRoom');
         stompClient = Stomp.over(socket);
 
-        stompClient.connect({}, function (frame) {
+        // Добавляем roomId в заголовки подключения
+        var headers = {'roomId': roomId};
+
+        // Настройка Heartbeat (в миллисекундах)
+        // incoming: 10000 (ждем от сервера каждые 10 сек)
+        // outgoing: 10000 (шлем на сервер каждые 10 сек)
+        stompClient.heartbeat.outgoing = 5000;
+        stompClient.heartbeat.incoming = 5000;
+
+        stompClient.connect(headers, function (frame) {
             console.log('Connected to WebSocket: ' + frame);
 
             // Подписка на личный канал уведомлений пользователя
