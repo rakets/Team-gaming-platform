@@ -48,14 +48,17 @@
     Unready
 </button>
 
-
 <!--Player data-->
 <div class="container mt-4">
     <p> Game Room : <label th:text="${room.roomName}"></label></p>
     <p> Player : <label th:text="${currentUser.username}"></label></p>
     <div id="page-data" th:data-username="${currentUser.username}"></div>
     <p> Role : <label th:text="${currentUser.gameRole.name()}"></label></p>
-    <p> Status :  <label id="current-user-status" th:text="${currentUser.readyStatus.name()}"></label></p>
+    <p> Status :  <label id="current-user-status"
+                         th:classappend="${currentUser.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
+                         th:text="${currentUser.readyStatus.name()}">
+                  </label>
+    </p>
 </div>
 
 <!--игроки-->
@@ -67,8 +70,11 @@
                 <div class="card-body">
                     <h5 class="card-title" th:text="${player.username}">Username</h5>
                     <p class="card-text">Role: <span th:text="${player.gameRole}">PLAYER</span></p>
-                    <p class="card-text">Status: <span th:id="'user-status-' + ${player.userId}"
-                                                       th:text="${player.readyStatus}"></span>
+                    <p class="card-text">Status:
+                        <span th:id="'user-status-' + ${player.userId}"
+                              th:classappend="${player.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
+                              th:text="${player.readyStatus}">
+                        </span>
                     </p>
                 </div>
             </div>
@@ -209,7 +215,7 @@
         } else {
             var newPlayerHtml = `
             <div class="col-md-4 player-card">
-                                    <div class="card bg-success text-white"> <div class="card-body">
+                                    <div class="card"> <div class="card-body">
                                             <h5 class="card-title">${username}</h5>
                                             <p class="card-text">Role: <span>${gameRole}</span></p>
                                             <p class="card-text">Status: <span id="user-status-${userId}">${readyStatus}</span>
@@ -230,18 +236,32 @@
         console.log('message.username: ', message.username);
         console.log('currentUsername: ', currentUsername);
 
+        let readyUser = document.getElementById('user-status-' + userId);
+        let currentUserStatus = document.getElementById('current-user-status');
+
         if (username === currentUsername) {
             //замена статуса у себя
-            $('#current-user-status').text(message.readyStatus);
-            //замена статуса у себя в общем списке
-            let readyUser = document.getElementById('user-status-' + userId);
-            if (readyUser) {
+//            $('#current-user-status').text(message.readyStatus);
+            currentUserStatus.textContent = readyStatus;
+
+            if (readyStatus == 'READY') {
+                currentUserStatus.classList.add('bg-success', 'text-white');
+                //замена статуса у себя в общем списке
+                readyUser.classList.add('bg-success', 'text-white');
+                readyUser.textContent = readyStatus;
+            } else {
+                currentUserStatus.classList.remove('bg-success', 'text-white');
+                //замена статуса у себя в общем списке
+                readyUser.classList.remove('bg-success', 'text-white');
                 readyUser.textContent = readyStatus;
             };
         } else {
             //замена статуса у другого игрока в общем списке
-            let readyUser = document.getElementById('user-status-' + userId);
-            if (readyUser) {
+            if (readyStatus  == 'READY') {
+                readyUser.classList.add('bg-success', 'text-white');
+                readyUser.textContent = readyStatus;
+            } else {
+                readyUser.classList.remove('bg-success', 'text-white');
                 readyUser.textContent = readyStatus;
             };
         }
