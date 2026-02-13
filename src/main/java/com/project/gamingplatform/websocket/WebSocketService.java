@@ -5,11 +5,13 @@ import com.project.gamingplatform.entity.GameRooms;
 import com.project.gamingplatform.entity.RoleInRoom;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
+import com.project.gamingplatform.service.RoomPlayersService;
 import com.project.gamingplatform.service.UsersService;
 import com.project.gamingplatform.util.CustomUserDetails;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -26,15 +28,16 @@ import java.util.Map;
 public class WebSocketService {
     private final SimpMessagingTemplate messagingTemplate;
     private final UsersService usersService;
-    private final RoomPlayersRepository roomPlayersRepository; // Или сервис
+    private final RoomPlayersService roomPlayersService; // Или сервис
 
-    public WebSocketService(SimpMessagingTemplate messagingTemplate, UsersService usersService, RoomPlayersRepository roomPlayersRepository) {
+    @Autowired
+    public WebSocketService(SimpMessagingTemplate messagingTemplate, UsersService usersService, RoomPlayersService roomPlayersService) {
         this.messagingTemplate = messagingTemplate;
         this.usersService = usersService;
-        this.roomPlayersRepository = roomPlayersRepository;
+        this.roomPlayersService = roomPlayersService;
     }
 
-//    public void createAndSendMessage() {
+    //    public void createAndSendMessage() {
 //        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 //        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 //        Users user = userDetails.getUser();
@@ -65,19 +68,19 @@ public class WebSocketService {
 //    }
 
     // уведомляем всех в комнате, что игрок вошел
-    public void joinToGameRoom(GameRoomsDTO gameRoomsDTO){
+    public void joinToGameRoom(GameRoomsDTO gameRoomsDTO) {
         UsersDTO usersDTO = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
         usersDTO.setMessageType(MessageType.JOIN);
         messagingTemplate.convertAndSend("/topic/room/" + gameRoomsDTO.getRoomId(), usersDTO);
     }
 
     // уведомляем всех в комнате, что игрок ready
-    public void userIsReady(UsersDTO user, int roomId){
+    public void userIsReady(UsersDTO user, int roomId) {
         user.setReadyStatus(ReadyStatus.READY);
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
     }
 
-    public void userIsUnReady(UsersDTO user, int roomId){
+    public void userIsUnReady(UsersDTO user, int roomId) {
         user.setReadyStatus(ReadyStatus.UNREADY);
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
     }
@@ -93,9 +96,13 @@ public class WebSocketService {
         if (sessionAttributes != null) {
             Integer roomId = (Integer) sessionAttributes.get("roomId");
             Integer userId = (Integer) sessionAttributes.get("userId");
-            if (roomId != null && userId != null) {
+            String gameRole = sessionAttributes.get("gameRole").toString();
+            if (roomId != null && userId != null && gameRole != null) {
                 String username = event.getUser().getName(); // Если пользователь авторизован
-                log.info("User " + username + " with ID: " + userId + " disconnected from room " +  roomId);
+                log.info("User " + username + " with ID: " + userId + " disconnected from room " + roomId + " as " + gameRole);
+                if (gameRole.equals("PLAYER")) {
+                    roomPlayersService.deleteUserFromGameRoom(roomId, userId);
+                }
             }
         }
     }

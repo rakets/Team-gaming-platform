@@ -152,8 +152,7 @@ public class Users {
                 ", registrationDate=" + registrationDate +
                 ", isActive=" + isActive +
                 ", globalRole=" + globalRole +
-                ", profileImage='" + profileImage + '\'' +
-                ", createdRooms=" + createdRooms +
+                ", profileImage='" + profileImage +
                 '}';
     }
 }

@@ -96,6 +96,9 @@
     var currentUserId = [[${currentUser.userId}]];
     console.log('User ID: ', currentUserId);
 
+    var currentUserGameRole = [[${currentUser.gameRole}]];
+    console.log('User game role: ', currentUserGameRole);
+
     const currentUsername = document.getElementById('page-data').dataset.username;
     console.log('User name: ', currentUsername);
 
@@ -176,7 +179,9 @@
         stompClient = Stomp.over(socket);
 
         // Добавляем roomId в заголовки подключения
-        var headers = {"roomId": roomId, "userId": currentUserId};
+        var headers = {"roomId": roomId,
+                       "userId": currentUserId,
+                       "gameRole": currentUserGameRole};
         console.log('headers: ', headers);
 
         // Настройка Heartbeat (в миллисекундах)

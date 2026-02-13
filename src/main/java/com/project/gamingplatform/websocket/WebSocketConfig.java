@@ -56,9 +56,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
                 // если это команда CONNECT
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    //достаем native-заголовок "roomId" и "userId"
+                    //достаем native-заголовок "roomId", "userId", "gameRole".
                     String roomIdStr = accessor.getFirstNativeHeader("roomId");
                     String userIdStr = accessor.getFirstNativeHeader("userId");
+                    String gameRole = accessor.getFirstNativeHeader("gameRole");
                     Map<String, Object> attributes = accessor.getSessionAttributes();
                     log.info("attributes in 'preSend': " + attributes);
                     // парсим roomId и кладем в сессию Spring
@@ -80,6 +81,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                         } catch (NumberFormatException e) {
                             log.error("Error of parsing userId: " + roomIdStr);
                         }
+                    }
+                    // кладем gameRole в сессию Spring
+                    if (gameRole != null && attributes != null) {
+                        accessor.getSessionAttributes().put("gameRole", gameRole);
                     }
                 }
                 return message;
