@@ -89,14 +89,13 @@ public class WebSocketService {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         // достаем roomId из сессии (куда мы его положили в Config)
         Map<String, Object> sessionAttributes = headerAccessor.getSessionAttributes();
-
+        log.info("sessionAttributes: " + sessionAttributes);
         if (sessionAttributes != null) {
-            String roomIdStr = (String) sessionAttributes.get("roomId");
-            if (roomIdStr != null) {
-                int roomId = Integer.parseInt(roomIdStr);
+            Integer roomId = (Integer) sessionAttributes.get("roomId");
+            Integer userId = (Integer) sessionAttributes.get("userId");
+            if (roomId != null && userId != null) {
                 String username = event.getUser().getName(); // Если пользователь авторизован
-
-                System.out.println("User " + username + " disconnected from room " +  roomId);
+                log.info("User " + username + " with ID: " + userId + " disconnected from room " +  roomId);
             }
         }
     }

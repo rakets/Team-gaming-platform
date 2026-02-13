@@ -92,8 +92,12 @@
 <script type="text/javascript" th:inline="javascript">
     var stompClient = null;
     var roomId = [[${room.roomId}]];
+
+    var currentUserId = [[${currentUser.userId}]];
+    console.log('User ID: ', currentUserId);
+
     const currentUsername = document.getElementById('page-data').dataset.username;
-    console.log(currentUsername);
+    console.log('User name: ', currentUsername);
 
     const token = $('meta[name="_csrf"]').attr('content');
     const header = $('meta[name="_csrf_header"]').attr('content');
@@ -172,7 +176,8 @@
         stompClient = Stomp.over(socket);
 
         // Добавляем roomId в заголовки подключения
-        var headers = {'roomId': roomId};
+        var headers = {"roomId": roomId, "userId": currentUserId};
+        console.log('headers: ', headers);
 
         // Настройка Heartbeat (в миллисекундах)
         // incoming: 10000 (ждем от сервера каждые 10 сек)

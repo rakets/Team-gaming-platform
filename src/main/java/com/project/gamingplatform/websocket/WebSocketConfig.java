@@ -1,5 +1,6 @@
 package com.project.gamingplatform.websocket;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
@@ -16,8 +17,11 @@ import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBr
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
 
+import java.util.Map;
+
 @Configuration
 @EnableWebSocketMessageBroker
+@Slf4j
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -50,15 +54,32 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
             @Override
             public Message<?> preSend(Message<?> message, MessageChannel channel) {
                 StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-
-                // Если это команда CONNECT
+                // если это команда CONNECT
                 if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-                    // 1. Достаем native-заголовок "roomId"
-                    String roomId = accessor.getFirstNativeHeader("roomId");
+                    //достаем native-заголовок "roomId" и "userId"
+                    String roomIdStr = accessor.getFirstNativeHeader("roomId");
+                    String userIdStr = accessor.getFirstNativeHeader("userId");
+                    Map<String, Object> attributes = accessor.getSessionAttributes();
+                    log.info("attributes in 'preSend': " + attributes);
+                    // парсим roomId и кладем в сессию Spring
+                    if (roomIdStr != null && attributes != null) {
+                        try {
+                            Integer roomId = Integer.valueOf(roomIdStr);
+                            accessor.getSessionAttributes().put("roomId", roomId);
+                        } catch (NumberFormatException e) {
+                            log.error("Error of parsing roomId: " + roomIdStr);
+                        }
 
-                    // 2. Кладем его в атрибуты сессии Spring
-                    if (roomId != null) {
-                        accessor.getSessionAttributes().put("roomId", roomId);
+                    }
+
+                    // парсим userId и кладем в сессию Spring
+                    if (userIdStr != null && attributes != null) {
+                        try {
+                            Integer userId = Integer.valueOf(userIdStr);
+                            accessor.getSessionAttributes().put("userId", userId);
+                        } catch (NumberFormatException e) {
+                            log.error("Error of parsing userId: " + roomIdStr);
+                        }
                     }
                 }
                 return message;
