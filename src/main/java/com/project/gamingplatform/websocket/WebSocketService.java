@@ -12,29 +12,42 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
+import org.springframework.scheduling.TaskScheduler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
+import java.time.Instant;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ScheduledFuture;
 
 @Service
 @Slf4j
 public class WebSocketService {
     private final SimpMessagingTemplate messagingTemplate;
     private final UsersService usersService;
-    private final RoomPlayersService roomPlayersService; // Или сервис
+    private final RoomPlayersService roomPlayersService;
+    private final TaskScheduler taskScheduler;
+
+    // хранилище задач на удаление: Key = UserId, Value = Задача таймера
+    private final Map<Integer, ScheduledFuture<?>> pendingRemovals = new ConcurrentHashMap<>();
 
     @Autowired
-    public WebSocketService(SimpMessagingTemplate messagingTemplate, UsersService usersService, RoomPlayersService roomPlayersService) {
+    public WebSocketService(SimpMessagingTemplate messagingTemplate,
+                            UsersService usersService,
+                            RoomPlayersService roomPlayersService,
+                            @Qualifier("heartBeatScheduler") TaskScheduler taskScheduler) {
         this.messagingTemplate = messagingTemplate;
         this.usersService = usersService;
         this.roomPlayersService = roomPlayersService;
+        this.taskScheduler = taskScheduler;
     }
 
     //    public void createAndSendMessage() {
@@ -85,6 +98,16 @@ public class WebSocketService {
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
     }
 
+    // отмена удаления (вызываем из WebSocketConfig при входе игрока)
+    public void cancelPendingRemoval(Integer userId) {
+        ScheduledFuture<?> task = pendingRemovals.get(userId);
+        if (task != null) {
+            task.cancel(false); // Останавливаем таймер
+            pendingRemovals.remove(userId);
+            log.info("User {} reconnected within timeout. Removal canceled.", userId);
+        }
+    }
+
     // Слушаем событие отключения
     @EventListener
     @Transactional
@@ -101,7 +124,17 @@ public class WebSocketService {
                 String username = event.getUser().getName(); // Если пользователь авторизован
                 log.info("User " + username + " with ID: " + userId + " disconnected from room " + roomId + " as " + gameRole);
                 if (gameRole.equals("PLAYER")) {
-                    roomPlayersService.deleteUserFromGameRoom(roomId, userId);
+                    //запуск таймера.
+                    ScheduledFuture<?> task = taskScheduler.schedule(() -> {
+                        //сработает через 5сек, если не будет ответа.
+                        log.info("Timeout passed. Removing user {} from room {}", userId, roomId);
+                        if (gameRole.equals("PLAYER")) {
+                            roomPlayersService.deleteUserFromGameRoom(roomId, userId); //удаление игрока
+                            // ТУТ ДОБАВИТЬ ОПОВЕЩЕНИ ПО ВЕБСОКЕТУ, ЧТО ИГРОК ВЫШЕЛ
+                            pendingRemovals.remove(userId); // очистка карты
+                        }
+                    }, Instant.now().plusSeconds(5)); // время ожидания
+                    pendingRemovals.put(userId, task); // cохраняем задачу, чтобы иметь возможность её отменить
                 }
             }
         }
