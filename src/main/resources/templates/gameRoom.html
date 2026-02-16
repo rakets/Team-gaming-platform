@@ -232,12 +232,14 @@
                     console.log("player is already , skeep");
                     return;
                 } else {
+                    let statusClass = (readyStatus === 'READY') ? ' bg-success text-white' : '';
                     var newPlayerHtml = `
                                 <div class="col-md-4 player-card">
                                                         <div class="card" id="user-${userId}"> <div class="card-body">
                                                                 <h5 class="card-title">${username}</h5>
                                                                 <p class="card-text">Role: <span>${gameRole}</span></p>
-                                                                <p class="card-text">Status: <span id="user-status-${userId}">${readyStatus}</span>
+                                                                <p class="card-text">Status: 
+                                                                    <span id="user-status-${userId}" class="${statusClass}">${readyStatus}</span>
                                                                 </p>
                                                         </div>
                                                         </div>
