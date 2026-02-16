@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 <head>
     <meta charset="UTF-8">
@@ -11,287 +10,300 @@
     <link rel="stylesheet" th:href="@{/css/style.css}">
 
 
-    <meta name="_csrf" th:content="${_csrf.token}"/>
-    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <meta name="_csrf" th:content="${_csrf.token}" />
+    <meta name="_csrf_header" th:content="${_csrf.headerName}" />
 </head>
 
 <body>
 
-<header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-    <span class="navbar-brand">Game Rooms</span>
-    <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
-</header>
+    <header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
+        <span class="navbar-brand">Game Rooms</span>
+        <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
+    </header>
 
-<a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
+    <a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
 
-<!--clean room-->
-<div th:if="${currentUser.gameRole.name() == 'MODERATOR'}">
-    <form th:action="@{/dashboard/clean-room/{roomId}/{userId}(roomId=${room.roomId}, userId=${currentUser.userId})}" th:method="delete">
-        <button type="submit" class="btn btn-warning">
-            Clean Room
-        </button>
-    </form>
-</div>
+    <!--clean room-->
+    <div th:if="${currentUser.gameRole.name() == 'MODERATOR'}">
+        <form
+            th:action="@{/dashboard/clean-room/{roomId}/{userId}(roomId=${room.roomId}, userId=${currentUser.userId})}"
+            th:method="delete">
+            <button type="submit" class="btn btn-warning">
+                Clean Room
+            </button>
+        </form>
+    </div>
 
-<!-- Ready -->
-<button id="readyBtn"
-        type="button"
-        class="btn btn-success"
+    <!-- Ready -->
+    <button id="readyBtn" type="button" class="btn btn-success"
         th:classappend="${currentUser.readyStatus.name() == 'READY'} ? ' hidden' : ''">
-    Ready
-</button>
-<!-- Unready -->
-<button id="unreadyBtn"
-        type="button"
-        class="btn btn-danger"
+        Ready
+    </button>
+    <!-- Unready -->
+    <button id="unreadyBtn" type="button" class="btn btn-danger"
         th:classappend="${currentUser.readyStatus.name() == 'UNREADY'} ? ' hidden' : ''">
-    Unready
-</button>
+        Unready
+    </button>
 
-<!--Player data-->
-<div class="container mt-4">
-    <p> Game Room : <label th:text="${room.roomName}"></label></p>
-    <p> Player : <label th:text="${currentUser.username}"></label></p>
-    <div id="page-data" th:data-username="${currentUser.username}"></div>
-    <p> Role : <label th:text="${currentUser.gameRole.name()}"></label></p>
-    <p> Status :  <label id="current-user-status"
-                         th:classappend="${currentUser.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
-                         th:text="${currentUser.readyStatus.name()}">
-                  </label>
-    </p>
-</div>
+    <!--Player data-->
+    <div class="container mt-4">
+        <p> Game Room : <label th:text="${room.roomName}"></label></p>
+        <p> Player : <label th:text="${currentUser.username}"></label></p>
+        <div id="page-data" th:data-username="${currentUser.username}"></div>
+        <p> Role : <label th:text="${currentUser.gameRole.name()}"></label></p>
+        <p> Status : <label id="current-user-status"
+                th:classappend="${currentUser.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
+                th:text="${currentUser.readyStatus.name()}">
+            </label>
+        </p>
+    </div>
 
-<!--игроки-->
-<div class="container">
-    <h3>Игроки в комнате:</h3>
-    <div id="players-container" class="row">
-        <div th:each="player : ${players}" class="col-md-4 player-card">
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title" th:text="${player.username}">Username</h5>
-                    <p class="card-text">Role: <span th:text="${player.gameRole}">PLAYER</span></p>
-                    <p class="card-text">Status:
-                        <span th:id="'user-status-' + ${player.userId}"
-                              th:classappend="${player.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
-                              th:text="${player.readyStatus}">
-                        </span>
-                    </p>
+    <!--игроки-->
+    <div class="container">
+        <h3>Игроки в комнате:</h3>
+        <div id="players-container" class="row">
+            <div th:each="player : ${players}" class="col-md-4 player-card">
+                <div class="card" th:id="'user-' + ${player.userId}">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${player.username}">Username</h5>
+                        <p class="card-text">Role: <span th:text="${player.gameRole}">PLAYER</span></p>
+                        <p class="card-text">Status:
+                            <span th:id="'user-status-' + ${player.userId}"
+                                th:classappend="${player.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
+                                th:text="${player.readyStatus}">
+                            </span>
+                        </p>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-<script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 
-<!--WebSocket-->
-<script th:src="@{/webjars/sockjs-client/sockjs.min.js}"></script>
-<script th:src="@{/webjars/stomp-websocket/stomp.min.js}"></script>
-<!---->
-<script type="text/javascript" th:inline="javascript">
-    var stompClient = null;
-    var roomId = [[${room.roomId}]];
+    <!--WebSocket-->
+    <script th:src="@{/webjars/sockjs-client/sockjs.min.js}"></script>
+    <script th:src="@{/webjars/stomp-websocket/stomp.min.js}"></script>
+    <!---->
+    <script type="text/javascript" th:inline="javascript">
+        var stompClient = null;
+        var roomId = [[${ room.roomId }]];
 
-    var currentUserId = [[${currentUser.userId}]];
-    console.log('User ID: ', currentUserId);
+        var currentUserId = [[${ currentUser.userId }]];
+        console.log('User ID: ', currentUserId);
 
-    var currentUserGameRole = [[${currentUser.gameRole}]];
-    console.log('User game role: ', currentUserGameRole);
+        var currentUserGameRole = [[${ currentUser.gameRole }]];
+        console.log('User game role: ', currentUserGameRole);
 
-    const currentUsername = document.getElementById('page-data').dataset.username;
-    console.log('User name: ', currentUsername);
+        const currentUsername = document.getElementById('page-data').dataset.username;
+        console.log('User name: ', currentUsername);
 
-    const token = $('meta[name="_csrf"]').attr('content');
-    const header = $('meta[name="_csrf_header"]').attr('content');
+        const token = $('meta[name="_csrf"]').attr('content');
+        const header = $('meta[name="_csrf_header"]').attr('content');
 
-    //    нажатие на ready
-    document.getElementById('readyBtn').addEventListener('click', clickReady);
-    //    нажатие на Unready
-    document.getElementById('unreadyBtn').addEventListener('click', clickUnReady);
+        //    нажатие на ready
+        document.getElementById('readyBtn').addEventListener('click', clickReady);
+        //    нажатие на Unready
+        document.getElementById('unreadyBtn').addEventListener('click', clickUnReady);
 
-    function clickReady(){
-        fetch('/roomPlayers/ready/' + roomId, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                [header]: token
-        },
-        body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
-        }).then(response => {
-            if (response.ok) {
-                console.log('User marked as READY in BD');
-                // кнопка отключается после клика
-                //                $('#readyBtn').hide();
-                //                $('#unreadyBtn').fadeIn();
-                $('#readyBtn').addClass('hidden');
-                $('#unreadyBtn').removeClass('hidden');
-            }
-        })
-            .catch(err => console.error(err));
-    }
+        function clickReady() {
+            fetch('/roomPlayers/ready/' + roomId, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
+            }).then(response => {
+                if (response.ok) {
+                    console.log('User marked as READY in BD');
+                    // кнопка отключается после клика
+                    //                $('#readyBtn').hide();
+                    //                $('#unreadyBtn').fadeIn();
+                    $('#readyBtn').addClass('hidden');
+                    $('#unreadyBtn').removeClass('hidden');
+                }
+            })
+                .catch(err => console.error(err));
+        }
 
-    function clickReady(){
-        fetch('/roomPlayers/ready/' + roomId, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                [header]: token
-            },
-            body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
-        }).then(response => {
-            if (response.ok) {
-                console.log('User marked as READY in BD');
-                // кнопка отключается после клика
-//                $('#readyBtn').hide();
-//                $('#unreadyBtn').fadeIn();
-                $('#readyBtn').addClass('hidden');
-                $('#unreadyBtn').removeClass('hidden');
-            }
-        })
-            .catch(err => console.error(err));
-    }
+        function clickReady() {
+            fetch('/roomPlayers/ready/' + roomId, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
+            }).then(response => {
+                if (response.ok) {
+                    console.log('User marked as READY in BD');
+                    // кнопка отключается после клика
+                    //                $('#readyBtn').hide();
+                    //                $('#unreadyBtn').fadeIn();
+                    $('#readyBtn').addClass('hidden');
+                    $('#unreadyBtn').removeClass('hidden');
+                }
+            })
+                .catch(err => console.error(err));
+        }
 
-    function clickUnReady(){
-        fetch('/roomPlayers/unready/' + roomId, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                [header]: token
-            },
-            body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
-        }).then(response => {
-            if (response.ok) {
-                console.log('User marked as UNREADY in BD');
-                // кнопка отключается после клика
-//                $('#unreadyBtn').hide();
-//                $('#readyBtn').fadeIn();
-                $('#unreadyBtn').addClass('hidden');
-                $('#readyBtn').removeClass('hidden');
-            }
-        })
-            .catch(err => console.error(err));
-    }
+        function clickUnReady() {
+            fetch('/roomPlayers/unready/' + roomId, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
+            }).then(response => {
+                if (response.ok) {
+                    console.log('User marked as UNREADY in BD');
+                    // кнопка отключается после клика
+                    //                $('#unreadyBtn').hide();
+                    //                $('#readyBtn').fadeIn();
+                    $('#unreadyBtn').addClass('hidden');
+                    $('#readyBtn').removeClass('hidden');
+                }
+            })
+                .catch(err => console.error(err));
+        }
 
-    function connect() {
-        // Подключение к WebSocket endpoint '/WsGameRoom'
-        var socket = new SockJS('/WsGameRoom');
-        stompClient = Stomp.over(socket);
+        function connect() {
+            // Подключение к WebSocket endpoint '/WsGameRoom'
+            var socket = new SockJS('/WsGameRoom');
+            stompClient = Stomp.over(socket);
 
-        // Добавляем roomId в заголовки подключения
-        var headers = {"roomId": roomId,
-                       "userId": currentUserId,
-                       "gameRole": currentUserGameRole};
-        console.log('headers: ', headers);
+            // Добавляем roomId в заголовки подключения
+            var headers = {
+                "roomId": roomId,
+                "userId": currentUserId,
+                "gameRole": currentUserGameRole
+            };
+            console.log('headers: ', headers);
 
-        // Настройка Heartbeat (в миллисекундах)
-        // incoming: 10000 (ждем от сервера каждые 10 сек)
-        // outgoing: 10000 (шлем на сервер каждые 10 сек)
-        stompClient.heartbeat.outgoing = 5000;
-        stompClient.heartbeat.incoming = 5000;
+            // Настройка Heartbeat (в миллисекундах)
+            // incoming: 10000 (ждем от сервера каждые 10 сек)
+            // outgoing: 10000 (шлем на сервер каждые 10 сек)
+            stompClient.heartbeat.outgoing = 5000;
+            stompClient.heartbeat.incoming = 5000;
 
-        stompClient.connect(headers, function (frame) {
-            console.log('Connected to WebSocket: ' + frame);
+            stompClient.connect(headers, function (frame) {
+                console.log('Connected to WebSocket: ' + frame);
 
-            // Подписка на личный канал уведомлений пользователя
-            // Путь: /user/queue/notifications
-            // Spring Security автоматически определяет текущего пользователя.
-            stompClient.subscribe('/topic/room/' + roomId, function (notification) {
-                console.log("Raw message received:", JSON.parse(notification.body)); // Если notification.body придет пустым или битым, здесь будет ошибка
-                checkNotification(JSON.parse(notification.body)); // Обрабатка входящего JSON-сообщение
+                // Подписка на личный канал уведомлений пользователя
+                // Путь: /user/queue/notifications
+                // Spring Security автоматически определяет текущего пользователя.
+                stompClient.subscribe('/topic/room/' + roomId, function (notification) {
+                    console.log("Raw message received:", JSON.parse(notification.body)); // Если notification.body придет пустым или битым, здесь будет ошибка
+                    checkNotification(JSON.parse(notification.body)); // Обрабатка входящего JSON-сообщение
+                });
+
+            }, function (error) {
+                console.error('STOMP Error:', error);
+                //        setTimeout(connect, 5000);
             });
-
-        }, function (error) {
-            console.error('STOMP Error:', error);
-    //        setTimeout(connect, 5000);
-        });
-    }
-
-    function checkNotification(message){
-        if(message.messageType === "JOIN" || message.messageType === "LEAVE"){
-            showJoinNotification(message);
-        } else {
-            showReadyNotification(message);
         }
-    }
 
-    function showJoinNotification(message) {
-        var userId = message.userId;
-        var username = message.username;
-        var gameRole = message.gameRole;
-        var readyStatus = message.readyStatus;
-        console.log("message:", message);
+        function checkNotification(message) {
+            if (message.messageType === "JOIN" || message.messageType === "LEAVE") {
+                showJoinNotification(message);
+            } else {
+                showReadyNotification(message);
+            }
+        }
 
-        var exists = false;
-        $('#players-container .card-title').each(function(){
-            if($(this).text() === username){
-                exists = true;
+        function showJoinNotification(message) {
+            var userId = message.userId;
+            var username = message.username;
+            var gameRole = message.gameRole;
+            var readyStatus = message.readyStatus;
+            console.log("message:", message);
+
+            if (message.messageType === "JOIN") {
+                var exists = false;
+                $('#players-container .card-title').each(function () {
+                    if ($(this).text() === username) {
+                        exists = true;
+                    }
+                });
+                if (exists) {
+                    console.log("player is already , skeep");
+                    return;
+                } else {
+                    var newPlayerHtml = `
+                                <div class="col-md-4 player-card">
+                                                        <div class="card" id="user-${userId}"> <div class="card-body">
+                                                                <h5 class="card-title">${username}</h5>
+                                                                <p class="card-text">Role: <span>${gameRole}</span></p>
+                                                                <p class="card-text">Status: <span id="user-status-${userId}">${readyStatus}</span>
+                                                                </p>
+                                                        </div>
+                                                        </div>
+                                                    </div>
+                                                `;
+                    $('#players-container').append(newPlayerHtml);
+                }
+            }
+            if (message.messageType === "LEAVE") {
+                const elementId = "user-" + userId;
+                const playerCard = document.getElementById(elementId);
+                if (playerCard) {
+                    let column = playerCard.closest('.player-card'); //находим родительский контейнер
+                    if (column) {
+                        column.remove(); //удаление всей колонки сетки
+                    }
+                }
+            }
+        }
+
+        function showReadyNotification(message) {
+            var userId = message.userId;
+            var username = message.username;
+            var readyStatus = message.readyStatus;
+
+            console.log('message.username: ', message.username);
+            console.log('currentUsername: ', currentUsername);
+
+            let readyUser = document.getElementById('user-status-' + userId);
+            let currentUserStatus = document.getElementById('current-user-status');
+
+            if (username === currentUsername) {
+                //замена статуса у себя
+                //            $('#current-user-status').text(message.readyStatus);
+                currentUserStatus.textContent = readyStatus;
+
+                if (readyStatus == 'READY') {
+                    currentUserStatus.classList.add('bg-success', 'text-white');
+                    //замена статуса у себя в общем списке
+                    readyUser.classList.add('bg-success', 'text-white');
+                    readyUser.textContent = readyStatus;
+                } else {
+                    currentUserStatus.classList.remove('bg-success', 'text-white');
+                    //замена статуса у себя в общем списке
+                    readyUser.classList.remove('bg-success', 'text-white');
+                    readyUser.textContent = readyStatus;
+                };
+            } else {
+                //замена статуса у другого игрока в общем списке
+                if (readyStatus == 'READY') {
+                    readyUser.classList.add('bg-success', 'text-white');
+                    readyUser.textContent = readyStatus;
+                } else {
+                    readyUser.classList.remove('bg-success', 'text-white');
+                    readyUser.textContent = readyStatus;
+                };
+            }
+        }
+        // Подключение при полной загрузке страницы
+        $(document).ready(function () {
+            if (!stompClient) { // проверка, чтобы избежать двойного подключения
+                connect();
             }
         });
-        if(exists) {
-            console.log("player is already , skeep");
-            return;
-        } else {
-            var newPlayerHtml = `
-            <div class="col-md-4 player-card">
-                                    <div class="card"> <div class="card-body">
-                                            <h5 class="card-title">${username}</h5>
-                                            <p class="card-text">Role: <span>${gameRole}</span></p>
-                                            <p class="card-text">Status: <span id="user-status-${userId}">${readyStatus}</span>
-                                            </p>
-                                    </div>
-                                    </div>
-                                </div>
-                            `;
-                $('#players-container').append(newPlayerHtml);
-        }
-    }
-
-    function showReadyNotification(message){
-        var userId = message.userId;
-        var username = message.username;
-        var readyStatus = message.readyStatus;
-
-        console.log('message.username: ', message.username);
-        console.log('currentUsername: ', currentUsername);
-
-        let readyUser = document.getElementById('user-status-' + userId);
-        let currentUserStatus = document.getElementById('current-user-status');
-
-        if (username === currentUsername) {
-            //замена статуса у себя
-//            $('#current-user-status').text(message.readyStatus);
-            currentUserStatus.textContent = readyStatus;
-
-            if (readyStatus == 'READY') {
-                currentUserStatus.classList.add('bg-success', 'text-white');
-                //замена статуса у себя в общем списке
-                readyUser.classList.add('bg-success', 'text-white');
-                readyUser.textContent = readyStatus;
-            } else {
-                currentUserStatus.classList.remove('bg-success', 'text-white');
-                //замена статуса у себя в общем списке
-                readyUser.classList.remove('bg-success', 'text-white');
-                readyUser.textContent = readyStatus;
-            };
-        } else {
-            //замена статуса у другого игрока в общем списке
-            if (readyStatus  == 'READY') {
-                readyUser.classList.add('bg-success', 'text-white');
-                readyUser.textContent = readyStatus;
-            } else {
-                readyUser.classList.remove('bg-success', 'text-white');
-                readyUser.textContent = readyStatus;
-            };
-        }
-    }
-    // Подключение при полной загрузке страницы
-    $(document).ready(function () {
-    if (!stompClient) { // проверка, чтобы избежать двойного подключения
-    connect();
-    }
-    });
-</script>
+    </script>
 
 </body>
+
 </html>

@@ -5,6 +5,7 @@ import com.project.gamingplatform.entity.GameRooms;
 import com.project.gamingplatform.entity.RoleInRoom;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
+import com.project.gamingplatform.service.GameRoomsService;
 import com.project.gamingplatform.service.RoomPlayersService;
 import com.project.gamingplatform.service.UsersService;
 import com.project.gamingplatform.util.CustomUserDetails;
@@ -35,6 +36,7 @@ public class WebSocketService {
     private final UsersService usersService;
     private final RoomPlayersService roomPlayersService;
     private final TaskScheduler taskScheduler;
+    private final GameRoomsService gameRoomsService;
 
     // хранилище задач на удаление: Key = UserId, Value = Задача таймера
     private final Map<Integer, ScheduledFuture<?>> pendingRemovals = new ConcurrentHashMap<>();
@@ -43,11 +45,13 @@ public class WebSocketService {
     public WebSocketService(SimpMessagingTemplate messagingTemplate,
                             UsersService usersService,
                             RoomPlayersService roomPlayersService,
-                            @Qualifier("heartBeatScheduler") TaskScheduler taskScheduler) {
+                            @Qualifier("heartBeatScheduler") TaskScheduler taskScheduler,
+                            GameRoomsService gameRoomsService) {
         this.messagingTemplate = messagingTemplate;
         this.usersService = usersService;
         this.roomPlayersService = roomPlayersService;
         this.taskScheduler = taskScheduler;
+        this.gameRoomsService = gameRoomsService;
     }
 
     //    public void createAndSendMessage() {
@@ -87,6 +91,14 @@ public class WebSocketService {
         messagingTemplate.convertAndSend("/topic/room/" + gameRoomsDTO.getRoomId(), usersDTO);
     }
 
+    // уведомляем всех в комнате, что игрок вышел
+    public void leaveGameRoom(Integer roomId, Integer userId) {
+        UsersDTO userWhoLeft = usersService.findById(userId);
+        userWhoLeft.setMessageType(MessageType.LEAVE);
+        log.info("Sending LEAVE message for user {} to room {}", userId, roomId);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId, userWhoLeft);
+    }
+
     // уведомляем всех в комнате, что игрок ready
     public void userIsReady(UsersDTO user, int roomId) {
         user.setReadyStatus(ReadyStatus.READY);
@@ -110,7 +122,6 @@ public class WebSocketService {
 
     // Слушаем событие отключения
     @EventListener
-    @Transactional
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         // достаем roomId из сессии (куда мы его положили в Config)
@@ -123,6 +134,7 @@ public class WebSocketService {
             if (roomId != null && userId != null && gameRole != null) {
                 String username = event.getUser().getName(); // Если пользователь авторизован
                 log.info("User " + username + " with ID: " + userId + " disconnected from room " + roomId + " as " + gameRole);
+                leaveGameRoom(roomId, userId);// оповещение по вебсокет, что игрок вышел
                 if (gameRole.equals("PLAYER")) {
                     //запуск таймера.
                     ScheduledFuture<?> task = taskScheduler.schedule(() -> {
@@ -130,7 +142,6 @@ public class WebSocketService {
                         log.info("Timeout passed. Removing user {} from room {}", userId, roomId);
                         if (gameRole.equals("PLAYER")) {
                             roomPlayersService.deleteUserFromGameRoom(roomId, userId); //удаление игрока
-                            // ТУТ ДОБАВИТЬ ОПОВЕЩЕНИ ПО ВЕБСОКЕТУ, ЧТО ИГРОК ВЫШЕЛ
                             pendingRemovals.remove(userId); // очистка карты
                         }
                     }, Instant.now().plusSeconds(5)); // время ожидания

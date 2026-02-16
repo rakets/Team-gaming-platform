@@ -8,6 +8,7 @@ import com.project.gamingplatform.util.CustomUserDetails;
 import com.project.gamingplatform.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,7 +27,7 @@ public class GameRoomsService {
     private final UsersService usersService;
     private final WebSocketService webSocketService;
 
-    public GameRoomsService(GameRoomsRepository gameRoomsRepository, RoomPlayersService roomPlayersService, GameSessionsService gameSessionsService, SimpMessagingTemplate messagingTemplate, UsersService usersService, WebSocketService webSocketService) {
+    public GameRoomsService(GameRoomsRepository gameRoomsRepository, RoomPlayersService roomPlayersService, GameSessionsService gameSessionsService, SimpMessagingTemplate messagingTemplate, UsersService usersService, @Lazy WebSocketService webSocketService) {
         this.gameRoomsRepository = gameRoomsRepository;
         this.roomPlayersService = roomPlayersService;
         this.gameSessionsService = gameSessionsService;

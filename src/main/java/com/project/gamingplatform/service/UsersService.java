@@ -68,6 +68,12 @@ public class UsersService {
         return  usersDTO;
     }
 
+    public UsersDTO findById(int userId){
+        Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        UsersDTO usersDTO = convertEntityUserToDto(user);
+        return usersDTO;
+    }
+
     public Optional<Users> getUsersByUsername(String username) {
         return usersRepository.findByUsername(username);
     }
