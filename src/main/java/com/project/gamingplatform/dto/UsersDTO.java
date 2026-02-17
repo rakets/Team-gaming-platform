@@ -14,5 +14,5 @@ public class UsersDTO {
 //    для кнопки Ready
     private ReadyStatus readyStatus = ReadyStatus.UNREADY;
 
-    private MessageType messageType; // JOIN / LEAVE
+    private MessageType messageType; // JOIN / LEAVE / READY / UNREADY / JOIN_GAME_SESSION
 }

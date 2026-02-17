@@ -34,4 +34,7 @@ public interface RoomPlayersRepository extends JpaRepository<RoomPlayers, RoomPl
 
     @Query("SELECT r.isReady FROM RoomPlayers r WHERE r.id.userId = :userId AND r.id.roomId = :roomId")
     boolean isUserReadyInRoom(@Param("roomId") int roomId, @Param("userId") int userId);
+
+    @Query("SELECT COUNT(r) = 0 FROM RoomPlayers r WHERE r.id.roomId = :roomId AND r.isReady <> true")
+    boolean isAllUserReadyInRoom(@Param("roomId") int roomId);
 }

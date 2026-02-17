@@ -2,5 +2,8 @@ package com.project.gamingplatform.dto;
 
 public enum MessageType {
     JOIN,
-    LEAVE
+    LEAVE,
+    READY,
+    UNREADY,
+    JOIN_GAME_SESSION
 }

@@ -45,6 +45,18 @@
         Unready
     </button>
 
+    <!-- Check all players are ready -->
+    <div th:if="${currentUser.gameRole.name() == 'MODERATOR'}">
+         <a class="" href="#" id="checkAllReady">Check all ready</a>
+    </div>
+    
+    <!-- Join game session -->
+    <div th:if="${currentUser.readyStatus.name() == 'READY'}"></div>
+        <button id="gameSessionBtn" type="button" class="btn btn-danger hidden">
+            Join Game Session
+        </button>
+    </div>
+
     <!--Player data-->
     <div class="container mt-4">
         <p> Game Room : <label th:text="${room.roomName}"></label></p>
@@ -106,6 +118,32 @@
         document.getElementById('readyBtn').addEventListener('click', clickReady);
         //    нажатие на Unready
         document.getElementById('unreadyBtn').addEventListener('click', clickUnReady);
+        // нажатие кнопки Check all ready
+        const checkAllReadyBtn = document.getElementById('checkAllReady');
+        if(checkAllReadyBtn ){
+            checkAllReadyBtn .addEventListener('click', checkAllReady);
+        }
+
+        function checkAllReady(event){
+            event.preventDefault(); // чтобы ссылка не скроллила страницу вверх
+            fetch('/roomPlayers/allReady/' + roomId, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({})
+            }).then(response => {
+                if (response.ok) {
+                    return;
+                } else if (response.status === 409){
+                    alert('Not all users are ready');
+                } else {
+                    console.log('Something wrong on server side')
+                }
+            })
+            .catch(error => console.error('Fetch error:', error));
+        }
 
         function clickReady() {
             fetch('/roomPlayers/ready/' + roomId, {
@@ -207,11 +245,36 @@
         }
 
         function checkNotification(message) {
-            if (message.messageType === "JOIN" || message.messageType === "LEAVE") {
-                showJoinNotification(message);
-            } else {
-                showReadyNotification(message);
+            switch(message.messageType){
+                case "JOIN":
+                case "LEAVE":
+                    showJoinNotification(message);
+                    break;
+                
+                case "READY":
+                case "UNREADY":
+                    showReadyNotification(message);
+                    break;
+
+                case "JOIN_GAME_SESSION":
+                    joinGameSession();
+                    break;
+                default:
+                    console.warn("Unknown websocket message type:", message.messageType);
             }
+        }
+
+        // function checkNotification(message) {
+        //     if (message.messageType === "JOIN" || message.messageType === "LEAVE") {
+        //         showJoinNotification(message);
+        //     } else {
+        //         showReadyNotification(message);
+        //     }
+        // }
+
+        function joinGameSession(){
+            var gameSession = document.getElementById('gameSessionBtn');
+            gameSession.classList.remove('hidden');
         }
 
         function showJoinNotification(message) {

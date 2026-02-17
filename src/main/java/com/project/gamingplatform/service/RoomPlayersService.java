@@ -1,23 +1,16 @@
 package com.project.gamingplatform.service;
 
-import com.project.gamingplatform.dto.GameRoomsDTO;
-import com.project.gamingplatform.dto.ReadyStatus;
-import com.project.gamingplatform.dto.RoomPlayersDTO;
-import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.*;
 import com.project.gamingplatform.repository.GameRoomsRepository;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
 import com.project.gamingplatform.util.CustomUserDetails;
+import com.project.gamingplatform.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.User;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,12 +18,14 @@ import java.util.List;
 public class RoomPlayersService {
     private final RoomPlayersRepository roomPlayersRepository;
     private final GameRoomsRepository gameRoomsRepository;
+    private final WebSocketService webSocketService;
 
-    @Autowired
     public RoomPlayersService(RoomPlayersRepository roomPlayersRepository,
-                              GameRoomsRepository gameRoomsRepository) {
+                              GameRoomsRepository gameRoomsRepository,
+                              WebSocketService webSocketService) {
         this.roomPlayersRepository = roomPlayersRepository;
         this.gameRoomsRepository = gameRoomsRepository;
+        this.webSocketService = webSocketService;
     }
 
     // save RoomPlayer and adding as MODERATOR
@@ -98,10 +93,19 @@ public class RoomPlayersService {
         return roomPlayersRepository.isUserReadyInRoom(roomId, userId);
     }
 
-    @Transactional
-    public void deleteUserFromGameRoom(int roomId, int userId) {
-        RoomPlayersId roomPlayersId = new RoomPlayersId(roomId, userId);
-        roomPlayersRepository.deleteById(roomPlayersId);
-        log.info("User " + userId + " is deleted from RoomPlayers.");
+    public boolean areAllUserReadyInRoom(int roomId) {
+        if (roomPlayersRepository.isAllUserReadyInRoom(roomId)){
+            webSocketService.joinGameSession(roomId);
+            return true;
+        } else {
+            return false;
+        }
     }
+
+//    @Transactional
+//    public void deleteUserFromGameRoom(int roomId, int userId) {
+//        RoomPlayersId roomPlayersId = new RoomPlayersId(roomId, userId);
+//        roomPlayersRepository.deleteById(roomPlayersId);
+//        log.info("User " + userId + " is deleted from RoomPlayers.");
+//    }
 }

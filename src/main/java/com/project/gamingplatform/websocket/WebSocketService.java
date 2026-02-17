@@ -3,6 +3,7 @@ package com.project.gamingplatform.websocket;
 import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.entity.GameRooms;
 import com.project.gamingplatform.entity.RoleInRoom;
+import com.project.gamingplatform.entity.RoomPlayersId;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
 import com.project.gamingplatform.service.GameRoomsService;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.event.EventListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
@@ -34,24 +36,21 @@ import java.util.concurrent.ScheduledFuture;
 public class WebSocketService {
     private final SimpMessagingTemplate messagingTemplate;
     private final UsersService usersService;
-    private final RoomPlayersService roomPlayersService;
+    private final RoomPlayersRepository roomPlayersRepository;
     private final TaskScheduler taskScheduler;
-    private final GameRoomsService gameRoomsService;
 
     // хранилище задач на удаление: Key = UserId, Value = Задача таймера
     private final Map<Integer, ScheduledFuture<?>> pendingRemovals = new ConcurrentHashMap<>();
 
     @Autowired
     public WebSocketService(SimpMessagingTemplate messagingTemplate,
-                            UsersService usersService,
-                            RoomPlayersService roomPlayersService,
-                            @Qualifier("heartBeatScheduler") TaskScheduler taskScheduler,
-                            GameRoomsService gameRoomsService) {
+                            @Lazy UsersService usersService,
+                            RoomPlayersRepository roomPlayersRepository,
+                            @Qualifier("heartBeatScheduler") TaskScheduler taskScheduler) {
         this.messagingTemplate = messagingTemplate;
         this.usersService = usersService;
-        this.roomPlayersService = roomPlayersService;
+        this.roomPlayersRepository = roomPlayersRepository;
         this.taskScheduler = taskScheduler;
-        this.gameRoomsService = gameRoomsService;
     }
 
     //    public void createAndSendMessage() {
@@ -102,12 +101,21 @@ public class WebSocketService {
     // уведомляем всех в комнате, что игрок ready
     public void userIsReady(UsersDTO user, int roomId) {
         user.setReadyStatus(ReadyStatus.READY);
+        user.setMessageType(MessageType.READY);
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
     }
 
     public void userIsUnReady(UsersDTO user, int roomId) {
         user.setReadyStatus(ReadyStatus.UNREADY);
+        user.setMessageType(MessageType.UNREADY);
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
+    }
+
+    //уведомление, для появления кнопки join game session
+    public void joinGameSession(int roomId){
+        UsersDTO usersDTO = new UsersDTO();
+        usersDTO.setMessageType(MessageType.JOIN_GAME_SESSION);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId, usersDTO);
     }
 
     // отмена удаления (вызываем из WebSocketConfig при входе игрока)
@@ -122,6 +130,7 @@ public class WebSocketService {
 
     // Слушаем событие отключения
     @EventListener
+    @Transactional
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         // достаем roomId из сессии (куда мы его положили в Config)
@@ -141,7 +150,11 @@ public class WebSocketService {
                         //сработает через 5сек, если не будет ответа.
                         log.info("Timeout passed. Removing user {} from room {}", userId, roomId);
                         if (gameRole.equals("PLAYER")) {
-                            roomPlayersService.deleteUserFromGameRoom(roomId, userId); //удаление игрока
+                            //----удаление юзера из таблицы
+//                            roomPlayersService.deleteUserFromGameRoom(roomId, userId); //удаление игрока
+                            RoomPlayersId roomPlayersId = new RoomPlayersId(roomId, userId);
+                            roomPlayersRepository.deleteById(roomPlayersId);
+                            log.info("User " + userId + " is deleted from RoomPlayers.");
                             pendingRemovals.remove(userId); // очистка карты
                         }
                     }, Instant.now().plusSeconds(5)); // время ожидания
