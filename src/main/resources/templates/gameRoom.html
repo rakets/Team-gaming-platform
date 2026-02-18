@@ -57,17 +57,32 @@
         </button>
     </div>
 
-    <!--Player data-->
-    <div class="container mt-4">
-        <p> Game Room : <label th:text="${room.roomName}"></label></p>
-        <p> Player : <label th:text="${currentUser.username}"></label></p>
-        <div id="page-data" th:data-username="${currentUser.username}"></div>
-        <p> Role : <label th:text="${currentUser.gameRole.name()}"></label></p>
-        <p> Status : <label id="current-user-status"
-                th:classappend="${currentUser.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
-                th:text="${currentUser.readyStatus.name()}">
-            </label>
-        </p>
+    <div class="container mt-4 game-layout">
+        <!--Player data-->
+        <!-- <div class="container mt-4"> -->
+        <div class="player-info">
+            <p> Game Room : <label th:text="${room.roomName}"></label></p>
+            <p> Player : <label th:text="${currentUser.username}"></label></p>
+            <div id="page-data" th:data-username="${currentUser.username}"></div>
+            <p> Role : <label th:text="${currentUser.gameRole.name()}"></label></p>
+            <p> Status : <label id="current-user-status"
+                    th:classappend="${currentUser.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
+                    th:text="${currentUser.readyStatus.name()}">
+                </label>
+            </p>
+        </div>
+
+        <!--    chat-->
+        <!-- <div class="container mt-4 chat"> -->
+        <div class="chat">
+            <div class="messages" id="messages">
+                <!-- тут будут отображаться сообщения в чате -->
+            </div>
+            <div class="chat-input">
+                <input type="text" id="inputMessage" placeholder="Type a message"/>
+                <button id="sendMessage" type="button" class="btn btn-success">Send</button>
+            </div>
+        </div>
     </div>
 
     <!--игроки-->
@@ -123,6 +138,8 @@
         if(checkAllReadyBtn ){
             checkAllReadyBtn .addEventListener('click', checkAllReady);
         }
+
+        document.getElementById('sendMessage').addEventListener('click', sendMessage);
 
         function checkAllReady(event){
             event.preventDefault(); // чтобы ссылка не скроллила страницу вверх
@@ -237,11 +254,76 @@
                     console.log("Raw message received:", JSON.parse(notification.body)); // Если notification.body придет пустым или битым, здесь будет ошибка
                     checkNotification(JSON.parse(notification.body)); // Обрабатка входящего JSON-сообщение
                 });
+                // подписка на канал для чата
+                stompClient.subscribe('/topic/room/' + roomId + '/chat', function(message){
+                    const messageObj = JSON.parse(message.body);
+                    if (messageObj.senderId !== currentUserId){
+                        showServerMessage(messageObj); 
+                    }
+                });
 
             }, function (error) {
                 console.error('STOMP Error:', error);
                 //        setTimeout(connect, 5000);
             });
+        }
+
+        // // перенос к низу чата
+        // function scrollToBottom(){
+        //     const messages = document.getElementById("messages");
+        //     messages.scrollTop = messages.scrollHeight;
+        // }
+
+        function showServerMessage(serverMessage){
+            var messageElement = document.createElement('div');
+            var text = document.createElement('p');
+            var date = document.createElement('span');
+            // message content
+            var senderName = serverMessage.senderName;
+            var messageContent = serverMessage.content;
+            var dateValue = new Date(serverMessage.timestamp);
+            // add data 
+            text.innerText = senderName + ": " + messageContent;
+            date.innerText = dateValue.getHours() + ":" + dateValue.getMinutes();
+            
+            messageElement.appendChild(text);
+            messageElement.appendChild(date);
+
+            messageElement.classList.add("messages_server");
+            document.getElementById("messages").appendChild(messageElement);
+        }
+
+        function showMyMessage(message){
+            var messageElement = document.createElement('div');
+            var text = document.createElement('p');
+            var date = document.createElement('span');
+            var dateValue = new Date();
+            date.innerText = dateValue.getHours() + ":" + dateValue.getMinutes();
+            text.innerText = message;
+            messageElement.appendChild(text);
+            messageElement.appendChild(date);
+            messageElement.classList.add("messages_client");
+            document.getElementById("messages").appendChild(messageElement);
+        }
+
+        function sendMessage(){
+            let inputMessage = document.getElementById("inputMessage");
+            let messageContent = inputMessage.value
+            console.log("message: ", messageContent);
+
+            if(messageContent && stompClient){
+                const chatMessage = {
+                    roomId: roomId,
+                    senderId: currentUserId,
+                    senderName: currentUsername,
+                    content: messageContent,
+                    timestamp: new Date().toISOString()
+                };
+                console.log("chat message: ", chatMessage);
+                showMyMessage(messageContent);
+                stompClient.send('/app/chat.send', {}, JSON.stringify(chatMessage));
+                inputMessage.value = "";
+            }
         }
 
         function checkNotification(message) {

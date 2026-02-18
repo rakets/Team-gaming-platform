@@ -1,3 +1,90 @@
 .hidden {
     display: none;
 }
+
+.messages_client,
+.messages_server {
+    max-width: 70%;
+    padding: 8px 12px;
+    margin-bottom: 10px;       /* расстояние между сообщениями */
+    border-radius: 10px;
+    display: inline-block;
+}
+
+.messages_client {
+    /* background-color: rgb(43, 252, 53);
+    color: black; */
+    background-color: rgb(43, 252, 53);
+    align-self: flex-end;
+    text-align: right;
+}
+
+.messages_server {
+    /* background-color: rgb(43, 235, 252); */
+    /* color: black; */
+    background-color: rgb(43, 235, 252);
+    align-self: flex-start;
+}
+
+.game-layout {
+    display: flex;
+    gap: 20px;              /* расстояние между колонками */
+    align-items: flex-start;
+}
+
+/* левая колонка */
+.player-info {
+    width: 50%;
+    min-width: 250px;
+
+    /* занимает всё доступное место */
+    /* flex: 1;                    */
+    /* max-width: 400px */
+}
+
+/* правая колонка */
+/* .chat {
+    width: 70%;
+} */
+
+
+.chat {
+    /* background-color: rgb(222, 217, 211); */
+    /* border: 1px; */
+    /* border-color: black; */
+    /* border-radius: 5px; */
+
+    /* width: 400px;               */
+    width: 50%;
+    height: 250px;             /* общая высота */
+    background-color: rgb(222, 217, 211);
+    border: 1px solid black;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+}
+
+.messages {
+    display: flex;
+    flex-direction: column;
+
+    flex: 1;                   /* занимает всё доступное место */
+    overflow-y: auto;          /* вертикальная прокрутка */
+    padding: 10px;
+}
+
+/* нижняя панель */
+.chat-input {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+}
+
+/* Мелкий шрифт для времени */
+.messages_client span,
+.messages_server span {
+    font-size: 0.75em;
+    color: #333;
+    display: block;
+    margin-top: 4px;
+}
