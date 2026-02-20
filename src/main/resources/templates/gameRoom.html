@@ -76,7 +76,10 @@
         <!-- <div class="container mt-4 chat"> -->
         <div class="chat">
             <div class="messages" id="messages">
-                <!-- тут будут отображаться сообщения в чате -->
+                <div th:each="message : ${chatHistory}" th:class="${currentUser.userId == message.senderId} ? 'messages_client' : 'messages_server'">
+                    <p th:text="${currentUser.userId == message.senderId ? message.content : message.senderName + ' : ' + message.content}"></p>
+                    <span th:text="${message.timestamp}"></span>
+                </div>
             </div>
             <div class="chat-input">
                 <input type="text" id="inputMessage" placeholder="Type a message"/>
@@ -269,10 +272,10 @@
         }
 
         // // перенос к низу чата
-        // function scrollToBottom(){
-        //     const messages = document.getElementById("messages");
-        //     messages.scrollTop = messages.scrollHeight;
-        // }
+        function scrollToBottom(){
+            const messages = document.getElementById("messages");
+            messages.scrollTop = messages.scrollHeight;
+        }
 
         function showServerMessage(serverMessage){
             var messageElement = document.createElement('div');
@@ -281,10 +284,10 @@
             // message content
             var senderName = serverMessage.senderName;
             var messageContent = serverMessage.content;
-            var dateValue = new Date(serverMessage.timestamp);
+            var dateValue = serverMessage.timestamp;
             // add data 
             text.innerText = senderName + ": " + messageContent;
-            date.innerText = dateValue.getHours() + ":" + dateValue.getMinutes();
+            date.innerText = serverMessage.timestamp;
             
             messageElement.appendChild(text);
             messageElement.appendChild(date);
@@ -298,7 +301,7 @@
             var text = document.createElement('p');
             var date = document.createElement('span');
             var dateValue = new Date();
-            date.innerText = dateValue.getHours() + ":" + dateValue.getMinutes();
+            date.innerText = dateValue.getHours() + " : " + dateValue.getMinutes();
             text.innerText = message;
             messageElement.appendChild(text);
             messageElement.appendChild(date);
@@ -309,7 +312,7 @@
         function sendMessage(){
             let inputMessage = document.getElementById("inputMessage");
             let messageContent = inputMessage.value
-            console.log("message: ", messageContent);
+            var dateValue = new Date();
 
             if(messageContent && stompClient){
                 const chatMessage = {
@@ -317,12 +320,13 @@
                     senderId: currentUserId,
                     senderName: currentUsername,
                     content: messageContent,
-                    timestamp: new Date().toISOString()
+                    timestamp: dateValue.getHours() + " : " + dateValue.getMinutes()
                 };
                 console.log("chat message: ", chatMessage);
                 showMyMessage(messageContent);
                 stompClient.send('/app/chat.send', {}, JSON.stringify(chatMessage));
                 inputMessage.value = "";
+                scrollToBottom();
             }
         }
 

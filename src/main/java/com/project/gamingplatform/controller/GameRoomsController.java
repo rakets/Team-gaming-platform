@@ -1,7 +1,10 @@
 package com.project.gamingplatform.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.project.gamingplatform.dto.ChatMessageDTO;
 import com.project.gamingplatform.dto.GameRoomsDTO;
 import com.project.gamingplatform.dto.UsersDTO;
+import com.project.gamingplatform.service.ChatService;
 import com.project.gamingplatform.service.GameRoomsService;
 import com.project.gamingplatform.service.RoomPlayersService;
 import com.project.gamingplatform.service.UsersService;
@@ -23,15 +26,17 @@ public class GameRoomsController {
 
     private final GameRoomsService gameRoomsService;
     private final RoomPlayersService roomPlayersService;
-    private final SimpMessagingTemplate messagingTemplate;
     private final UsersService usersService;
+    private final ChatService chatService;
 
-    @Autowired
-    public GameRoomsController(GameRoomsService gameRoomsService, RoomPlayersService roomPlayersService, SimpMessagingTemplate messagingTemplate, UsersService usersService) {
+    public GameRoomsController(GameRoomsService gameRoomsService,
+                               RoomPlayersService roomPlayersService,
+                               UsersService usersService,
+                               ChatService chatService) {
         this.gameRoomsService = gameRoomsService;
         this.roomPlayersService = roomPlayersService;
-        this.messagingTemplate = messagingTemplate;
         this.usersService = usersService;
+        this.chatService = chatService;
     }
 
     @GetMapping("/room/new")
@@ -72,14 +77,17 @@ public class GameRoomsController {
 
     @GetMapping("/join-room/{id}")
     public String joinGameRoom(Model model,
-                               @PathVariable("id") int id){
+                               @PathVariable("id") int id) throws JsonProcessingException {
         GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(id);
         List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
         UsersDTO currentUser = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
 
+        List<ChatMessageDTO> chatHistory = chatService.getChatHistory(id);
+
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("players", usersDTOList);
         model.addAttribute("room", gameRoomsDTO);
+        model.addAttribute("chatHistory", chatHistory);
         return "gameRoom";
     }
 

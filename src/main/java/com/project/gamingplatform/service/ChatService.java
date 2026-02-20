@@ -42,7 +42,7 @@ public class ChatService {
         redisTemplate.expire(key, 24, TimeUnit.MINUTES);
     }
 
-    public List<ChatMessageDTO> getChatHistory(Integer roomId) throws JsonProcessingException {
+    public List<ChatMessageDTO> getChatHistory(int roomId) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         String key = "room:" + roomId;
         List<String> messages = redisTemplate.opsForList().range(key, 0, -1);
