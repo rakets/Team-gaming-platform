@@ -2,6 +2,50 @@
     display: none;
 }
 
+/*---------- sound / video control ---------- */
+.control {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn-control {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+
+    background-color: #dc3545; /* bootstrap danger */
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 28px;
+
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-control:hover {
+    background-color: #bb2d3b;
+    transform: scale(1.05);
+}
+
+.mic {
+    background-image: url("/img/mic.svg");
+}
+
+.cam {
+    background-image: url("/img/camera.svg");
+}
+
+.btn-control.off {
+    background-color: #6c757d; /* muted */
+}
+
+/*.btn-control.off.mic {*/
+/*    background-color: gray;*/
+/*}*/
+
+/*-------- chat --------*/
 .messages_client,
 .messages_server {
     max-width: 70%;
