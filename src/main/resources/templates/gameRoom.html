@@ -358,7 +358,7 @@
                     break;
 
                 case "JOIN_GAME_SESSION":
-                    joinGameSession();
+                    showGameSessionButton();
                     break;
                 default:
                     console.warn("Unknown websocket message type:", message.messageType);
@@ -373,9 +373,27 @@
         //     }
         // }
 
-        function joinGameSession(){
+        // отображение кнопки Join Game Session
+        function showGameSessionButton(){
             var gameSession = document.getElementById('gameSessionBtn');
             gameSession.classList.remove('hidden');
+        }
+
+        document.getElementById('gameSessionBtn').addEventListener('click', joinGameSession);
+        // присоединиться к Game Session
+        function joinGameSession(){
+            fetch('/gamesession/join/' + roomId + '/' + roomName, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
+            }).then(response => {
+                if(response.redirected){
+                    window.location.href = response.url;
+                }
+            });
         }
 
         function showJoinNotification(message) {

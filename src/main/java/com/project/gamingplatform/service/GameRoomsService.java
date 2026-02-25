@@ -22,15 +22,17 @@ import java.util.List;
 public class GameRoomsService {
     private final GameRoomsRepository gameRoomsRepository;
     private final RoomPlayersService roomPlayersService;
-    private final GameSessionsService gameSessionsService;
     private final SimpMessagingTemplate messagingTemplate;
     private final UsersService usersService;
     private final WebSocketService webSocketService;
 
-    public GameRoomsService(GameRoomsRepository gameRoomsRepository, RoomPlayersService roomPlayersService, GameSessionsService gameSessionsService, SimpMessagingTemplate messagingTemplate, UsersService usersService, @Lazy WebSocketService webSocketService) {
+    public GameRoomsService(GameRoomsRepository gameRoomsRepository,
+                            RoomPlayersService roomPlayersService,
+                            SimpMessagingTemplate messagingTemplate,
+                            UsersService usersService,
+                            @Lazy WebSocketService webSocketService) {
         this.gameRoomsRepository = gameRoomsRepository;
         this.roomPlayersService = roomPlayersService;
-        this.gameSessionsService = gameSessionsService;
         this.messagingTemplate = messagingTemplate;
         this.usersService = usersService;
         this.webSocketService = webSocketService;
@@ -43,8 +45,6 @@ public class GameRoomsService {
         GameRooms currentGameRoom = gameRoomsRepository.save(gameRoom);
         //saving to RoomPlayers
         roomPlayersService.saveRoomPlayers(currentGameRoom);
-        //saving to GameSessions
-        gameSessionsService.saveGameSession(gameRoom);
     }
 
     public List<GameRoomsDTO> findAllGameRoomsByUser() {
@@ -131,7 +131,7 @@ public class GameRoomsService {
         return gameRoomsDTO;
     }
 
-//  !!!!  ПЕРЕНЕСТИ В RoomPlayersService
+    //  !!!!  ПЕРЕНЕСТИ В RoomPlayersService
     //ОТ RoomPlayersController -> пометка пользователя как ready -> RoomPlayersService.userIsReady
     public void userIsReady(int roomId) {
         // получение комнаты и пользователя
