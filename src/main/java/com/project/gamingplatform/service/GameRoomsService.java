@@ -2,8 +2,10 @@ package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.entity.GameRooms;
+import com.project.gamingplatform.entity.GameSessions;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.repository.GameRoomsRepository;
+import com.project.gamingplatform.repository.GameSessionsRepository;
 import com.project.gamingplatform.util.CustomUserDetails;
 import com.project.gamingplatform.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
@@ -25,17 +27,20 @@ public class GameRoomsService {
     private final SimpMessagingTemplate messagingTemplate;
     private final UsersService usersService;
     private final WebSocketService webSocketService;
+    private final GameSessionsRepository gameSessionsRepository;
 
     public GameRoomsService(GameRoomsRepository gameRoomsRepository,
                             RoomPlayersService roomPlayersService,
                             SimpMessagingTemplate messagingTemplate,
                             UsersService usersService,
-                            @Lazy WebSocketService webSocketService) {
+                            @Lazy WebSocketService webSocketService,
+                            GameSessionsRepository gameSessionsRepository) {
         this.gameRoomsRepository = gameRoomsRepository;
         this.roomPlayersService = roomPlayersService;
         this.messagingTemplate = messagingTemplate;
         this.usersService = usersService;
         this.webSocketService = webSocketService;
+        this.gameSessionsRepository = gameSessionsRepository;
     }
 
     @Transactional
@@ -45,6 +50,10 @@ public class GameRoomsService {
         GameRooms currentGameRoom = gameRoomsRepository.save(gameRoom);
         //saving to RoomPlayers
         roomPlayersService.saveRoomPlayers(currentGameRoom);
+
+        //saving to GameSession
+        GameSessions gameSessions = new GameSessions(currentGameRoom);
+        gameSessionsRepository.save(gameSessions);
     }
 
     public List<GameRoomsDTO> findAllGameRoomsByUser() {

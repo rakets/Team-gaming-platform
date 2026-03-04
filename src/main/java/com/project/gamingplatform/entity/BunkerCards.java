@@ -112,8 +112,7 @@ public class BunkerCards {
                 ", cardName='" + cardName + '\'' +
                 ", description='" + description + '\'' +
                 ", isActive=" + isActive +
-                ", categorySet='" + categorySet + '\'' +
-                ", playerCards=" + playerCards +
+                ", categorySet='" + categorySet +
                 '}';
     }
 }

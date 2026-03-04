@@ -19,13 +19,16 @@ public class RoomPlayersService {
     private final RoomPlayersRepository roomPlayersRepository;
     private final GameRoomsRepository gameRoomsRepository;
     private final WebSocketService webSocketService;
+    private final GameSessionsService gameSessionsService;
 
     public RoomPlayersService(RoomPlayersRepository roomPlayersRepository,
                               GameRoomsRepository gameRoomsRepository,
-                              WebSocketService webSocketService) {
+                              WebSocketService webSocketService,
+                              GameSessionsService gameSessionsService) {
         this.roomPlayersRepository = roomPlayersRepository;
         this.gameRoomsRepository = gameRoomsRepository;
         this.webSocketService = webSocketService;
+        this.gameSessionsService = gameSessionsService;
     }
 
     // save RoomPlayer and adding as MODERATOR
@@ -95,6 +98,10 @@ public class RoomPlayersService {
 
     public boolean areAllUserReadyInRoom(int roomId) {
         if (roomPlayersRepository.isAllUserReadyInRoom(roomId)){
+            log.info("All players are ready in room ID: " + roomId);
+            //вызов раздачи карт игрокам
+            gameSessionsService.settingUpTheGameSession(roomId);
+            log.info("The cards were successfully distributed");
             webSocketService.joinGameSession(roomId);
             return true;
         } else {

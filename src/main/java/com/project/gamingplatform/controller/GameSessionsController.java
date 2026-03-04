@@ -29,7 +29,7 @@ public class GameSessionsController {
     @PostMapping("/join/{roomId}/{roomName}")
     public String createNewGameSession(@PathVariable("roomId") int roomId,
                                        @PathVariable("roomName") String roomName){
-        gameSessionsService.createGameSession(roomId);
+//        gameSessionsService.createGameSession(roomId);
         return "redirect:/gamesession/" + roomName;
     }
 }

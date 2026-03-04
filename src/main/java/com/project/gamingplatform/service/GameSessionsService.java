@@ -13,21 +13,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class GameSessionsService {
     private final GameSessionsRepository gameSessionsRepository;
-    private final GameRoomsRepository gameRoomsRepository;
+    private final GameProcessService gameProcessService;
 
-    public GameSessionsService(GameSessionsRepository gameSessionsRepository, GameRoomsRepository gameRoomsRepository) {
+    public GameSessionsService(GameSessionsRepository gameSessionsRepository,
+                               GameProcessService gameProcessService) {
         this.gameSessionsRepository = gameSessionsRepository;
-        this.gameRoomsRepository = gameRoomsRepository;
+        this.gameProcessService = gameProcessService;
     }
 
-    @Transactional
-    public void createGameSession(int roomId){
-        GameRooms gameRooms = gameRoomsRepository.findById(roomId)
-                .orElseThrow(() -> new RuntimeException("The room was not found, when user tried search room."));
-        GameSessions gameSessions = new GameSessions(gameRooms);
-        if (!gameSessionsRepository.existsByGameRooms(gameRooms)) {
-            gameSessionsRepository.save(gameSessions);
-            log.info("Game session for room ID: {} has been created.", roomId);
-        }
+    public void settingUpTheGameSession(Integer roomId){
+        GameSessions gameSessions = gameSessionsRepository.getGameSessionsByRoomId(roomId);
+        gameProcessService.distributionGameCards(gameSessions);
     }
 }

@@ -85,7 +85,6 @@ public class PlayerCards {
                 "id=" + id +
                 ", session=" + session +
                 ", user=" + user +
-                ", bunkerCards=" + bunkerCards +
                 ", revealed=" + revealed +
                 '}';
     }

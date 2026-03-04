@@ -56,6 +56,9 @@ public class GameSessions {
         this.gameRooms = gameRooms;
     }
 
+    public GameSessions() {
+    }
+
     public Integer getSessionId() {
         return sessionId;
     }

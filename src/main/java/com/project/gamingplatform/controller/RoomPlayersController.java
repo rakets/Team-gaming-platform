@@ -1,6 +1,7 @@
 package com.project.gamingplatform.controller;
 
 import com.project.gamingplatform.service.GameRoomsService;
+import com.project.gamingplatform.service.GameSessionsService;
 import com.project.gamingplatform.service.RoomPlayersService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -14,8 +15,7 @@ public class RoomPlayersController {
     private final GameRoomsService gameRoomsService;
     private final RoomPlayersService roomPlayersService;
 
-    public RoomPlayersController(GameRoomsService gameRoomsService,
-                                 RoomPlayersService roomPlayersService) {
+    public RoomPlayersController(GameRoomsService gameRoomsService, RoomPlayersService roomPlayersService) {
         this.gameRoomsService = gameRoomsService;
         this.roomPlayersService = roomPlayersService;
     }
@@ -35,7 +35,6 @@ public class RoomPlayersController {
     @PostMapping("/allReady/{roomId}")
     public ResponseEntity<Void> isAllPlayersReady(@PathVariable("roomId") int roomId){
         if(roomPlayersService.areAllUserReadyInRoom(roomId)){
-            log.info("All players are ready in room ID: " + roomId);
             return ResponseEntity.ok().build();
         } else {
             // если вернуло false, то высылаем 409 Conflict
