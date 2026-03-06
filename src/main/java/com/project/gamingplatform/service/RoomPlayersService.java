@@ -1,8 +1,7 @@
 package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.entity.*;
-import com.project.gamingplatform.repository.GameRoomsRepository;
-import com.project.gamingplatform.repository.RoomPlayersRepository;
+import com.project.gamingplatform.repository.*;
 import com.project.gamingplatform.util.CustomUserDetails;
 import com.project.gamingplatform.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
@@ -20,15 +19,24 @@ public class RoomPlayersService {
     private final GameRoomsRepository gameRoomsRepository;
     private final WebSocketService webSocketService;
     private final GameSessionsService gameSessionsService;
+    private final PlayerCardsRepository playerCardsRepository;
+    private final PlayerRolesRepository playerRolesRepository;
+    private final GameSessionsRepository gameSessionsRepository;
 
     public RoomPlayersService(RoomPlayersRepository roomPlayersRepository,
                               GameRoomsRepository gameRoomsRepository,
                               WebSocketService webSocketService,
-                              GameSessionsService gameSessionsService) {
+                              GameSessionsService gameSessionsService,
+                              PlayerCardsRepository playerCardsRepository,
+                              PlayerRolesRepository playerRolesRepository,
+                              GameSessionsRepository gameSessionsRepository) {
         this.roomPlayersRepository = roomPlayersRepository;
         this.gameRoomsRepository = gameRoomsRepository;
         this.webSocketService = webSocketService;
         this.gameSessionsService = gameSessionsService;
+        this.playerCardsRepository = playerCardsRepository;
+        this.playerRolesRepository = playerRolesRepository;
+        this.gameSessionsRepository = gameSessionsRepository;
     }
 
     // save RoomPlayer and adding as MODERATOR
@@ -69,9 +77,14 @@ public class RoomPlayersService {
 
     @Transactional
     public void cleanRoomPlayers(int roomId, int userId) {
+        //удаление всех игроков из room players, кромер модера
         roomPlayersRepository.deleteAllPlayersExceptModerator(roomId);
         //установка статуса UNREADY у модератора
         roomPlayersRepository.updateUserAsUnready(userId, roomId);
+        //удаление всех игроков из player roles и player cards
+        GameSessions gameSessions = gameSessionsRepository.getGameSessionsByRoomId(roomId);
+        playerRolesRepository.deleteAllBySession(gameSessions);
+        playerCardsRepository.deleteAllBySession(gameSessions);
     }
 
     // ОТ GameRoomsService -> бд
@@ -97,7 +110,7 @@ public class RoomPlayersService {
     }
 
     public boolean areAllUserReadyInRoom(int roomId) {
-        if (roomPlayersRepository.isAllUserReadyInRoom(roomId)){
+        if (roomPlayersRepository.isAllUserReadyInRoom(roomId)) {
             log.info("All players are ready in room ID: " + roomId);
             //вызов раздачи карт игрокам
             gameSessionsService.settingUpTheGameSession(roomId);
