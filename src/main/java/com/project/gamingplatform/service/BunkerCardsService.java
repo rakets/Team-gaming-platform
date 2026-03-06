@@ -27,6 +27,9 @@ public class BunkerCardsService {
         cards.put(CardType.LUGGAGE, bunkerCardsRepository.getBunkerCardsByCardType(CardType.LUGGAGE, countPlayers));
         cards.put(CardType.CHARACTER, bunkerCardsRepository.getBunkerCardsByCardType(CardType.CHARACTER, countPlayers));
         cards.put(CardType.SKILL, bunkerCardsRepository.getBunkerCardsByCardType(CardType.SKILL, countPlayers));
+
+        cards.put(CardType.BUNKER_INFO, bunkerCardsRepository.getBunkerCardsByCardType(CardType.BUNKER_INFO, 1));
+        cards.put(CardType.CATASTROPHE, bunkerCardsRepository.getBunkerCardsByCardType(CardType.CATASTROPHE, 1));
         return cards;
     }
 }
