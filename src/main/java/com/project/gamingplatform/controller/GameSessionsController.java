@@ -27,7 +27,7 @@ public class GameSessionsController {
     }
 
     @PatchMapping("/join/{roomId}/{roomName}")
-    public ResponseEntity<Void> createNewGameSession(@PathVariable("roomId") int roomId){
+    public ResponseEntity<Void> getGameSession(@PathVariable("roomId") int roomId){
         gameSessionsService.updateGameSessionStatus(SessionGameStatus.IN_PROGRESS, roomId);
         return ResponseEntity.ok().build();
     }
