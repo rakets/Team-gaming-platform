@@ -51,11 +51,11 @@
     </div>
     
     <!-- Join game session -->
-    <div th:if="${currentUser.readyStatus.name() == 'READY'}"></div>
-        <button id="gameSessionBtn" type="button" class="btn btn-danger hidden">
-            Join Game Session
-        </button>
-    </div>
+    <button id="gameSessionBtn"
+            th:classappend="${currentUser.readyStatus.name() != 'READY' ? 'hidden' : ''}"
+            class="btn btn-danger" >
+        Join Game Session
+    </button>
 
     <div class="container mt-4 game-layout">
         <!--Player data-->
@@ -379,21 +379,27 @@
             gameSession.classList.remove('hidden');
         }
 
-        document.getElementById('gameSessionBtn').addEventListener('click', joinGameSession);
+        document.getElementById('gameSessionBtn').addEventListener('click', joinGameSession);;
+
         // присоединиться к Game Session
         function joinGameSession(){
-            fetch('/gamesession/join/' + roomId + '/' + roomName, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    [header]: token
-                },
-                body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
-            }).then(response => {
-                if(response.redirected){
-                    window.location.href = response.url;
-                }
-            });
+            let way = '/game-session/join/' + roomId + '/' + roomName;
+            if (currentUserGameRole === 'MODERATOR') {
+                fetch(way, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        [header]: token
+                    },
+                    body: JSON.stringify({})
+                }).then(response => {
+                    if(response.ok){
+                        window.location.href = way;
+                    }
+                }); 
+            } else {
+                window.location.href = way;
+            }
         }
 
         function showJoinNotification(message) {

@@ -1,16 +1,15 @@
 package com.project.gamingplatform.controller;
 
+import com.project.gamingplatform.entity.SessionGameStatus;
 import com.project.gamingplatform.service.GameSessionsService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
 
 @Controller
-@RequestMapping("/gamesession")
+@RequestMapping("/game-session")
 @Slf4j
 public class GameSessionsController {
     private final GameSessionsService gameSessionsService;
@@ -19,17 +18,17 @@ public class GameSessionsController {
         this.gameSessionsService = gameSessionsService;
     }
 
-    @GetMapping("/{roomName}")
+    @GetMapping("/join/{roomId}/{roomName}")
     public String getGameSession(Model model,
+                                 @PathVariable("roomId") int roomId,
                                  @PathVariable("roomName") String roomName){
         model.addAttribute("roomName", roomName);
         return "gameSession";
     }
 
-    @PostMapping("/join/{roomId}/{roomName}")
-    public String createNewGameSession(@PathVariable("roomId") int roomId,
-                                       @PathVariable("roomName") String roomName){
-//        gameSessionsService.createGameSession(roomId);
-        return "redirect:/gamesession/" + roomName;
+    @PatchMapping("/join/{roomId}/{roomName}")
+    public ResponseEntity<Void> createNewGameSession(@PathVariable("roomId") int roomId){
+        gameSessionsService.updateGameSessionStatus(SessionGameStatus.IN_PROGRESS, roomId);
+        return ResponseEntity.ok().build();
     }
 }
