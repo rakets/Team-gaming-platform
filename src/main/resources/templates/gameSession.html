@@ -17,16 +17,442 @@
 <body>
 
     <header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-        <span class="navbar-brand">Game Session : <label th:text="${roomName}"></label></span>
+        <span class="navbar-brand">Game Session : <label th:text="${room.roomName}"></label></span>
         <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
     </header>
 
     <a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
 
+    <div class="container mt-4 game-layout">
+        <!--Player data-->
+        <!-- <div class="container mt-4"> -->
+        <div class="player-info">
+            <p> Game Room : <label th:text="${room.roomName}"></label></p>
+            <p> Player : <label th:text="${currentUser.username}"></label></p>
+            <div id="page-data" th:data-username="${currentUser.username}"></div>
+            <p> Role : <label th:text="${currentUser.gameRole.name()}"></label></p>
+            <p> Status : <label id="current-user-status"
+                    th:classappend="${currentUser.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
+                    th:text="${currentUser.readyStatus.name()}">
+                </label>
+            </p>
+        </div>
+        
+        <!-- контейнер видео -->
+        <div id="layout-container"></div> 
+
+        <!--    chat-->
+        <!-- <div class="container mt-4 chat"> -->
+        <div class="chat">
+            <div class="messages" id="messages">
+                <div th:each="message : ${chatHistory}" th:class="${currentUser.userId == message.senderId} ? 'messages_client' : 'messages_server'">
+                    <p th:text="${currentUser.userId == message.senderId ? message.content : message.senderName + ' : ' + message.content}"></p>
+                    <span th:text="${message.timestamp}"></span>
+                </div>
+            </div>
+            <div class="chat-input">
+                <input type="text" id="inputMessage" placeholder="Type a message"/>
+                <button id="sendMessage" type="button" class="btn btn-success">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!--    sound / video buttons-->
+    <div class="container mt-4 control">
+        <button id="sound" type="button" class="btn-control mic"></button>
+        <button id="video" type="button" class="btn-control cam"></button>
+    </div>
+
+    <!--игроки-->
+    <div class="container">
+        <h3>Игроки в комнате:</h3>
+        <div id="players-container" class="row">
+            <div th:each="player : ${players}" class="col-md-4 player-card">
+                <div class="card" th:id="'user-' + ${player.userId}">
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${player.username}">Username</h5>
+                        <p class="card-text">Role: <span th:text="${player.gameRole}">PLAYER</span></p>
+                        <p class="card-text">Status:
+                            <span th:id="'user-status-' + ${player.userId}"
+                                th:classappend="${player.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
+                                th:text="${player.readyStatus}">
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 
+    <!--WebSocket-->
+    <script th:src="@{/webjars/sockjs-client/sockjs.min.js}"></script>
+    <script th:src="@{/webjars/stomp-websocket/stomp.min.js}"></script>
+    <!---->
+
+    <!--LiveKit-->
+    <script src="https://cdn.jsdelivr.net/npm/livekit-client@2.5.9/dist/livekit-client.umd.js"></script>
+    <!---->
+
     <script type="text/javascript" th:inline="javascript">
+        var stompClient = null;
+        var roomId = [[${ room.roomId }]];
+        var roomName = [[${ room.roomName }]]; // для LiveKit
+        console.log('Room Name: ', roomName);
+
+        var currentUserId = [[${ currentUser.userId }]];
+        console.log('User ID: ', currentUserId);
+        var currentUserGameRole = [[${ currentUser.gameRole }]];
+        console.log('User game role: ', currentUserGameRole);
+
+        const currentUsername = document.getElementById('page-data').dataset.username;
+        console.log('User name: ', currentUsername);
+
+        const token = $('meta[name="_csrf"]').attr('content');
+        const header = $('meta[name="_csrf_header"]').attr('content');
+
+        function connect() {
+            // Подключение к WebSocket endpoint '/WsGameRoom'
+            var socket = new SockJS('/WsGameRoom');
+            stompClient = Stomp.over(socket);
+
+            // Добавляем roomId в заголовки подключения
+            var headers = {
+                "roomId": roomId,
+                "userId": currentUserId,
+                "gameRole": currentUserGameRole
+            };
+            console.log('headers: ', headers);
+
+            // Настройка Heartbeat (в миллисекундах)
+            // incoming: 10000 (ждем от сервера каждые 10 сек)
+            // outgoing: 10000 (шлем на сервер каждые 10 сек)
+            stompClient.heartbeat.outgoing = 5000;
+            stompClient.heartbeat.incoming = 5000;
+
+            stompClient.connect(headers, function (frame) {
+                console.log('Connected to WebSocket: ' + frame);
+
+                // Подписка на личный канал уведомлений пользователя
+                // Путь: /user/queue/notifications
+                // Spring Security автоматически определяет текущего пользователя.
+                stompClient.subscribe('/topic/room/' + roomId, function (notification) {
+                    console.log("Raw message received:", JSON.parse(notification.body)); // Если notification.body придет пустым или битым, здесь будет ошибка
+                    checkNotification(JSON.parse(notification.body)); // Обрабатка входящего JSON-сообщение
+                });
+                // подписка на канал для чата
+                stompClient.subscribe('/topic/room/' + roomId + '/chat', function(message){
+                    const messageObj = JSON.parse(message.body);
+                    if (messageObj.senderId !== currentUserId){
+                        showServerMessage(messageObj); 
+                    }
+                });
+
+            }, function (error) {
+                console.error('STOMP Error:', error);
+                //        setTimeout(connect, 5000);
+            });
+            joinRoom(); // подключение к LiveKit
+        }
+
+        // // перенос к низу чата
+        function scrollToBottom(){
+            const messages = document.getElementById("messages");
+            messages.scrollTop = messages.scrollHeight;
+        }
+
+        function showServerMessage(serverMessage){
+            var messageElement = document.createElement('div');
+            var text = document.createElement('p');
+            var date = document.createElement('span');
+            // message content
+            var senderName = serverMessage.senderName;
+            var messageContent = serverMessage.content;
+            var dateValue = serverMessage.timestamp;
+            // add data 
+            text.innerText = senderName + ": " + messageContent;
+            date.innerText = serverMessage.timestamp;
+            
+            messageElement.appendChild(text);
+            messageElement.appendChild(date);
+
+            messageElement.classList.add("messages_server");
+            document.getElementById("messages").appendChild(messageElement);
+        }
+
+        function showMyMessage(message){
+            var messageElement = document.createElement('div');
+            var text = document.createElement('p');
+            var date = document.createElement('span');
+            var dateValue = new Date();
+            date.innerText = dateValue.getHours() + " : " + dateValue.getMinutes();
+            text.innerText = message;
+            messageElement.appendChild(text);
+            messageElement.appendChild(date);
+            messageElement.classList.add("messages_client");
+            document.getElementById("messages").appendChild(messageElement);
+        }
+
+        document.getElementById('sendMessage').addEventListener('click', sendMessage);
+
+        function sendMessage(){
+            let inputMessage = document.getElementById("inputMessage");
+            let messageContent = inputMessage.value
+            var dateValue = new Date();
+
+            if(messageContent && stompClient){
+                const chatMessage = {
+                    roomId: roomId,
+                    senderId: currentUserId,
+                    senderName: currentUsername,
+                    content: messageContent,
+                    timestamp: dateValue.getHours() + " : " + dateValue.getMinutes()
+                };
+                console.log("chat message: ", chatMessage);
+                showMyMessage(messageContent);
+                stompClient.send('/app/chat.send', {}, JSON.stringify(chatMessage));
+                inputMessage.value = "";
+                scrollToBottom();
+            }
+        }
+
+        function checkNotification(message) {
+            switch(message.messageType){
+                case "JOIN":
+                case "LEAVE":
+                    showJoinNotification(message);
+                    break;
+                
+                case "READY":
+                case "UNREADY":
+                    showReadyNotification(message);
+                    break;
+
+                case "JOIN_GAME_SESSION":
+                    showGameSessionButton();
+                    break;
+                default:
+                    console.warn("Unknown websocket message type:", message.messageType);
+            }
+        }
+
+        function showJoinNotification(message) {
+            var userId = message.userId;
+            var username = message.username;
+            var gameRole = message.gameRole;
+            var readyStatus = message.readyStatus;
+            console.log("message:", message);
+
+            if (message.messageType === "JOIN") {
+                var exists = false;
+                $('#players-container .card-title').each(function () {
+                    if ($(this).text() === username) {
+                        exists = true;
+                    }
+                });
+                if (exists) {
+                    console.log("player is already , skeep");
+                    return;
+                } else {
+                    let statusClass = (readyStatus === 'READY') ? ' bg-success text-white' : '';
+                    var newPlayerHtml = `
+                                <div class="col-md-4 player-card">
+                                                        <div class="card" id="user-${userId}"> <div class="card-body">
+                                                                <h5 class="card-title">${username}</h5>
+                                                                <p class="card-text">Role: <span>${gameRole}</span></p>
+                                                                <p class="card-text">Status: 
+                                                                    <span id="user-status-${userId}" class="${statusClass}">${readyStatus}</span>
+                                                                </p>
+                                                        </div>
+                                                        </div>
+                                                    </div>
+                                                `;
+                    $('#players-container').append(newPlayerHtml);
+                }
+            }
+            if (message.messageType === "LEAVE") {
+                const elementId = "user-" + userId;
+                const playerCard = document.getElementById(elementId);
+                if (playerCard) {
+                    let column = playerCard.closest('.player-card'); //находим родительский контейнер
+                    if (column) {
+                        column.remove(); //удаление всей колонки сетки
+                    }
+                }
+            }
+        }
+        //   ----------- LiveKit -----------------
+        var APPLICATION_SERVER_URL = "";
+        var LIVEKIT_URL = "";
+        configureUrls();
+        console.log("Server URL: ", APPLICATION_SERVER_URL);
+        console.log("LIVEKIT URL: ", LIVEKIT_URL);
+        const LivekitClient = window.LivekitClient;
+        var room;
+
+        let cameraEnabled = false;
+        let micEnabled = false;
+
+        document.getElementById("sound").addEventListener('click', sound);
+        document.getElementById("video").addEventListener('click', video);
+
+        function sound() {
+            document.getElementById("sound").classList.toggle("off");
+            soundOn();
+        };
+        function video() {
+            document.getElementById("video").classList.toggle("off");
+            videoOn();
+        };
+
+        async function videoOn() {
+            if (!room) {
+                return;
+            } 
+            // запрос разрешений видео + публикация
+            if (!cameraEnabled) {
+                await room.localParticipant.setCameraEnabled(true);
+                cameraEnabled = true;
+                // получаем локальный видео-трек
+                const videoPub = room.localParticipant.videoTrackPublications.values().next().value;
+                const localVideoTrack = videoPub.track;
+                addTrack(localVideoTrack, room.localParticipant.identity, true);
+            } else {
+                await room.localParticipant.setCameraEnabled(false);
+                cameraEnabled = false;
+                room.localParticipant.videoTrackPublications.forEach(pub => {
+                    pub.track?.stop();
+                    room.localParticipant.unpublishTrack(pub.track);
+                });
+                removeVideoContainer(room.localParticipant.identity);
+            }
+        };
+
+        async function soundOn() {
+            if (!room) {
+                return;
+            }
+            if (!micEnabled) {
+                // включаем микрофон
+                await room.localParticipant.setMicrophoneEnabled(true);
+                micEnabled = true;
+            } else {
+                // выключаем микрофон
+                await room.localParticipant.setMicrophoneEnabled(false);
+                micEnabled = false;
+            }
+        }
+        function configureUrls() {
+        // If APPLICATION_SERVER_URL is not configured, use default value from OpenVidu Local deployment
+            if (!APPLICATION_SERVER_URL) {
+                if (window.location.hostname === "localhost") {
+                    APPLICATION_SERVER_URL = "http://localhost:8080/";
+                } else {
+                    APPLICATION_SERVER_URL = "https://" + window.location.hostname + ":6443/";
+                }
+            }
+
+        // If LIVEKIT_URL is not configured, use default value from OpenVidu Local deployment
+            if (!LIVEKIT_URL) {
+                if (window.location.hostname === "localhost") {
+                    LIVEKIT_URL = "ws://localhost:7880/";
+                } else {
+                    LIVEKIT_URL = "wss://" + window.location.hostname + ":7443/";
+                }
+            }
+        }
+
+        async function joinRoom() {
+            room = new LivekitClient.Room();
+
+            room.on(LivekitClient.RoomEvent.TrackSubscribed, (track, _pub, participant) => {
+                addTrack(track, participant.identity);
+            });
+
+            room.on(LivekitClient.RoomEvent.TrackUnsubscribed, (track, _pub, participant) => {
+                track.detach();
+                document.getElementById(track.sid)?.remove();
+                if (track.kind === "video") {
+                    removeVideoContainer(participant.identity);
+                }
+            });
+            const liveKitToken = await getToken(roomName, currentUsername);
+            console.log("LiveKit token: ", liveKitToken);
+            await room.connect(LIVEKIT_URL, liveKitToken);
+        }
+
+        function addTrack(track, participantIdentity, local = false) {
+            const element = track.attach();
+            element.id = track.sid;
+
+            /* If the track is a video track, we create a container and append the video element to it
+            with the participant's identity */
+            if (track.kind === "video") {
+                const videoContainer = createVideoContainer(participantIdentity, local);
+                videoContainer.append(element);
+                appendParticipantData(videoContainer, participantIdentity + (local ? " (You)" : ""));
+            } else {
+                document.getElementById("layout-container").append(element);
+            }
+        }
+
+        function createVideoContainer(participantIdentity, local = false) {
+            const videoContainer = document.createElement("div");
+            videoContainer.id = `camera-${participantIdentity}`;
+            videoContainer.className = "video-container";
+            const layoutContainer = document.getElementById("layout-container");
+
+            if (local) {
+                layoutContainer.prepend(videoContainer);
+            } else {
+                layoutContainer.append(videoContainer);
+            }
+            return videoContainer;
+        }
+
+        function appendParticipantData(videoContainer, participantIdentity) {
+            const dataElement = document.createElement("div");
+            dataElement.className = "participant-data";
+            dataElement.innerHTML = `<p>${participantIdentity}</p>`;
+            videoContainer.prepend(dataElement);
+        }
+
+        function removeVideoContainer(participantIdentity) {
+            const videoContainer = document.getElementById(`camera-${participantIdentity}`);
+            videoContainer?.remove();
+        }
+
+        function removeAllLayoutElements() {
+            const layoutElements = document.getElementById("layout-container").children;
+            Array.from(layoutElements).forEach((element) => {
+                element.remove();
+            });
+        }
+
+//        GETTING A TOKEN FROM SERVER
+        async function getToken(roomName, participantName) {
+            const response = await fetch(APPLICATION_SERVER_URL + "token", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    [header]: token
+                },
+                body: JSON.stringify({
+                    roomName,
+                    participantName
+                })
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                throw new Error(`Failed to get token: ${error.errorMessage}`);
+            }
+            const data = await response.json();
+            return data.token;
+        }
+        //   ----------- LiveKit -----------------
     
         // Подключение при полной загрузке страницы
         $(document).ready(function () {
