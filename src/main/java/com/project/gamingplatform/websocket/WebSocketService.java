@@ -1,10 +1,8 @@
 package com.project.gamingplatform.websocket;
 
 import com.project.gamingplatform.dto.*;
-import com.project.gamingplatform.entity.GameRooms;
-import com.project.gamingplatform.entity.RoleInRoom;
-import com.project.gamingplatform.entity.RoomPlayersId;
-import com.project.gamingplatform.entity.Users;
+import com.project.gamingplatform.entity.*;
+import com.project.gamingplatform.repository.GameSessionsRepository;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
 import com.project.gamingplatform.service.GameRoomsService;
 import com.project.gamingplatform.service.RoomPlayersService;
@@ -38,6 +36,7 @@ public class WebSocketService {
     private final UsersService usersService;
     private final RoomPlayersRepository roomPlayersRepository;
     private final TaskScheduler taskScheduler;
+    private final GameSessionsRepository gameSessionsRepository;
 
     // хранилище задач на удаление: Key = UserId, Value = Задача таймера
     private final Map<Integer, ScheduledFuture<?>> pendingRemovals = new ConcurrentHashMap<>();
@@ -46,11 +45,13 @@ public class WebSocketService {
     public WebSocketService(SimpMessagingTemplate messagingTemplate,
                             @Lazy UsersService usersService,
                             RoomPlayersRepository roomPlayersRepository,
-                            @Qualifier("heartBeatScheduler") TaskScheduler taskScheduler) {
+                            @Qualifier("heartBeatScheduler") TaskScheduler taskScheduler,
+                            GameSessionsRepository gameSessionsRepository) {
         this.messagingTemplate = messagingTemplate;
         this.usersService = usersService;
         this.roomPlayersRepository = roomPlayersRepository;
         this.taskScheduler = taskScheduler;
+        this.gameSessionsRepository = gameSessionsRepository;
     }
 
     //    public void createAndSendMessage() {
@@ -153,9 +154,11 @@ public class WebSocketService {
                             //----удаление юзера из таблицы
 //                            roomPlayersService.deleteUserFromGameRoom(roomId, userId); //удаление игрока
                             RoomPlayersId roomPlayersId = new RoomPlayersId(roomId, userId);
-                            roomPlayersRepository.deleteById(roomPlayersId);
-                            log.info("User " + userId + " is deleted from RoomPlayers.");
-                            pendingRemovals.remove(userId); // очистка карты
+                            if(!gameSessionsRepository.existsByGameRoomsRoomIdAndStatus(roomId, SessionGameStatus.IN_PROGRESS)){
+                                roomPlayersRepository.deleteById(roomPlayersId);
+                                log.info("User " + userId + " is deleted from RoomPlayers.");
+                                pendingRemovals.remove(userId); // очистка карты
+                            }
                         }
                     }, Instant.now().plusSeconds(5)); // время ожидания
                     pendingRemovals.put(userId, task); // cохраняем задачу, чтобы иметь возможность её отменить
