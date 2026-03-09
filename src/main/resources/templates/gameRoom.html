@@ -200,27 +200,6 @@
                 .catch(err => console.error(err));
         }
 
-        function clickReady() {
-            fetch('/roomPlayers/ready/' + roomId, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    [header]: token
-                },
-                body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
-            }).then(response => {
-                if (response.ok) {
-                    console.log('User marked as READY in BD');
-                    // кнопка отключается после клика
-                    //                $('#readyBtn').hide();
-                    //                $('#unreadyBtn').fadeIn();
-                    $('#readyBtn').addClass('hidden');
-                    $('#unreadyBtn').removeClass('hidden');
-                }
-            })
-                .catch(err => console.error(err));
-        }
-
         function clickUnReady() {
             fetch('/roomPlayers/unready/' + roomId, {
                 method: 'PATCH',
@@ -364,14 +343,6 @@
                     console.warn("Unknown websocket message type:", message.messageType);
             }
         }
-
-        // function checkNotification(message) {
-        //     if (message.messageType === "JOIN" || message.messageType === "LEAVE") {
-        //         showJoinNotification(message);
-        //     } else {
-        //         showReadyNotification(message);
-        //     }
-        // }
 
         // отображение кнопки Join Game Session
         function showGameSessionButton(){
