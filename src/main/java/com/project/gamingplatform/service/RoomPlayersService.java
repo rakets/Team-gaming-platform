@@ -85,6 +85,8 @@ public class RoomPlayersService {
         GameSessions gameSessions = gameSessionsRepository.getGameSessionsByRoomId(roomId);
         playerRolesRepository.deleteAllBySession(gameSessions);
         playerCardsRepository.deleteAllBySession(gameSessions);
+        //смена статуса game session
+        gameSessionsService.updateGameSessionStatus(SessionGameStatus.WAITING, roomId);
     }
 
     // ОТ GameRoomsService -> бд
