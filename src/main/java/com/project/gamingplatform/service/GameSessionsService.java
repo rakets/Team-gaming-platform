@@ -27,6 +27,7 @@ public class GameSessionsService {
     public void settingUpTheGameSession(Integer roomId){
         GameSessions gameSessions = gameSessionsRepository.getGameSessionsByRoomId(roomId);
         gameProcessService.distributionGameCards(gameSessions);
+        updateGameSessionStatus(SessionGameStatus.IN_PROGRESS, roomId);
     }
 
     //updating status of game session

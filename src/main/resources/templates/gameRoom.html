@@ -354,23 +354,24 @@
 
         // присоединиться к Game Session
         function joinGameSession(){
-            let way = '/game-session/join/' + roomId + '/' + roomName;
-            if (currentUserGameRole === 'MODERATOR') {
-                fetch(way, {
-                    method: 'PATCH',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        [header]: token
-                    },
-                    body: JSON.stringify({})
-                }).then(response => {
-                    if(response.ok){
-                        window.location.href = way;
-                    }
-                }); 
-            } else {
-                window.location.href = way;
-            }
+            // let way = '/game-session/join/' + roomId + '/' + roomName;
+            // if (currentUserGameRole === 'MODERATOR') {
+            //     fetch(way, {
+            //         method: 'PATCH',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //             [header]: token
+            //         },
+            //         body: JSON.stringify({})
+            //     }).then(response => {
+            //         if(response.ok){
+            //             window.location.href = way;
+            //         }
+            //     }); 
+            // } else {
+            //     window.location.href = way;
+            // }
+            window.location.href = '/game-session/join/' + roomId + '/' + roomName;;
         }
 
         function showJoinNotification(message) {

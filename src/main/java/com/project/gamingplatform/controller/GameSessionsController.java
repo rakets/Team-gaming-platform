@@ -49,10 +49,9 @@ public class GameSessionsController {
         model.addAttribute("chatHistory", chatHistory);
         return "gameSession";
     }
-
-    @PatchMapping("/join/{roomId}/{roomName}")
-    public ResponseEntity<Void> getGameSession(@PathVariable("roomId") int roomId){
-        gameSessionsService.updateGameSessionStatus(SessionGameStatus.IN_PROGRESS, roomId);
-        return ResponseEntity.ok().build();
-    }
+//    @PatchMapping("/join/{roomId}/{roomName}")
+//    public ResponseEntity<Void> getGameSession(@PathVariable("roomId") int roomId){
+//        gameSessionsService.updateGameSessionStatus(SessionGameStatus.IN_PROGRESS, roomId);
+//        return ResponseEntity.ok().build();
+//    }
 }
