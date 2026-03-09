@@ -143,26 +143,30 @@ public class WebSocketService {
             String gameRole = sessionAttributes.get("gameRole").toString();
             if (roomId != null && userId != null && gameRole != null) {
                 String username = event.getUser().getName(); // Если пользователь авторизован
-                log.info("User " + username + " with ID: " + userId + " disconnected from room " + roomId + " as " + gameRole);
-                leaveGameRoom(roomId, userId);// оповещение по вебсокет, что игрок вышел
-                if (gameRole.equals("PLAYER")) {
-                    //запуск таймера.
-                    ScheduledFuture<?> task = taskScheduler.schedule(() -> {
-                        //сработает через 5сек, если не будет ответа.
-                        log.info("Timeout passed. Removing user {} from room {}", userId, roomId);
-                        if (gameRole.equals("PLAYER")) {
-                            //----удаление юзера из таблицы
-//                            roomPlayersService.deleteUserFromGameRoom(roomId, userId); //удаление игрока
-                            RoomPlayersId roomPlayersId = new RoomPlayersId(roomId, userId);
-                            if(!gameSessionsRepository.existsByGameRoomsRoomIdAndStatus(roomId, SessionGameStatus.IN_PROGRESS)){
-                                roomPlayersRepository.deleteById(roomPlayersId);
-                                log.info("User " + userId + " is deleted from RoomPlayers.");
-                                pendingRemovals.remove(userId); // очистка карты
+                //запуск таймера в случае, если у человека какие-то сбои подключения или перезагрузка страницы.
+                ScheduledFuture<?> task1 = taskScheduler.schedule(() -> {
+                    log.info("User " + username + " with ID: " + userId + " disconnected from room " + roomId + " as " + gameRole);
+                    leaveGameRoom(roomId, userId);// оповещение по вебсокет, что игрок вышел
+                    if (gameRole.equals("PLAYER")) {
+                        //запуск таймера, если человек вышел из комнаты(таймер task1 сработал)
+                        ScheduledFuture<?> task2 = taskScheduler.schedule(() -> {
+                            //сработает через 5сек, если не будет ответа.
+                            log.info("Timeout passed. Removing user {} from room {}", userId, roomId);
+                            if (gameRole.equals("PLAYER")) {
+                                //----удаление юзера из таблицы
+                                //                            roomPlayersService.deleteUserFromGameRoom(roomId, userId); //удаление игрока
+                                RoomPlayersId roomPlayersId = new RoomPlayersId(roomId, userId);
+                                if (!gameSessionsRepository.existsByGameRoomsRoomIdAndStatus(roomId, SessionGameStatus.IN_PROGRESS)) {
+                                    roomPlayersRepository.deleteById(roomPlayersId);
+                                    log.info("User " + userId + " is deleted from RoomPlayers.");
+                                    pendingRemovals.remove(userId); // очистка карты
+                                }
                             }
-                        }
-                    }, Instant.now().plusSeconds(5)); // время ожидания
-                    pendingRemovals.put(userId, task); // cохраняем задачу, чтобы иметь возможность её отменить
-                }
+                        }, Instant.now().plusSeconds(15)); // время ожидания для удаления игрока из таблицы
+                        pendingRemovals.put(userId, task2); // cохраняем задачу, чтобы иметь возможность её отменить
+                    }
+                }, Instant.now().plusSeconds(5)); // время ожидания удаления игрока со списка игроков в комнате.
+                pendingRemovals.put(userId, task1); // cохраняем задачу, чтобы иметь возможность её отменить
             }
         }
     }
