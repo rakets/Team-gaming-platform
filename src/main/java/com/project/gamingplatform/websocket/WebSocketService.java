@@ -162,7 +162,7 @@ public class WebSocketService {
                                     pendingRemovals.remove(userId); // очистка карты
                                 }
                             }
-                        }, Instant.now().plusSeconds(15)); // время ожидания для удаления игрока из таблицы
+                        }, Instant.now().plusSeconds(5)); // время ожидания для удаления игрока из таблицы
                         pendingRemovals.put(userId, task2); // cохраняем задачу, чтобы иметь возможность её отменить
                     }
                 }, Instant.now().plusSeconds(5)); // время ожидания удаления игрока со списка игроков в комнате.

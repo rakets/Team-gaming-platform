@@ -51,11 +51,7 @@
     </div>
     
     <!-- Join game session -->
-    <button id="gameSessionBtn"
-            th:classappend="${currentUser.readyStatus.name() != 'READY' ? 'hidden' : ''}"
-            class="btn btn-danger" >
-        Join Game Session
-    </button>
+    <button id="gameSessionBtn" class="btn btn-danger hidden"> Join Game Session </button>
 
     <div class="container mt-4 game-layout">
         <!--Player data-->
@@ -132,7 +128,8 @@
     <script type="text/javascript" th:inline="javascript">
         var stompClient = null;
         var roomId = [[${ room.roomId }]];
-        var roomName = [[${ room.roomName }]]; // для LiveKit
+        var roomName = [[${ room.roomName }]]; // for LiveKit
+
         console.log('Room Name: ', roomName);
 
         var currentUserId = [[${ currentUser.userId }]];
@@ -157,6 +154,11 @@
         }
 
         document.getElementById('sendMessage').addEventListener('click', sendMessage);
+        // for showing button 'Join Game Session' if all players are READY when restart page. 
+        var allUsersIsReady = [[${room.allUsersIsReady}]]; 
+        if (allUsersIsReady) {
+            showGameSessionButton();
+        }
 
         function checkAllReady(event){
             event.preventDefault(); // чтобы ссылка не скроллила страницу вверх

@@ -3,14 +3,17 @@ package com.project.gamingplatform.service;
 import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.entity.GameRooms;
 import com.project.gamingplatform.entity.GameSessions;
+import com.project.gamingplatform.entity.SessionGameStatus;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.repository.GameRoomsRepository;
 import com.project.gamingplatform.repository.GameSessionsRepository;
+import com.project.gamingplatform.repository.RoomPlayersRepository;
 import com.project.gamingplatform.util.CustomUserDetails;
 import com.project.gamingplatform.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,19 +31,22 @@ public class GameRoomsService {
     private final UsersService usersService;
     private final WebSocketService webSocketService;
     private final GameSessionsRepository gameSessionsRepository;
+    private final RoomPlayersRepository roomPlayersRepository;
 
     public GameRoomsService(GameRoomsRepository gameRoomsRepository,
                             RoomPlayersService roomPlayersService,
                             SimpMessagingTemplate messagingTemplate,
                             UsersService usersService,
                             @Lazy WebSocketService webSocketService,
-                            GameSessionsRepository gameSessionsRepository) {
+                            GameSessionsRepository gameSessionsRepository,
+                            RoomPlayersRepository roomPlayersRepository) {
         this.gameRoomsRepository = gameRoomsRepository;
         this.roomPlayersService = roomPlayersService;
         this.messagingTemplate = messagingTemplate;
         this.usersService = usersService;
         this.webSocketService = webSocketService;
         this.gameSessionsRepository = gameSessionsRepository;
+        this.roomPlayersRepository = roomPlayersRepository;
     }
 
     @Transactional
@@ -128,13 +134,18 @@ public class GameRoomsService {
     }
 
     @Transactional
-    public GameRoomsDTO joinToGameRoom(int rooId) {
+    public GameRoomsDTO joinToGameRoom(int roomId) {
         //take current game room from bd
-        GameRooms gameRoom = gameRoomsRepository.findById(rooId)
+        GameRooms gameRoom = gameRoomsRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("The room was not found when the player tried to join the room."));
         roomPlayersService.joinToRoomPlayer(gameRoom); //join to room
-        GameRoomsDTO gameRoomsDTO = findGameRoomById(rooId);
-
+        GameRoomsDTO gameRoomsDTO = findGameRoomById(roomId);
+        // проверка, если все игроки READY и session уже начата (для отображения кнопки JOIN Game Session)
+        if(roomPlayersRepository.isAllUserReadyInRoom(roomId) && gameSessionsRepository.existsByGameRoomsRoomIdAndStatus(roomId, SessionGameStatus.IN_PROGRESS)) {
+            gameRoomsDTO.setAllUsersIsReady(true);
+        } else {
+            gameRoomsDTO.setAllUsersIsReady(false);
+        }
         webSocketService.joinToGameRoom(gameRoomsDTO); //websocket
 
         return gameRoomsDTO;
