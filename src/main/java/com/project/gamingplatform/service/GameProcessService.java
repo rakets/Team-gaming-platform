@@ -97,6 +97,7 @@ public class GameProcessService {
         }
     }
 
+    // присваивание всем игрокам роли Survivour
     private void distributionGameRolesInBunker(GameSessions gameSession,
                                               List<RoomPlayers> roomPlayersList) {
 //        Roles role = rolesRepository.findRolesByRoleName(RolesInGameSession.SURVIVOR);
