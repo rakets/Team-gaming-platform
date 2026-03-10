@@ -1,14 +1,12 @@
 package com.project.gamingplatform.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.project.gamingplatform.dto.BunkerCardsDTO;
 import com.project.gamingplatform.dto.ChatMessageDTO;
 import com.project.gamingplatform.dto.GameRoomsDTO;
 import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.SessionGameStatus;
-import com.project.gamingplatform.service.ChatService;
-import com.project.gamingplatform.service.GameRoomsService;
-import com.project.gamingplatform.service.GameSessionsService;
-import com.project.gamingplatform.service.UsersService;
+import com.project.gamingplatform.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -25,18 +23,23 @@ public class GameSessionsController {
     private final GameRoomsService gameRoomsService;
     private final UsersService usersService;
     private final ChatService chatService;
+    private final BunkerCardsService bunkerCardsService;
 
-    public GameSessionsController(GameSessionsService gameSessionsService, GameRoomsService gameRoomsService, UsersService usersService, ChatService chatService) {
+    public GameSessionsController(GameSessionsService gameSessionsService, GameRoomsService gameRoomsService, UsersService usersService, ChatService chatService, BunkerCardsService bunkerCardsService) {
         this.gameSessionsService = gameSessionsService;
         this.gameRoomsService = gameRoomsService;
         this.usersService = usersService;
         this.chatService = chatService;
+        this.bunkerCardsService = bunkerCardsService;
     }
 
-    @GetMapping("/join/{roomId}/{roomName}")
+    @GetMapping("/join/{roomId}/{userId}")
     public String getGameSession(Model model,
                                  @PathVariable("roomId") int roomId,
-                                 @PathVariable("roomName") String roomName)  throws JsonProcessingException {
+                                 @PathVariable("userId") int userId)  throws JsonProcessingException {
+        List<BunkerCardsDTO> bunkerCardsDTOList = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(userId, roomId);
+        System.out.println("player ID: " + userId);
+        System.out.println("Cards: " + bunkerCardsDTOList);
         GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(roomId);
         List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
         UsersDTO currentUser = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
