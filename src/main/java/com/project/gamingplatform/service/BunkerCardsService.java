@@ -1,5 +1,6 @@
 package com.project.gamingplatform.service;
 
+import com.project.gamingplatform.dto.BunkerCardList;
 import com.project.gamingplatform.dto.BunkerCardsDTO;
 import com.project.gamingplatform.entity.BunkerCards;
 import com.project.gamingplatform.entity.CardType;
@@ -39,18 +40,57 @@ public class BunkerCardsService {
         return bunkerCardsRepository.getBunkerCardsByUserIdRoomId(userId, roomId);
     }
 
-    public List<BunkerCardsDTO> getBunkerCardsDTOByUserIdRoomId(int userId, int roomId) {
+//    public List<BunkerCardsDTO> getBunkerCardsDTOByUserIdRoomId(int userId, int roomId) {
+//        List<BunkerCards> bunkerCardsList = getBunkerCardsByUserIdRoomId(userId, roomId);
+//        List<BunkerCardsDTO> bunkerCardsDTOList = new ArrayList<>();
+//        for (BunkerCards bunkerCard : bunkerCardsList) {
+//            BunkerCardsDTO bunkerCardsDTO = convertEntityToDTO(bunkerCard);
+//            bunkerCardsDTOList.add(bunkerCardsDTO);
+//        }
+//        return bunkerCardsDTOList;
+//    }
+
+    public BunkerCardList getBunkerCardsDTOByUserIdRoomId(int userId, int roomId) {
         List<BunkerCards> bunkerCardsList = getBunkerCardsByUserIdRoomId(userId, roomId);
-        List<BunkerCardsDTO> bunkerCardsDTOList = new ArrayList<>();
+        BunkerCardList bunkerCardList = new BunkerCardList();
         for (BunkerCards bunkerCard : bunkerCardsList) {
             BunkerCardsDTO bunkerCardsDTO = convertEntityToDTO(bunkerCard);
-            bunkerCardsDTOList.add(bunkerCardsDTO);
+            switch (bunkerCardsDTO.getCardType()) {
+                case CardType.BUNKER_INFO:
+                    bunkerCardList.setBunkerInfo(bunkerCardsDTO);
+                    break;
+                case CardType.CATASTROPHE:
+                    bunkerCardList.setCatastrophe(bunkerCardsDTO);
+                    break;
+                case CardType.PROFESSION:
+                    bunkerCardList.setProfession(bunkerCardsDTO);
+                    break;
+                case CardType.HEALTH:
+                    bunkerCardList.setHealth(bunkerCardsDTO);
+                    break;
+                case CardType.HOBBY:
+                    bunkerCardList.setHobby(bunkerCardsDTO);
+                    break;
+                case CardType.PHOBIA:
+                    bunkerCardList.setPhobia(bunkerCardsDTO);
+                    break;
+                case CardType.LUGGAGE:
+                    bunkerCardList.setLuggage(bunkerCardsDTO);
+                    break;
+                case CardType.CHARACTER:
+                    bunkerCardList.setCharacter(bunkerCardsDTO);
+                    break;
+                case CardType.SKILL:
+                    bunkerCardList.setSkill(bunkerCardsDTO);
+                    break;
+            }
         }
-        return bunkerCardsDTOList;
+        return bunkerCardList;
     }
 
     private BunkerCardsDTO convertEntityToDTO(BunkerCards bunkerCard) {
         BunkerCardsDTO bunkerCardsDTO = new BunkerCardsDTO();
+        bunkerCardsDTO.setCardId(bunkerCard.getCardId());
         bunkerCardsDTO.setCardType(bunkerCard.getCardType());
         bunkerCardsDTO.setCardName(bunkerCard.getCardName());
         bunkerCardsDTO.setDescription(bunkerCard.getDescription());

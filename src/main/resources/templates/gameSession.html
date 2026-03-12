@@ -22,12 +22,15 @@
     </header>
 
     <a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
+    <!-- информация о сценарие(бункере и катастрофе) -->
+    <div id="scenarioInfo" class="scenario"></div>
+    <!-- карточки -->
+    <div id="сardsData" class="cards"></div>
 
     <div class="container mt-4 game-layout">
         <!--Player data-->
         <!-- <div class="container mt-4"> -->
         <div class="player-info">
-            <p> Game Room : <label th:text="${room.roomName}"></label></p>
             <p> Player : <label th:text="${currentUser.username}"></label></p>
             <div id="page-data" th:data-username="${currentUser.username}"></div>
             <p> Role : <label th:text="${currentUser.gameRole.name()}"></label></p>
@@ -113,6 +116,8 @@
         const token = $('meta[name="_csrf"]').attr('content');
         const header = $('meta[name="_csrf_header"]').attr('content');
 
+        var cardList = [[${ cards }]];
+
         function connect() {
             // Подключение к WebSocket endpoint '/WsGameRoom'
             var socket = new SockJS('/WsGameRoom');
@@ -155,6 +160,7 @@
                 //        setTimeout(connect, 5000);
             });
             joinRoom(); // подключение к LiveKit
+            showMyCards(cardList);
         }
 
         // // перенос к низу чата
@@ -453,7 +459,64 @@
             return data.token;
         }
         //   ----------- LiveKit -----------------
-    
+        function showMyCards(list) {
+            // catastrophe
+            var catastrophe = list.catastrophe;
+            var catastrophaData = document.createElement('p');
+            catastrophaData.innerHTML = "<b>Catastrophe:</b> " + catastrophe.cardName + ". " + catastrophe.description;
+            catastrophaData.id = "catastriphe";
+            document.getElementById("scenarioInfo").appendChild(catastrophaData);
+            // bunker info
+            var bunker = list.bunkerInfo;
+            var bunkerData = document.createElement('p');
+            bunkerData.innerHTML = "<b>Bunker:</b> " + bunker.cardName + ". " + bunker.description;
+            bunkerData.id = "bunker";
+            document.getElementById("scenarioInfo").appendChild(bunkerData);
+            
+            // profession
+            var profession = list.profession;
+            var professionData = document.createElement('p');
+            professionData.innerHTML = "<b>Profession:</b> " + profession.cardName + ". " + profession.description;
+            professionData.id = "professtion";
+            document.getElementById("сardsData").appendChild(professionData);
+            // health
+            var health = list.health;
+            var healthData = document.createElement('p');
+            healthData.innerHTML = "<b>Health:</b> " + health.cardName + ". " + health.description;
+            healthData.id = "health";
+            document.getElementById("сardsData").appendChild(healthData);
+            // hobby
+            var hobby = list.hobby;
+            var hobbyData = document.createElement('p');
+            hobbyData.innerHTML = "<b>Hobby:</b> " + hobby.cardName + ". " + hobby.description;
+            hobbyData.id = "hobby";
+            document.getElementById("сardsData").appendChild(hobbyData);
+            // phobia
+            var phobia = list.phobia;
+            var phobiaData = document.createElement('p');
+            phobiaData.innerHTML = "<b>Phobia:</b> " + phobia.cardName + ". " + phobia.description;
+            phobiaData.id = "phobia";
+            document.getElementById("сardsData").appendChild(phobiaData);
+            // luggage
+            var luggage = list.luggage;
+            var luggageData = document.createElement('p');
+            luggageData.innerHTML = "<b>Luggage:</b> " + luggage.cardName + ". " + luggage.description;
+            luggageData.id = "luggage";
+            document.getElementById("сardsData").appendChild(luggageData);
+            // character
+            var character = list.character;
+            var characterData = document.createElement('p');
+            characterData.innerHTML = "<b>Character:</b> " + character.cardName + ". " + character.description;
+            characterData.id = "character";
+            document.getElementById("сardsData").appendChild(characterData);
+            // skill
+            var skill = list.skill;
+            var skillData = document.createElement('p');
+            skillData.innerHTML = "<b>Skill:</b> " + skill.cardName + ". " + skill.description;
+            skillData.id = "skill";
+            document.getElementById("сardsData").appendChild(skillData);
+        }
+
         // Подключение при полной загрузке страницы
         $(document).ready(function () {
             if (!stompClient) { // проверка, чтобы избежать двойного подключения

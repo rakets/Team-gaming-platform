@@ -1,10 +1,7 @@
 package com.project.gamingplatform.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.project.gamingplatform.dto.BunkerCardsDTO;
-import com.project.gamingplatform.dto.ChatMessageDTO;
-import com.project.gamingplatform.dto.GameRoomsDTO;
-import com.project.gamingplatform.dto.UsersDTO;
+import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.entity.SessionGameStatus;
 import com.project.gamingplatform.service.*;
 import lombok.extern.slf4j.Slf4j;
@@ -37,15 +34,18 @@ public class GameSessionsController {
     public String getGameSession(Model model,
                                  @PathVariable("roomId") int roomId,
                                  @PathVariable("userId") int userId)  throws JsonProcessingException {
-        List<BunkerCardsDTO> bunkerCardsDTOList = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(userId, roomId);
+//        List<BunkerCardsDTO> bunkerCardsDTOList = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(userId, roomId);
+        BunkerCardList bunkerCardsList = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(userId, roomId);
         System.out.println("player ID: " + userId);
-        System.out.println("Cards: " + bunkerCardsDTOList);
+        System.out.println("Cards: " + bunkerCardsList);
         GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(roomId);
         List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
         UsersDTO currentUser = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
 
         List<ChatMessageDTO> chatHistory = chatService.getChatHistory(roomId);
 
+//      model.addAttribute("cards", bunkerCardsDTOList);
+        model.addAttribute("cards", bunkerCardsList);
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("players", usersDTOList);
         model.addAttribute("room", gameRoomsDTO);

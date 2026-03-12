@@ -132,3 +132,79 @@
     display: block;
     margin-top: 4px;
 }
+
+/* оформление сценария игры*/
+.scenario {
+    display: flex;         /* Включаем гибкий контейнер */
+    flex-wrap: wrap;       /* Позволяет блокам переноситься, если экран слишком узкий */
+    gap: 20px;             /* Расстояние между блоками */
+    width: 100%;           /* Растягиваем на всю ширину */
+    padding: 15px;
+    box-sizing: border-box; /* Чтобы padding не увеличивал общую ширину */
+}
+
+.scenario p {
+    flex: 1 1 calc(50% - 20px); /* Растягивает блок на 50% минус gap */
+    margin: 0;                  /* Убираем стандартные отступы */
+    padding: 10px;
+    background-color: #f9f9f9;  /* Легкий фон, чтобы видеть границы */
+    border-radius: 8px;
+    min-width: 300px;           /* Чтобы на мобилках они встали друг под друга */
+}
+
+.scenario b {
+    display: block;             /* Заголовок (Catastrophe/Bunker) будет на отдельной строке */
+    font-size: 1.1em;
+    color: #333;
+}
+/* оформление сценария игры*/
+
+/* оформление карточек игрока (своих карточек) */
+/* Контейнер для всех карточек */
+.cards {
+    display: flex;
+    flex-wrap: nowrap; /* Запрещаем перенос на новую строку */
+    gap: 15px;
+    padding: 20px;
+    justify-content: space-between; /* Распределяем равномерно */
+}
+
+
+/* Стили для каждого параграфа (теперь это карточка) */
+.cards p {
+    width: calc((100% - (15px * 6)) / 7);  /* Рассчитываем ширину: (100% - общая сумма всех gap) / 7 */
+    min-width: 120px; /* Минимальная ширина, чтобы текст не сжимался в кашу */
+
+    background: #ffffff;
+    border-left: 5px solid #2c3e50; /* Цветная полоска слева для стиля */
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    margin: 0; /* Убираем стандартные отступы, так как используем gap */
+    padding: 15px;
+    min-height: 80px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: transform 0.2s, box-shadow 0.2s;
+    cursor: default;
+    color: #333;
+    line-height: 1.4;
+}
+
+/* Эффект при наведении */
+.cards p:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0,0,0,0.2);
+    border-left-color: #3498db; /* Цвет меняется при наведении */
+}
+
+/* Стили для заголовков категорий внутри текста */
+.cards p b {
+    color: #2c3e50;
+    display: block;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+    font-size: 0.9em;
+    letter-spacing: 1px;
+}
+/* оформление карточек игрока (своих карточек) */
