@@ -86,11 +86,94 @@
     /* max-width: 400px */
 }
 
+.player-card {
+    position: relative;
+}
+
 /* правая колонка */
 /* .chat {
     width: 70%;
 } */
 
+/* карточки в подсказке */
+.tooltip-content {
+    display: none;
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c3e50;
+    color: white;
+    padding: 10px;
+    border-radius: 5px;
+    width: 200px;
+    z-index: 100;
+}
+
+.player-card:hover .tooltip-content {
+    display: block; /* Показываем при наведении на карточку */
+}
+
+/* ----- кнопка подсказки ----- */
+/* Стили самой точки */
+.info-dot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 18px;
+    height: 18px;
+    background-color: #3498db;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: help;
+    font-weight: bold;
+}
+
+/* Создаем саму подсказку через псевдоэлемент ::after */
+.info-dot::after {
+    content: attr(data-tooltip); /* Берем текст из атрибута data-tooltip */
+    position: absolute;
+    bottom: 125%; /* Показываем над точкой */
+    right: 50%;
+    transform: translateX(50%);
+    background-color: #2c3e50;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-size: 14px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    z-index: 10;
+}
+
+/* Маленький треугольник под подсказкой */
+.info-dot::before {
+    content: '';
+    position: absolute;
+    bottom: 110%;
+    right: 50%;
+    transform: translateX(50%);
+    border: 6px solid transparent;
+    border-top-color: #2c3e50;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease;
+}
+
+/* Логика отображения при наведении */
+.info-dot:hover::after, 
+.info-dot:hover::before {
+    opacity: 1;
+    visibility: visible;
+}
+/* --------- кнопка подсказки ------- */
 
 .chat {
     /* background-color: rgb(222, 217, 211); */
@@ -168,7 +251,6 @@
     padding: 20px;
     justify-content: space-between; /* Распределяем равномерно */
 }
-
 
 /* Стили для каждого параграфа (теперь это карточка) */
 .cards p {

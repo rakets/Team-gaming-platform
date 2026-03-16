@@ -2,10 +2,8 @@ package com.project.gamingplatform.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.gamingplatform.dto.*;
-import com.project.gamingplatform.entity.SessionGameStatus;
 import com.project.gamingplatform.service.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -16,36 +14,52 @@ import java.util.List;
 @RequestMapping("/game-session")
 @Slf4j
 public class GameSessionsController {
-    private final GameSessionsService gameSessionsService;
     private final GameRoomsService gameRoomsService;
     private final UsersService usersService;
     private final ChatService chatService;
-    private final BunkerCardsService bunkerCardsService;
 
-    public GameSessionsController(GameSessionsService gameSessionsService, GameRoomsService gameRoomsService, UsersService usersService, ChatService chatService, BunkerCardsService bunkerCardsService) {
-        this.gameSessionsService = gameSessionsService;
+    public GameSessionsController(GameRoomsService gameRoomsService,
+                                  UsersService usersService,
+                                  ChatService chatService) {
         this.gameRoomsService = gameRoomsService;
         this.usersService = usersService;
         this.chatService = chatService;
-        this.bunkerCardsService = bunkerCardsService;
     }
 
+    //    @GetMapping("/join/{roomId}/{userId}")
+//    public String getGameSession(Model model,
+//                                 @PathVariable("roomId") int roomId,
+//                                 @PathVariable("userId") int userId)  throws JsonProcessingException {
+////        List<BunkerCardsDTO> bunkerCardsDTOList = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(userId, roomId);
+//        BunkerCardList myBunkerCards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(userId, roomId);
+//        Map<Integer, BunkerCardList> otherPlayersBunkerCards = bunkerCardsService.getAllPlayersBunkerCardsDTOInRoom(roomId, userId);
+//
+//        GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(roomId);
+//        List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
+//        UsersDTO currentUser = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
+//
+//        List<ChatMessageDTO> chatHistory = chatService.getChatHistory(roomId);
+//
+
+    /// /      model.addAttribute("cards", bunkerCardsDTOList);
+//        model.addAttribute("otherCards", otherPlayersBunkerCards);
+//        model.addAttribute("myCards", myBunkerCards);
+//        model.addAttribute("currentUser", currentUser);
+//        model.addAttribute("players", usersDTOList);
+//        model.addAttribute("room", gameRoomsDTO);
+//        model.addAttribute("chatHistory", chatHistory);
+//        return "gameSession";
+//    }
     @GetMapping("/join/{roomId}/{userId}")
     public String getGameSession(Model model,
                                  @PathVariable("roomId") int roomId,
-                                 @PathVariable("userId") int userId)  throws JsonProcessingException {
-//        List<BunkerCardsDTO> bunkerCardsDTOList = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(userId, roomId);
-        BunkerCardList bunkerCardsList = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(userId, roomId);
-        System.out.println("player ID: " + userId);
-        System.out.println("Cards: " + bunkerCardsList);
+                                 @PathVariable("userId") int currentUserId) throws JsonProcessingException {
         GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(roomId);
-        List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
-        UsersDTO currentUser = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
+        List<UsersDTO> usersDTOList = usersService.preparePlayersWithCards(gameRoomsDTO, currentUserId);
 
         List<ChatMessageDTO> chatHistory = chatService.getChatHistory(roomId);
+        UsersDTO currentUser = usersService.prepareCurrentPlayerWithCards(gameRoomsDTO, currentUserId);
 
-//      model.addAttribute("cards", bunkerCardsDTOList);
-        model.addAttribute("cards", bunkerCardsList);
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("players", usersDTOList);
         model.addAttribute("room", gameRoomsDTO);

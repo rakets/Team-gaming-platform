@@ -1,9 +1,6 @@
 package com.project.gamingplatform.service;
 
-import com.project.gamingplatform.dto.GameRoomsDTO;
-import com.project.gamingplatform.dto.ReadyStatus;
-import com.project.gamingplatform.dto.RoomPlayersDTO;
-import com.project.gamingplatform.dto.UsersDTO;
+import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.entity.GameRooms;
 import com.project.gamingplatform.entity.RoleInRoom;
 import com.project.gamingplatform.entity.RoomPlayers;
@@ -19,22 +16,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class UsersService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
     private final RoomPlayersService roomPlayersService;
+    private final BunkerCardsService bunkerCardsService;
 
-    @Autowired
-    public UsersService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, RoomPlayersService roomPlayersService) {
+    public UsersService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, RoomPlayersService roomPlayersService, BunkerCardsService bunkerCardsService) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.roomPlayersService = roomPlayersService;
+        this.bunkerCardsService = bunkerCardsService;
     }
 
     public Users addNew(Users users) {
@@ -43,7 +38,7 @@ public class UsersService {
         return savedUser;
     }
 
-//    get current user from DB
+    //    get current user from DB
     public Users getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
@@ -56,7 +51,7 @@ public class UsersService {
     }
 
     //для установки текущему пользователю данных и возврата в контроллер.
-    public UsersDTO getCurrentUsersDtoRegardingCurrentRoom(GameRoomsDTO gameRoomsDTO){
+    public UsersDTO getCurrentUsersDtoRegardingCurrentRoom(GameRoomsDTO gameRoomsDTO) {
         Users currentUser = getCurrentUser();
         UsersDTO usersDTO = convertEntityUserToDto(currentUser);
 
@@ -65,10 +60,10 @@ public class UsersService {
 
         whoIsModerator(usersDTO, gameRoomsDTO);
 
-        return  usersDTO;
+        return usersDTO;
     }
 
-    public UsersDTO findById(int userId){
+    public UsersDTO findById(int userId) {
         Users user = usersRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
         UsersDTO usersDTO = convertEntityUserToDto(user);
         return usersDTO;
@@ -100,18 +95,36 @@ public class UsersService {
         return usersDTOList;
     }
 
-    public void isUserReadyInRoom(boolean statusReady, UsersDTO usersDTO){
-        if (statusReady){
+    public void isUserReadyInRoom(boolean statusReady, UsersDTO usersDTO) {
+        if (statusReady) {
             usersDTO.setReadyStatus(ReadyStatus.READY);
         }
     }
-
-
 
     public void whoIsModerator(UsersDTO usersDTO, GameRoomsDTO gameRoomsDTO) {
         if (gameRoomsDTO.getCreatedBy().equals(usersDTO.getUserId())) {
             usersDTO.setGameRole(RoleInRoom.MODERATOR);
         }
+    }
+
+    //получение всех игроков комнаты вместе с их карточками
+    public List<UsersDTO> preparePlayersWithCards(GameRoomsDTO gameRoomsDTO, int currentUserId) {
+        List<UsersDTO> usersDTOList = findAllUsersByGameRoom(gameRoomsDTO);
+        Map<Integer, BunkerCardList> allCards = bunkerCardsService.getAllPlayersBunkerCardsDTOInRoom(gameRoomsDTO.getRoomId(), currentUserId);
+        for (UsersDTO user : usersDTOList) {
+            user.setBunkerCards(allCards.get(user.getUserId()));
+        }
+        return usersDTOList;
+    }
+
+    //получение текущего игрока с его карточками
+    public UsersDTO prepareCurrentPlayerWithCards(GameRoomsDTO gameRoomsDTO, int currentUserId) {
+        List<UsersDTO> usersDTOList = preparePlayersWithCards(gameRoomsDTO , currentUserId);
+        UsersDTO currentUserDTO = usersDTOList.stream()
+                .filter(user -> user.getUserId() == currentUserId)
+                .findFirst()
+                .orElseThrow();
+        return currentUserDTO;
     }
 }
 

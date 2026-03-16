@@ -4,7 +4,9 @@ import com.project.gamingplatform.dto.BunkerCardList;
 import com.project.gamingplatform.dto.BunkerCardsDTO;
 import com.project.gamingplatform.entity.BunkerCards;
 import com.project.gamingplatform.entity.CardType;
+import com.project.gamingplatform.entity.RoomPlayers;
 import com.project.gamingplatform.repository.BunkerCardsRepository;
+import com.project.gamingplatform.repository.RoomPlayersRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -15,9 +17,12 @@ import java.util.Map;
 @Service
 public class BunkerCardsService {
     private final BunkerCardsRepository bunkerCardsRepository;
+    private final RoomPlayersRepository roomPlayersRepository;
 
-    public BunkerCardsService(BunkerCardsRepository bunkerCardsRepository) {
+    public BunkerCardsService(BunkerCardsRepository bunkerCardsRepository,
+                              RoomPlayersRepository roomPlayersRepository) {
         this.bunkerCardsRepository = bunkerCardsRepository;
+        this.roomPlayersRepository = roomPlayersRepository;
     }
 
     //получение всех игровых карт
@@ -96,4 +101,31 @@ public class BunkerCardsService {
         bunkerCardsDTO.setDescription(bunkerCard.getDescription());
         return bunkerCardsDTO;
     }
+
+//    получить cards всех игроков
+    public Map<Integer, BunkerCardList> getAllPlayersBunkerCardsDTOInRoom(int roomId, int userId){
+        List<RoomPlayers> roomPlayersList = roomPlayersRepository.findAllRoomPlayersByRoomId(roomId);
+        Map<Integer, BunkerCardList> allPlayersBunkerCards = new HashMap<>();
+        for (RoomPlayers roomPlayers: roomPlayersList) {
+            int playerId = roomPlayers.getUser().getUserId();
+            allPlayersBunkerCards.put(playerId, getBunkerCardsDTOByUserIdRoomId(playerId, roomId));
+        }
+        System.out.println("Bunker cards: " + allPlayersBunkerCards);
+        return allPlayersBunkerCards;
+    }
+
+//    //    получить cards всех игроков, кроме тебя
+//    public Map<Integer, BunkerCardList> getAllPlayersBunkerCardsDTOInRoom(int roomId, int userId){
+//        List<RoomPlayers> roomPlayersList = roomPlayersRepository.findAllRoomPlayersByRoomId(roomId);
+//        Map<Integer, BunkerCardList> allPlayersBunkerCards = new HashMap<>();
+//        for (RoomPlayers roomPlayers: roomPlayersList) {
+//            // проверка актуальный ли игрок
+//            Integer playerId = roomPlayers.getUser().getUserId();
+//            if(!playerId.equals(userId)){
+//                allPlayersBunkerCards.put(playerId, getBunkerCardsDTOByUserIdRoomId(playerId, roomId));
+//            }
+//        }
+//        System.out.println("Bunker cards: " + allPlayersBunkerCards);
+//        return allPlayersBunkerCards;
+//    }
 }

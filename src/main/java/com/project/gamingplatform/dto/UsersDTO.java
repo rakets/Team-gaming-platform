@@ -15,4 +15,7 @@ public class UsersDTO {
     private ReadyStatus readyStatus = ReadyStatus.UNREADY;
 
     private MessageType messageType; // JOIN / LEAVE / READY / UNREADY / JOIN_GAME_SESSION
+
+    // bunker cards
+    private BunkerCardList bunkerCards;
 }
