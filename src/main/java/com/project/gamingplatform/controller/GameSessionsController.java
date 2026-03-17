@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.service.*;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -17,13 +19,16 @@ public class GameSessionsController {
     private final GameRoomsService gameRoomsService;
     private final UsersService usersService;
     private final ChatService chatService;
+    private final PlayerCardsService playerCardsService;
 
     public GameSessionsController(GameRoomsService gameRoomsService,
                                   UsersService usersService,
-                                  ChatService chatService) {
+                                  ChatService chatService,
+                                  PlayerCardsService playerCardsService) {
         this.gameRoomsService = gameRoomsService;
         this.usersService = usersService;
         this.chatService = chatService;
+        this.playerCardsService = playerCardsService;
     }
 
     //    @GetMapping("/join/{roomId}/{userId}")
@@ -66,6 +71,16 @@ public class GameSessionsController {
         model.addAttribute("chatHistory", chatHistory);
         return "gameSession";
     }
+
+    // получение выбранной карты через WebSocket
+    @MessageMapping("/show.card")
+    @SendTo("/topic/room/{roomId}/cards")
+    public void processDisplayCardsFromClient(PlayerCardsDTO card) throws JsonProcessingException {
+        System.out.println("Card");
+        System.out.println("Игрок показал карту:" + card);
+        playerCardsService.showCard(card);
+    }
+
 //    @PatchMapping("/join/{roomId}/{roomName}")
 //    public ResponseEntity<Void> getGameSession(@PathVariable("roomId") int roomId){
 //        gameSessionsService.updateGameSessionStatus(SessionGameStatus.IN_PROGRESS, roomId);

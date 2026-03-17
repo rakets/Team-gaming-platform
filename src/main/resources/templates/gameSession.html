@@ -234,6 +234,10 @@
             }
         }
 
+        function showSelectCard(){
+
+        }
+
         function checkNotification(message) {
             switch(message.messageType){
                 case "JOIN":
@@ -487,46 +491,80 @@
             var profession = cards.profession;
             var professionData = document.createElement('p');
             professionData.innerHTML = "<b>Profession:</b> " + profession.cardName + ". " + profession.description;
-            professionData.id = "professtion";
+            // professionData.id = "professtion";
+            professionData.dataset.cardJson = JSON.stringify(profession); //объект карты переводим в строку
+            professionData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(professionData);
             // health
             var health = cards.health;
             var healthData = document.createElement('p');
             healthData.innerHTML = "<b>Health:</b> " + health.cardName + ". " + health.description;
-            healthData.id = "health";
+            // healthData.id = "health";
+            healthData.dataset.cardJson = JSON.stringify(health);
+            professionData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(healthData);
             // hobby
             var hobby = cards.hobby;
             var hobbyData = document.createElement('p');
             hobbyData.innerHTML = "<b>Hobby:</b> " + hobby.cardName + ". " + hobby.description;
-            hobbyData.id = "hobby";
+            // hobbyData.id = "hobby";
+            hobbyData.dataset.cardJson = JSON.stringify(hobby);
+            hobbyData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(hobbyData);
             // phobia
             var phobia = cards.phobia;
             var phobiaData = document.createElement('p');
             phobiaData.innerHTML = "<b>Phobia:</b> " + phobia.cardName + ". " + phobia.description;
-            phobiaData.id = "phobia";
+            // phobiaData.id = "phobia";
+            phobiaData.dataset.cardJson = JSON.stringify(phobia);
+            phobiaData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(phobiaData);
             // luggage
             var luggage = cards.luggage;
             var luggageData = document.createElement('p');
             luggageData.innerHTML = "<b>Luggage:</b> " + luggage.cardName + ". " + luggage.description;
-            luggageData.id = "luggage";
+            // luggageData.id = "luggage";
+            luggageData.dataset.cardJson = JSON.stringify(luggage);
+            luggageData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(luggageData);
             // character
             var character = cards.character;
             var characterData = document.createElement('p');
             characterData.innerHTML = "<b>Character:</b> " + character.cardName + ". " + character.description;
-            characterData.id = "character";
+            // characterData.id = "character";
+            characterData.dataset.cardJson = JSON.stringify(character);
+            characterData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(characterData);
             // skill
             var skill = cards.skill;
             var skillData = document.createElement('p');
             skillData.innerHTML = "<b>Skill:</b> " + skill.cardName + ". " + skill.description;
-            skillData.id = "skill";
+            // skillData.id = "skill";
+            skillData.dataset.cardJson = JSON.stringify(skill);
+            skillData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(skillData);
         }
+        document.getElementById("сardsData").addEventListener('click', function(event) {
+            const targetCard = event.target.closest('.clickable-card'); // ищем ближайший элемент с классом 'clickable-card' 
+            if (targetCard) {
+                const сardObject = JSON.parse(targetCard.dataset.cardJson); //собираем из строки объект карты
+                sendCardAction(сardObject);
+            }
+        });
 
+        // отправление выбранной карты на сервер
+        function sendCardAction(сardObject) {
+            if (stompClient && stompClient.connected) {
+                const payload = {
+                    bunkerCard: сardObject,
+                    roomId: roomId,
+                    userId: currentUserId
+                };
+                stompClient.send("/app/show.card", {}, JSON.stringify(payload));
+            }
+        }
+        // -------------------
+        
         // Подключение при полной загрузке страницы
         $(document).ready(function () {
             if (!stompClient) { // проверка, чтобы избежать двойного подключения
