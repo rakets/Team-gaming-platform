@@ -5,14 +5,12 @@ import com.project.gamingplatform.dto.BunkerCardsDTO;
 import com.project.gamingplatform.entity.BunkerCards;
 import com.project.gamingplatform.entity.CardType;
 import com.project.gamingplatform.entity.RoomPlayers;
+import com.project.gamingplatform.entity.RoomPlayersId;
 import com.project.gamingplatform.repository.BunkerCardsRepository;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class BunkerCardsService {
@@ -41,22 +39,8 @@ public class BunkerCardsService {
         return cards;
     }
 
-    public List<BunkerCards> getBunkerCardsByUserIdRoomId(int userId, int roomId) {
-        return bunkerCardsRepository.getBunkerCardsByUserIdRoomId(userId, roomId);
-    }
-
-//    public List<BunkerCardsDTO> getBunkerCardsDTOByUserIdRoomId(int userId, int roomId) {
-//        List<BunkerCards> bunkerCardsList = getBunkerCardsByUserIdRoomId(userId, roomId);
-//        List<BunkerCardsDTO> bunkerCardsDTOList = new ArrayList<>();
-//        for (BunkerCards bunkerCard : bunkerCardsList) {
-//            BunkerCardsDTO bunkerCardsDTO = convertEntityToDTO(bunkerCard);
-//            bunkerCardsDTOList.add(bunkerCardsDTO);
-//        }
-//        return bunkerCardsDTOList;
-//    }
-
-    public BunkerCardList getBunkerCardsDTOByUserIdRoomId(int userId, int roomId) {
-        List<BunkerCards> bunkerCardsList = getBunkerCardsByUserIdRoomId(userId, roomId);
+    //sorting cards my CardType for player
+    public BunkerCardList getBunkerCardsDTOByUserIdRoomId(List<BunkerCards> bunkerCardsList) {
         BunkerCardList bunkerCardList = new BunkerCardList();
         for (BunkerCards bunkerCard : bunkerCardsList) {
             BunkerCardsDTO bunkerCardsDTO = convertEntityToDTO(bunkerCard);
@@ -102,15 +86,16 @@ public class BunkerCardsService {
         return bunkerCardsDTO;
     }
 
-//    получить cards всех игроков
-    public Map<Integer, BunkerCardList> getAllPlayersBunkerCardsDTOInRoom(int roomId, int userId){
+    // getting cards with revealed = 1 for all players in the room
+    public Map<Integer, BunkerCardList> getAllPlayersRevealedBunkerCardsInRoom(int roomId) {
         List<RoomPlayers> roomPlayersList = roomPlayersRepository.findAllRoomPlayersByRoomId(roomId);
         Map<Integer, BunkerCardList> allPlayersBunkerCards = new HashMap<>();
-        for (RoomPlayers roomPlayers: roomPlayersList) {
-            int playerId = roomPlayers.getUser().getUserId();
-            allPlayersBunkerCards.put(playerId, getBunkerCardsDTOByUserIdRoomId(playerId, roomId));
+        for (RoomPlayers roomPlayer : roomPlayersList) {
+            int playerId = roomPlayer.getUser().getUserId();
+            List<BunkerCards> bunkerCardsList = bunkerCardsRepository.getRevealedBunkerCardsByUserIdRoomId(playerId, roomId);
+
+            allPlayersBunkerCards.put(playerId, getBunkerCardsDTOByUserIdRoomId(bunkerCardsList));
         }
-        System.out.println("Bunker cards: " + allPlayersBunkerCards);
         return allPlayersBunkerCards;
     }
 

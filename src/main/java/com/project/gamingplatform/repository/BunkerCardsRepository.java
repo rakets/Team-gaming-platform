@@ -14,6 +14,7 @@ public interface BunkerCardsRepository extends JpaRepository<BunkerCards, Intege
     @Query("SELECT c from BunkerCards c WHERE c.cardType = :cardType ORDER BY RAND() LIMIT :count")
     List<BunkerCards> getBunkerCardsByCardType(@Param("cardType") CardType cardType, @Param("count") int count);
 
+    // getting all cards
     @Query(value = "SELECT c.* FROM bunker_cards c " +
             "JOIN player_cards pc ON c.card_id = pc.bunker_card_id " +
             "JOIN users u ON pc.user_id = u.user_id " +
@@ -23,4 +24,15 @@ public interface BunkerCardsRepository extends JpaRepository<BunkerCards, Intege
             nativeQuery = true)
     List<BunkerCards> getBunkerCardsByUserIdRoomId(@Param("userId")int userId,
                                                    @Param("roomId")int roomId);
+
+    // getting revealed cards
+    @Query(value = "SELECT c.* FROM bunker_cards c " +
+            "JOIN player_cards pc ON c.card_id = pc.bunker_card_id " +
+            "JOIN users u ON pc.user_id = u.user_id " +
+            "JOIN game_sessions gs ON pc.session_id = gs.session_id " +
+            "JOIN game_rooms gr ON gs.room_id = gr.room_id " +
+            "WHERE u.user_id = :userId AND gr.room_id = :roomId AND pc.revealed = true",
+            nativeQuery = true)
+    List<BunkerCards> getRevealedBunkerCardsByUserIdRoomId(@Param("userId")int userId,
+                                                           @Param("roomId")int roomId);
 }

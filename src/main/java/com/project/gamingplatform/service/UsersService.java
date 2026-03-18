@@ -1,10 +1,8 @@
 package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.dto.*;
-import com.project.gamingplatform.entity.GameRooms;
-import com.project.gamingplatform.entity.RoleInRoom;
-import com.project.gamingplatform.entity.RoomPlayers;
-import com.project.gamingplatform.entity.Users;
+import com.project.gamingplatform.entity.*;
+import com.project.gamingplatform.repository.BunkerCardsRepository;
 import com.project.gamingplatform.repository.UsersRepository;
 import com.project.gamingplatform.util.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,12 +22,14 @@ public class UsersService {
     private final PasswordEncoder passwordEncoder;
     private final RoomPlayersService roomPlayersService;
     private final BunkerCardsService bunkerCardsService;
+    private final BunkerCardsRepository bunkerCardsRepository;
 
-    public UsersService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, RoomPlayersService roomPlayersService, BunkerCardsService bunkerCardsService) {
+    public UsersService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, RoomPlayersService roomPlayersService, BunkerCardsService bunkerCardsService, BunkerCardsRepository bunkerCardsRepository) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.roomPlayersService = roomPlayersService;
         this.bunkerCardsService = bunkerCardsService;
+        this.bunkerCardsRepository = bunkerCardsRepository;
     }
 
     public Users addNew(Users users) {
@@ -107,24 +107,33 @@ public class UsersService {
         }
     }
 
-    //получение всех игроков комнаты вместе с их карточками
-    public List<UsersDTO> preparePlayersWithCards(GameRoomsDTO gameRoomsDTO, int currentUserId) {
+    //    //получение всех игроков комнаты вместе с их карточками
+//    public List<UsersDTO> preparePlayersWithCards(GameRoomsDTO gameRoomsDTO, int currentUserId) {
+//        List<UsersDTO> usersDTOList = findAllUsersByGameRoom(gameRoomsDTO);
+//        Map<Integer, BunkerCardList> allCards = bunkerCardsService.getAllPlayersBunkerCardsDTOInRoom(gameRoomsDTO.getRoomId(), currentUserId);
+//        for (UsersDTO user : usersDTOList) {
+//            user.setBunkerCards(allCards.get(user.getUserId()));
+//        }
+//        return usersDTOList;
+//    }
+
+    //getting all players in room with their revealed cards
+    public List<UsersDTO> preparePlayersWithRevealedCards(GameRoomsDTO gameRoomsDTO) {
         List<UsersDTO> usersDTOList = findAllUsersByGameRoom(gameRoomsDTO);
-        Map<Integer, BunkerCardList> allCards = bunkerCardsService.getAllPlayersBunkerCardsDTOInRoom(gameRoomsDTO.getRoomId(), currentUserId);
+        Map<Integer, BunkerCardList> allCards = bunkerCardsService.getAllPlayersRevealedBunkerCardsInRoom(gameRoomsDTO.getRoomId());
         for (UsersDTO user : usersDTOList) {
             user.setBunkerCards(allCards.get(user.getUserId()));
         }
         return usersDTOList;
     }
 
-    //получение текущего игрока с его карточками
-    public UsersDTO prepareCurrentPlayerWithCards(GameRoomsDTO gameRoomsDTO, int currentUserId) {
-        List<UsersDTO> usersDTOList = preparePlayersWithCards(gameRoomsDTO , currentUserId);
-        UsersDTO currentUserDTO = usersDTOList.stream()
-                .filter(user -> user.getUserId() == currentUserId)
-                .findFirst()
-                .orElseThrow();
-        return currentUserDTO;
+    //getting current user with his cards
+    public UsersDTO prepareCurrentPlayerWithCards(GameRoomsDTO gameRoomsDTO) {
+        UsersDTO currentUser = getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
+        List<BunkerCards> bunkerCardsList = bunkerCardsRepository.getBunkerCardsByUserIdRoomId(currentUser.getUserId(), gameRoomsDTO.getRoomId());
+        BunkerCardList cards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(bunkerCardsList);
+        currentUser.setBunkerCards(cards);
+        return currentUser;
     }
 }
 

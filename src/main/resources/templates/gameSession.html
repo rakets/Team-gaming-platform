@@ -73,13 +73,41 @@
                 <div class="card" th:id="'user-' + ${player.userId}">
                 <div class="info-dot">i
                     <div class="tooltip-content">
-                        <p><b><u>Profession</u>:</b> <span th:text="${player.bunkerCards.profession.cardName} + '. ' + ${player.bunkerCards.profession.description}"></span></p>
-                        <p><b><u>Health</u>:</b> <span th:text="${player.bunkerCards.health.cardName} + '. ' + ${player.bunkerCards.health.description}"></span></p>
-                        <p><b><u>Hobby</u>:</b> <span th:text="${player.bunkerCards.hobby.cardName} + '. ' + ${player.bunkerCards.hobby.description}"></span></p>
-                        <p><b><u>Phobia</u>:</b> <span th:text="${player.bunkerCards.phobia.cardName} + '. ' + ${player.bunkerCards.phobia.description}"></span></p>
-                        <p><b><u>Luggage</u>:</b> <span th:text="${player.bunkerCards.luggage.cardName} + '. ' + ${player.bunkerCards.luggage.description}"></span></p>
-                        <p><b><u>Character</u>:</b> <span th:text="${player.bunkerCards.character.cardName} + '. ' + ${player.bunkerCards.character.description}"></span></p>
-                        <p><b><u>Skill</u>:</b> <span th:text="${player.bunkerCards.skill.cardName} + '. ' + ${player.bunkerCards.skill.description}"></span></p>
+                        <p><b><u>Profession</u>:</b> <span th:text="${player.bunkerCards?.profession} !=null
+                                                                    ? |${player.bunkerCards.profession.cardName}. ${player.bunkerCards.profession.description}|
+                                                                    : ' ' ">
+                                                    </span>
+                        </p>
+                        <p><b><u>Health</u>:</b> <span th:text="${player.bunkerCards?.health} !=null
+                                                                ? |${player.bunkerCards.health.cardName}. ${player.bunkerCards.health.description}|
+                                                                : ' ' ">
+                                                </span>
+                        </p>
+                        <p><b><u>Hobby</u>:</b> <span th:text="${player.bunkerCards?.hobby} !=null 
+                                                               ? |${player.bunkerCards.hobby.cardName}. ${player.bunkerCards.hobby.description}|
+                                                               : ' ' ">
+                                                </span>
+                        </p>
+                        <p><b><u>Phobia</u>:</b> <span th:text="${player.bunkerCards?.phobia} !=null
+                                                                ? |${player.bunkerCards.phobia.cardName}. ${player.bunkerCards.phobia.description}|
+                                                                : ' ' ">
+                                                </span>
+                        </p>
+                        <p><b><u>Luggage</u>:</b> <span th:text="${player.bunkerCards?.luggage} !=null
+                                                                 ? |{player.bunkerCards.luggage.cardName}. ${player.bunkerCards.luggage.description}|
+                                                                 : ' ' ">
+                                                  </span>
+                        </p>
+                        <p><b><u>Character</u>:</b> <span th:text="${player.bunkerCards?.character} !=null
+                                                                   ? |${player.bunkerCards.character.cardName}. ${player.bunkerCards.character.description}|
+                                                                   : ' ' ">
+                                                    </span>
+                        </p>
+                        <p><b><u>Skill</u>:</b> <span th:text="${player.bunkerCards?.skill} !=null
+                                                               ? |${player.bunkerCards.skill.cardName}. ${player.bunkerCards.skill.description}|
+                                                               : ' ' ">
+                                                </span>
+                        </p>
                     </div>
                 </div>
                     <div class="card-body">
@@ -501,7 +529,7 @@
             healthData.innerHTML = "<b>Health:</b> " + health.cardName + ". " + health.description;
             // healthData.id = "health";
             healthData.dataset.cardJson = JSON.stringify(health);
-            professionData.classList.add('clickable-card');
+            healthData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(healthData);
             // hobby
             var hobby = cards.hobby;
@@ -544,6 +572,7 @@
             skillData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(skillData);
         }
+        
         document.getElementById("сardsData").addEventListener('click', function(event) {
             const targetCard = event.target.closest('.clickable-card'); // ищем ближайший элемент с классом 'clickable-card' 
             if (targetCard) {

@@ -60,11 +60,9 @@ public class GameSessionsController {
                                  @PathVariable("roomId") int roomId,
                                  @PathVariable("userId") int currentUserId) throws JsonProcessingException {
         GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(roomId);
-        List<UsersDTO> usersDTOList = usersService.preparePlayersWithCards(gameRoomsDTO, currentUserId);
-
+        List<UsersDTO> usersDTOList = usersService.preparePlayersWithRevealedCards(gameRoomsDTO); //getting all players with revealed cards
         List<ChatMessageDTO> chatHistory = chatService.getChatHistory(roomId);
-        UsersDTO currentUser = usersService.prepareCurrentPlayerWithCards(gameRoomsDTO, currentUserId);
-
+        UsersDTO currentUser = usersService.prepareCurrentPlayerWithCards(gameRoomsDTO); //getting current user with cards
         model.addAttribute("currentUser", currentUser);
         model.addAttribute("players", usersDTOList);
         model.addAttribute("room", gameRoomsDTO);
