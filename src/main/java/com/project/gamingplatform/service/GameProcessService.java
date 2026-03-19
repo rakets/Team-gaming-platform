@@ -1,15 +1,17 @@
 package com.project.gamingplatform.service;
 
+import com.project.gamingplatform.dto.BunkerCardList;
+import com.project.gamingplatform.dto.PlayerCardsDTO;
 import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.*;
-import com.project.gamingplatform.repository.PlayerCardsRepository;
-import com.project.gamingplatform.repository.PlayerRolesRepository;
-import com.project.gamingplatform.repository.RolesRepository;
-import com.project.gamingplatform.repository.RoomPlayersRepository;
+import com.project.gamingplatform.repository.*;
+import com.project.gamingplatform.websocket.WebSocketService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -21,13 +23,17 @@ public class GameProcessService {
     private final PlayerCardsRepository playerCardsRepository;
     private final RolesRepository rolesRepository;
     private final PlayerRolesRepository playerRolesRepository;
+    private final BunkerCardsRepository bunkerCardsRepository;
+    private final WebSocketService webSocketService;
 
-    public GameProcessService(BunkerCardsService bunkerCardsService, RoomPlayersRepository roomPlayersRepository, PlayerCardsRepository playerCardsRepository, RolesRepository rolesRepository, PlayerRolesRepository playerRolesRepository) {
+    public GameProcessService(BunkerCardsService bunkerCardsService, RoomPlayersRepository roomPlayersRepository, PlayerCardsRepository playerCardsRepository, RolesRepository rolesRepository, PlayerRolesRepository playerRolesRepository, BunkerCardsRepository bunkerCardsRepository, WebSocketService webSocketService) {
         this.bunkerCardsService = bunkerCardsService;
         this.roomPlayersRepository = roomPlayersRepository;
         this.playerCardsRepository = playerCardsRepository;
         this.rolesRepository = rolesRepository;
         this.playerRolesRepository = playerRolesRepository;
+        this.bunkerCardsRepository = bunkerCardsRepository;
+        this.webSocketService = webSocketService;
     }
 
     //рандомная раздача игровых карт игрокам
@@ -114,6 +120,18 @@ public class GameProcessService {
         }
         playerRolesRepository.saveAll(playerRolesList);
         log.info("Roles has been saving successfully");
+    }
+
+    //изменение статуса показанной карты и оправка ее всем игрокам
+    @Transactional
+    public void showCard(PlayerCardsDTO card) {
+        playerCardsRepository.updateRevealed(card.getUserId(),card.getBunkerCard().getCardId());
+        List<BunkerCards> bunkerCardsList = bunkerCardsRepository.getRevealedBunkerCardsByUserIdRoomId(card.getUserId(), card.getRoomId());
+        BunkerCardList bunkerCards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(bunkerCardsList);
+        Map<String, Object> data = new HashMap<>();
+        data.put("userId", card.getUserId());
+        data.put("cards", bunkerCards);
+        webSocketService.showCard(data, card.getRoomId());
     }
 }
 

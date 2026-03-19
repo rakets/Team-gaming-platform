@@ -73,40 +73,40 @@
                 <div class="card" th:id="'user-' + ${player.userId}">
                 <div class="info-dot">i
                     <div class="tooltip-content">
-                        <p><b><u>Profession</u>:</b> <span th:text="${player.bunkerCards?.profession} !=null
+                        <p><b><u>Profession</u>:</b><span th:text="${player.bunkerCards?.profession} !=null
                                                                     ? |${player.bunkerCards.profession.cardName}. ${player.bunkerCards.profession.description}|
                                                                     : ' ' ">
                                                     </span>
                         </p>
-                        <p><b><u>Health</u>:</b> <span th:text="${player.bunkerCards?.health} !=null
+                        <p><b><u>Health</u>:</b><span th:text="${player.bunkerCards?.health} !=null
                                                                 ? |${player.bunkerCards.health.cardName}. ${player.bunkerCards.health.description}|
                                                                 : ' ' ">
                                                 </span>
                         </p>
-                        <p><b><u>Hobby</u>:</b> <span th:text="${player.bunkerCards?.hobby} !=null 
+                        <p><b><u>Hobby</u>:</b><span th:text="${player.bunkerCards?.hobby} !=null 
                                                                ? |${player.bunkerCards.hobby.cardName}. ${player.bunkerCards.hobby.description}|
                                                                : ' ' ">
                                                 </span>
                         </p>
-                        <p><b><u>Phobia</u>:</b> <span th:text="${player.bunkerCards?.phobia} !=null
+                        <p><b><u>Phobia</u>:</b><span th:text="${player.bunkerCards?.phobia} !=null
                                                                 ? |${player.bunkerCards.phobia.cardName}. ${player.bunkerCards.phobia.description}|
                                                                 : ' ' ">
                                                 </span>
                         </p>
-                        <p><b><u>Luggage</u>:</b> <span th:text="${player.bunkerCards?.luggage} !=null
-                                                                 ? |{player.bunkerCards.luggage.cardName}. ${player.bunkerCards.luggage.description}|
+                        <p><b><u>Luggage</u>:</b><span th:text="${player.bunkerCards?.luggage} !=null
+                                                                 ? |${player.bunkerCards.luggage.cardName}. ${player.bunkerCards.luggage.description}|
                                                                  : ' ' ">
-                                                  </span>
+                                                 </span>
                         </p>
-                        <p><b><u>Character</u>:</b> <span th:text="${player.bunkerCards?.character} !=null
+                        <p><b><u>Character</u>:</b><span th:text="${player.bunkerCards?.character} !=null
                                                                    ? |${player.bunkerCards.character.cardName}. ${player.bunkerCards.character.description}|
                                                                    : ' ' ">
-                                                    </span>
+                                                   </span>
                         </p>
-                        <p><b><u>Skill</u>:</b> <span th:text="${player.bunkerCards?.skill} !=null
+                        <p><b><u>Skill</u>:</b><span th:text="${player.bunkerCards?.skill} !=null
                                                                ? |${player.bunkerCards.skill.cardName}. ${player.bunkerCards.skill.description}|
                                                                : ' ' ">
-                                                </span>
+                                               </span>
                         </p>
                     </div>
                 </div>
@@ -192,6 +192,13 @@
                         showServerMessage(messageObj); 
                     }
                 });
+                // подписка на канал для показывания карт
+                stompClient.subscribe('/topic/room/' + roomId + '/cards', function(data){
+                    const payload = JSON.parse(data.body);
+                    var cardsData = payload.cards;
+                    var userId = payload.userId;
+                    showSelectCard(cardsData, userId);
+                });
 
             }, function (error) {
                 console.error('STOMP Error:', error);
@@ -261,9 +268,22 @@
                 scrollToBottom();
             }
         }
-
-        function showSelectCard(){
-
+        
+        // update player cards, who showed card
+        function showSelectCard(cards, userId){
+            var newInfoDot = `
+                <div class="info-dot">i
+                    <div class="tooltip-content">
+                        <p><b><u>Profession</u>:</b><span> ${cards.profession ? cards.profession.cardName + '. ' + cards.profession.description : ''} </span></p>
+                        <p><b><u>Health</u>:</b><span> ${cards.health ? cards.health.cardName + '. ' + cards.health.description : ''}</span></p>
+                        <p><b><u>Hobby</u>:</b><span> ${cards.hobby ? cards.hobby.cardName + '. ' + cards.hobby.description : ''}</span></p>
+                        <p><b><u>Phobia</u>:</b><span> ${cards.phobia ? cards.phobia.cardName + '. ' + cards.phobia.description : ''}</span></p>
+                        <p><b><u>Luggage</u>:</b><span> ${cards.luggage ? cards.luggage.cardName + '. ' + cards.luggage.description : ''}</span></p>
+                        <p><b><u>Character</u>:</b><span> ${cards.character ? cards.character.cardName + '. ' + cards.character.description : ''}</span></p>
+                        <p><b><u>Skill</u>:</b><span> ${cards.skill ? cards.skill.cardName + '. ' + cards.skill.description : ''}</span></p>
+                    </div>
+                </div> `;
+            document.getElementById('user-' + userId).innerHTML += newInfoDot;
         }
 
         function checkNotification(message) {

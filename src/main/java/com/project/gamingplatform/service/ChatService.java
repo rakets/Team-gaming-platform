@@ -3,6 +3,7 @@ package com.project.gamingplatform.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.project.gamingplatform.dto.ChatMessageDTO;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -18,13 +19,9 @@ import java.util.concurrent.TimeUnit;
 @Service
 @Slf4j
 public class ChatService {
-    private final SimpMessagingTemplate messagingTemplate;
     private final RedisTemplate<String, String> redisTemplate;
 
-    @Autowired
-    public ChatService(SimpMessagingTemplate messagingTemplate,
-                          RedisTemplate<String, String> redisTemplate) {
-        this.messagingTemplate = messagingTemplate;
+    public ChatService(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

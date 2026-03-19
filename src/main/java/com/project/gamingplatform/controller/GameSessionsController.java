@@ -6,6 +6,7 @@ import com.project.gamingplatform.service.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ui.Model;
@@ -19,16 +20,15 @@ public class GameSessionsController {
     private final GameRoomsService gameRoomsService;
     private final UsersService usersService;
     private final ChatService chatService;
-    private final PlayerCardsService playerCardsService;
+    private final GameProcessService gameProcessService;
+    private final SimpMessagingTemplate simpMessagingTemplate;
 
-    public GameSessionsController(GameRoomsService gameRoomsService,
-                                  UsersService usersService,
-                                  ChatService chatService,
-                                  PlayerCardsService playerCardsService) {
+    public GameSessionsController(GameRoomsService gameRoomsService, UsersService usersService, ChatService chatService, GameProcessService gameProcessService, SimpMessagingTemplate simpMessagingTemplate) {
         this.gameRoomsService = gameRoomsService;
         this.usersService = usersService;
         this.chatService = chatService;
-        this.playerCardsService = playerCardsService;
+        this.gameProcessService = gameProcessService;
+        this.simpMessagingTemplate = simpMessagingTemplate;
     }
 
     //    @GetMapping("/join/{roomId}/{userId}")
@@ -72,11 +72,8 @@ public class GameSessionsController {
 
     // получение выбранной карты через WebSocket
     @MessageMapping("/show.card")
-    @SendTo("/topic/room/{roomId}/cards")
     public void processDisplayCardsFromClient(PlayerCardsDTO card) throws JsonProcessingException {
-        System.out.println("Card");
-        System.out.println("Игрок показал карту:" + card);
-        playerCardsService.showCard(card);
+        gameProcessService.showCard(card); //изменение статуса карты и возврат по WebSocket
     }
 
 //    @PatchMapping("/join/{roomId}/{roomName}")

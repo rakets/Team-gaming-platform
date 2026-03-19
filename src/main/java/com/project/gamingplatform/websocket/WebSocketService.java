@@ -25,6 +25,7 @@ import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
 import java.security.Principal;
 import java.time.Instant;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
@@ -110,6 +111,10 @@ public class WebSocketService {
         user.setReadyStatus(ReadyStatus.UNREADY);
         user.setMessageType(MessageType.UNREADY);
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
+    }
+
+    public void showCard(Map<String, Object> data, int roomId){
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/cards", data);
     }
 
     //уведомление, для появления кнопки join game session
