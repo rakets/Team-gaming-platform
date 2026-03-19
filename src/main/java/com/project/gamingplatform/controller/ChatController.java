@@ -24,7 +24,6 @@ public class ChatController {
     }
 
     @MessageMapping("/chat.send")
-    @SendTo("/topic/room/{roomId}/chat")
     public void processMessageFromClient(ChatMessageDTO message) throws JsonProcessingException {
         chatService.saveChatMessage(message);
         messagingTemplate.convertAndSend("/topic/room/" + message.getRoomId() + "/chat", message);
