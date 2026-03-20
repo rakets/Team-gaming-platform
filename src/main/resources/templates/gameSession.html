@@ -155,6 +155,7 @@
         const header = $('meta[name="_csrf_header"]').attr('content');
 
         var myCards = [[${ currentUser.bunkerCards }]];
+        var gameInfo = [[${ currentUser.gameSessionInfo }]];
 
         function connect() {
             // Подключение к WebSocket endpoint '/WsGameRoom'
@@ -205,7 +206,7 @@
                 //        setTimeout(connect, 5000);
             });
             joinRoom(); // подключение к LiveKit
-            showMyCards(myCards);
+            showMyCards(myCards, gameInfo);
         }
 
         // // перенос к низу чата
@@ -521,24 +522,24 @@
             return data.token;
         }
         //   ----------- LiveKit -----------------
-        function showMyCards(cards) {
+        function showMyCards(cards, gameInfo) {
             // catastrophe
-            var catastrophe = cards.catastrophe;
+            var catastrophe = gameInfo.catastrophe;
             var catastrophaData = document.createElement('p');
-            catastrophaData.innerHTML = "<b>Catastrophe:</b> " + catastrophe.cardName + ". " + catastrophe.description;
+            catastrophaData.innerHTML = "<b>" + catastrophe.cardType + ":</b> " + catastrophe.cardName + ". " + catastrophe.description;
             catastrophaData.id = "catastriphe";
             document.getElementById("scenarioInfo").appendChild(catastrophaData);
             // bunker info
-            var bunker = cards.bunkerInfo;
+            var bunker = gameInfo.bunkerInfo;
             var bunkerData = document.createElement('p');
-            bunkerData.innerHTML = "<b>Bunker:</b> " + bunker.cardName + ". " + bunker.description;
+            bunkerData.innerHTML = "<b>" + bunker.cardType + ":</b> " + bunker.cardName + ". " + bunker.description;
             bunkerData.id = "bunker";
             document.getElementById("scenarioInfo").appendChild(bunkerData);
             
             // profession
             var profession = cards.profession;
             var professionData = document.createElement('p');
-            professionData.innerHTML = "<b>Profession:</b> " + profession.cardName + ". " + profession.description;
+            professionData.innerHTML = "<b>" + profession.cardType + ":</b> " + profession.cardName + ". " + profession.description;
             // professionData.id = "professtion";
             professionData.dataset.cardJson = JSON.stringify(profession); //объект карты переводим в строку
             professionData.classList.add('clickable-card');
@@ -591,6 +592,75 @@
             skillData.dataset.cardJson = JSON.stringify(skill);
             skillData.classList.add('clickable-card');
             document.getElementById("сardsData").appendChild(skillData);
+            // // catastrophe
+            // var catastrophe = cards.catastrophe;
+            // var catastrophaData = document.createElement('p');
+            // catastrophaData.innerHTML = "<b>Catastrophe:</b> " + catastrophe.cardName + ". " + catastrophe.description;
+            // catastrophaData.id = "catastriphe";
+            // document.getElementById("scenarioInfo").appendChild(catastrophaData);
+            // // bunker info
+            // var bunker = cards.bunkerInfo;
+            // var bunkerData = document.createElement('p');
+            // bunkerData.innerHTML = "<b>Bunker:</b> " + bunker.cardName + ". " + bunker.description;
+            // bunkerData.id = "bunker";
+            // document.getElementById("scenarioInfo").appendChild(bunkerData);
+            
+            // // profession
+            // var profession = cards.profession;
+            // var professionData = document.createElement('p');
+            // professionData.innerHTML = "<b>Profession:</b> " + profession.cardName + ". " + profession.description;
+            // // professionData.id = "professtion";
+            // professionData.dataset.cardJson = JSON.stringify(profession); //объект карты переводим в строку
+            // professionData.classList.add('clickable-card');
+            // document.getElementById("сardsData").appendChild(professionData);
+            // // health
+            // var health = cards.health;
+            // var healthData = document.createElement('p');
+            // healthData.innerHTML = "<b>Health:</b> " + health.cardName + ". " + health.description;
+            // // healthData.id = "health";
+            // healthData.dataset.cardJson = JSON.stringify(health);
+            // healthData.classList.add('clickable-card');
+            // document.getElementById("сardsData").appendChild(healthData);
+            // // hobby
+            // var hobby = cards.hobby;
+            // var hobbyData = document.createElement('p');
+            // hobbyData.innerHTML = "<b>Hobby:</b> " + hobby.cardName + ". " + hobby.description;
+            // // hobbyData.id = "hobby";
+            // hobbyData.dataset.cardJson = JSON.stringify(hobby);
+            // hobbyData.classList.add('clickable-card');
+            // document.getElementById("сardsData").appendChild(hobbyData);
+            // // phobia
+            // var phobia = cards.phobia;
+            // var phobiaData = document.createElement('p');
+            // phobiaData.innerHTML = "<b>Phobia:</b> " + phobia.cardName + ". " + phobia.description;
+            // // phobiaData.id = "phobia";
+            // phobiaData.dataset.cardJson = JSON.stringify(phobia);
+            // phobiaData.classList.add('clickable-card');
+            // document.getElementById("сardsData").appendChild(phobiaData);
+            // // luggage
+            // var luggage = cards.luggage;
+            // var luggageData = document.createElement('p');
+            // luggageData.innerHTML = "<b>Luggage:</b> " + luggage.cardName + ". " + luggage.description;
+            // // luggageData.id = "luggage";
+            // luggageData.dataset.cardJson = JSON.stringify(luggage);
+            // luggageData.classList.add('clickable-card');
+            // document.getElementById("сardsData").appendChild(luggageData);
+            // // character
+            // var character = cards.character;
+            // var characterData = document.createElement('p');
+            // characterData.innerHTML = "<b>Character:</b> " + character.cardName + ". " + character.description;
+            // // characterData.id = "character";
+            // characterData.dataset.cardJson = JSON.stringify(character);
+            // characterData.classList.add('clickable-card');
+            // document.getElementById("сardsData").appendChild(characterData);
+            // // skill
+            // var skill = cards.skill;
+            // var skillData = document.createElement('p');
+            // skillData.innerHTML = "<b>Skill:</b> " + skill.cardName + ". " + skill.description;
+            // // skillData.id = "skill";
+            // skillData.dataset.cardJson = JSON.stringify(skill);
+            // skillData.classList.add('clickable-card');
+            // document.getElementById("сardsData").appendChild(skillData);
         }
         
         // реакция на выбор какой-то карты

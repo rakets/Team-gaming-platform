@@ -5,8 +5,6 @@ import lombok.Data;
 
 @Data
 public class BunkerCardList {
-    private BunkerCardsDTO bunkerInfo;
-    private BunkerCardsDTO catastrophe;
     private BunkerCardsDTO profession;
     private BunkerCardsDTO health;
     private BunkerCardsDTO hobby;

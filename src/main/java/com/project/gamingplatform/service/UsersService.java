@@ -131,8 +131,12 @@ public class UsersService {
     public UsersDTO prepareCurrentPlayerWithCards(GameRoomsDTO gameRoomsDTO) {
         UsersDTO currentUser = getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
         List<BunkerCards> bunkerCardsList = bunkerCardsRepository.getBunkerCardsByUserIdRoomId(currentUser.getUserId(), gameRoomsDTO.getRoomId());
+        // game cards
         BunkerCardList cards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(bunkerCardsList);
         currentUser.setBunkerCards(cards);
+        // game info cards
+        GameSessionInfo gameSessionInfo = bunkerCardsService.getGameSessionInfoCards(bunkerCardsList);
+        currentUser.setGameSessionInfo(gameSessionInfo);
         return currentUser;
     }
 }

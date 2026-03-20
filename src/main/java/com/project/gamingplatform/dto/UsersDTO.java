@@ -18,4 +18,7 @@ public class UsersDTO {
 
     // bunker cards
     private BunkerCardList bunkerCards;
+
+    // game session info
+    private GameSessionInfo gameSessionInfo;
 }
