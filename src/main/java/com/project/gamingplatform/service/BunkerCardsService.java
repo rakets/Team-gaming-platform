@@ -5,7 +5,6 @@ import com.project.gamingplatform.dto.BunkerCardsDTO;
 import com.project.gamingplatform.entity.BunkerCards;
 import com.project.gamingplatform.entity.CardType;
 import com.project.gamingplatform.entity.RoomPlayers;
-import com.project.gamingplatform.entity.RoomPlayersId;
 import com.project.gamingplatform.repository.BunkerCardsRepository;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
 import org.springframework.stereotype.Service;
@@ -92,7 +91,7 @@ public class BunkerCardsService {
         Map<Integer, BunkerCardList> allPlayersBunkerCards = new HashMap<>();
         for (RoomPlayers roomPlayer : roomPlayersList) {
             int playerId = roomPlayer.getUser().getUserId();
-            List<BunkerCards> bunkerCardsList = bunkerCardsRepository.getRevealedBunkerCardsByUserIdRoomId(playerId, roomId);
+            List<BunkerCards> bunkerCardsList = bunkerCardsRepository.getBunkerCardsByUserIdRoomIdRevealedStatus(playerId, roomId, true);
 
             allPlayersBunkerCards.put(playerId, getBunkerCardsDTOByUserIdRoomId(bunkerCardsList));
         }

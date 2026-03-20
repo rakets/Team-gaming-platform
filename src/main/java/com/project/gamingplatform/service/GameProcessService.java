@@ -2,7 +2,6 @@ package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.dto.BunkerCardList;
 import com.project.gamingplatform.dto.PlayerCardsDTO;
-import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.*;
 import com.project.gamingplatform.repository.*;
 import com.project.gamingplatform.websocket.WebSocketService;
@@ -126,7 +125,7 @@ public class GameProcessService {
     @Transactional
     public void showCard(PlayerCardsDTO card) {
         playerCardsRepository.updateRevealed(card.getUserId(),card.getBunkerCard().getCardId());
-        List<BunkerCards> bunkerCardsList = bunkerCardsRepository.getRevealedBunkerCardsByUserIdRoomId(card.getUserId(), card.getRoomId());
+        List<BunkerCards> bunkerCardsList = bunkerCardsRepository.getBunkerCardsByUserIdRoomIdRevealedStatus(card.getUserId(), card.getRoomId(), true);
         BunkerCardList bunkerCards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(bunkerCardsList);
         Map<String, Object> data = new HashMap<>();
         data.put("userId", card.getUserId());
