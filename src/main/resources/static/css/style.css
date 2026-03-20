@@ -289,4 +289,11 @@
     font-size: 0.9em;
     letter-spacing: 1px;
 }
+
+/* Стиль, что бы карточка менялась и ее нельзя было нажать второй раз */
+#сardsData .revealed-card {
+    background: #3498db;
+    pointer-events: none;
+    opacity: 0.9;
+}
 /* оформление карточек игрока (своих карточек) */

@@ -593,10 +593,12 @@
             document.getElementById("сardsData").appendChild(skillData);
         }
         
+        // реакция на выбор какой-то карты
         document.getElementById("сardsData").addEventListener('click', function(event) {
             const targetCard = event.target.closest('.clickable-card'); // ищем ближайший элемент с классом 'clickable-card' 
             if (targetCard) {
                 const сardObject = JSON.parse(targetCard.dataset.cardJson); //собираем из строки объект карты
+                targetCard.classList.add('revealed-card');
                 sendCardAction(сardObject);
             }
         });
