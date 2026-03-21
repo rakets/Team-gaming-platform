@@ -122,7 +122,7 @@ public class UsersService {
         List<UsersDTO> usersDTOList = findAllUsersByGameRoom(gameRoomsDTO);
         Map<Integer, BunkerCardList> allCards = bunkerCardsService.getAllPlayersRevealedBunkerCardsInRoom(gameRoomsDTO.getRoomId());
         for (UsersDTO user : usersDTOList) {
-            user.setBunkerCards(allCards.get(user.getUserId()));
+            user.setRevealedBunkerCards(allCards.get(user.getUserId()));
         }
         return usersDTOList;
     }
@@ -130,13 +130,17 @@ public class UsersService {
     //getting current user with his cards
     public UsersDTO prepareCurrentPlayerWithCards(GameRoomsDTO gameRoomsDTO) {
         UsersDTO currentUser = getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
-        List<BunkerCards> bunkerCardsList = bunkerCardsRepository.getBunkerCardsByUserIdRoomId(currentUser.getUserId(), gameRoomsDTO.getRoomId());
-        // game cards
-        BunkerCardList cards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(bunkerCardsList);
-        currentUser.setBunkerCards(cards);
+        // revealed game cards
+        List<BunkerCards> revealedBunkerCards = bunkerCardsRepository.getBunkerCardsByUserIdRoomIdRevealedStatus(currentUser.getUserId(), gameRoomsDTO.getRoomId(), true);
+        BunkerCardList revealCards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(revealedBunkerCards);
+        currentUser.setRevealedBunkerCards(revealCards);
         // game info cards
-        GameSessionInfo gameSessionInfo = bunkerCardsService.getGameSessionInfoCards(bunkerCardsList);
+        GameSessionInfo gameSessionInfo = bunkerCardsService.getGameSessionInfoCards(revealedBunkerCards);
         currentUser.setGameSessionInfo(gameSessionInfo);
+        // unrevealed game cards
+        List<BunkerCards> unrevealedBunkerCards = bunkerCardsRepository.getBunkerCardsByUserIdRoomIdRevealedStatus(currentUser.getUserId(), gameRoomsDTO.getRoomId(), false);
+        BunkerCardList unrevealCards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(unrevealedBunkerCards);
+        currentUser.setUnrevealedBunkerCards(unrevealCards);
         return currentUser;
     }
 }

@@ -17,7 +17,8 @@ public class UsersDTO {
     private MessageType messageType; // JOIN / LEAVE / READY / UNREADY / JOIN_GAME_SESSION
 
     // bunker cards
-    private BunkerCardList bunkerCards;
+    private BunkerCardList revealedBunkerCards;
+    private BunkerCardList unrevealedBunkerCards;
 
     // game session info
     private GameSessionInfo gameSessionInfo;

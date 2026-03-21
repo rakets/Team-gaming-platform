@@ -41,33 +41,33 @@ public class BunkerCardsService {
 
     //sorting game cards by CardType for player
     public BunkerCardList getBunkerCardsDTOByUserIdRoomId(List<BunkerCards> bunkerCardsList) {
-        BunkerCardList bunkerCardList = new BunkerCardList();
+        BunkerCardList cardList = new BunkerCardList();
         for (BunkerCards bunkerCard : bunkerCardsList) {
             switch (bunkerCard.getCardType()) {
                 case CardType.PROFESSION:
-                    bunkerCardList.setProfession(convertEntityToDTO(bunkerCard));
+                    cardList.setProfession(convertEntityToDTO(bunkerCard));
                     break;
                 case CardType.HEALTH:
-                    bunkerCardList.setHealth(convertEntityToDTO(bunkerCard));
+                    cardList.setHealth(convertEntityToDTO(bunkerCard));
                     break;
                 case CardType.HOBBY:
-                    bunkerCardList.setHobby(convertEntityToDTO(bunkerCard));
+                    cardList.setHobby(convertEntityToDTO(bunkerCard));
                     break;
                 case CardType.PHOBIA:
-                    bunkerCardList.setPhobia(convertEntityToDTO(bunkerCard));
+                    cardList.setPhobia(convertEntityToDTO(bunkerCard));
                     break;
                 case CardType.LUGGAGE:
-                    bunkerCardList.setLuggage(convertEntityToDTO(bunkerCard));
+                    cardList.setLuggage(convertEntityToDTO(bunkerCard));
                     break;
                 case CardType.CHARACTER:
-                    bunkerCardList.setCharacter(convertEntityToDTO(bunkerCard));
+                    cardList.setCharacter(convertEntityToDTO(bunkerCard));
                     break;
                 case CardType.SKILL:
-                    bunkerCardList.setSkill(convertEntityToDTO(bunkerCard));
+                    cardList.setSkill(convertEntityToDTO(bunkerCard));
                     break;
             }
         }
-        return bunkerCardList;
+        return cardList;
     }
 
     // cards about game session
