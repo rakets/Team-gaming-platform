@@ -296,4 +296,9 @@
     pointer-events: none;
     opacity: 0.9;
 }
+
+.dead {
+    background: #f37d89;
+    opacity: 0.9;
+}
 /* оформление карточек игрока (своих карточек) */

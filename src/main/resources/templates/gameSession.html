@@ -18,10 +18,14 @@
 
     <header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
         <span class="navbar-brand">Game Session : <label th:text="${room.roomName}"></label></span>
+        <a class="light" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
         <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
     </header>
+    
+    <button id="resultBtn" type="button" class="btn btn-danger" th:classappend="${currentUser.gameRole.name() == 'MODERATOR'} ? '' : ' hidden'">
+        VOTING RESULT
+    </button>
 
-    <a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
     <!-- информация о сценарие(бункере и катастрофе) -->
     <div id="scenarioInfo" class="scenario"></div>
     <!-- карточки -->
@@ -44,7 +48,6 @@
         <div id="layout-container"></div> 
 
         <!--    chat-->
-        <!-- <div class="container mt-4 chat"> -->
         <div class="chat">
             <div class="messages" id="messages">
                 <div th:each="message : ${chatHistory}" th:class="${currentUser.userId == message.senderId} ? 'messages_client' : 'messages_server'">
@@ -58,6 +61,30 @@
             </div>
         </div>
     </div>
+
+    <!-- voting  -->
+    <form id="voteForm">
+        <div th:each="player : ${players}">
+            <input type="radio"
+                th:id="'player-' + ${player.userId}"
+                name="vote"
+                th:value="${player.userId}">
+            <label th:for="'player-' + ${player.userId}"
+                th:text="${player.username}">
+            </label>
+        </div>
+        <!-- pass -->
+        <div>
+            <input type="radio"
+                id="vote-0"
+                name="vote"
+                value="0">
+            <label for="vote-0"
+                th:text="PASS">
+            </label>
+        </div>
+        <button type="submit" class="btn btn-danger">VOTE</button>
+    </form>
 
     <!--    sound / video buttons-->
     <div class="container mt-4 control">
@@ -302,6 +329,10 @@
 
                 case "JOIN_GAME_SESSION":
                     showGameSessionButton();
+                    break;
+
+                case "VOTING_RESULT":
+                    document.getElementById("user-" + message.userId).classList.add('dead');
                     break;
                 default:
                     console.warn("Unknown websocket message type:", message.messageType);
@@ -569,6 +600,23 @@
             }
         });
 
+        document.getElementById("resultBtn").addEventListener('click', checkVotingResult);
+        
+        function checkVotingResult(){
+            fetch("/game-session/game-voting/" + roomId, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
+            }).then(response => {
+                if (response.ok) {
+                    console.log('User marked as DEAD in BD');
+                }
+            }).catch(err => console.error(err));
+        }
+
         // отправление выбранной карты на сервер
         function sendCardAction(сardObject) {
             if (stompClient && stompClient.connected) {
@@ -580,6 +628,28 @@
                 stompClient.send("/app/show.card", {}, JSON.stringify(payload));
             }
         }
+
+        // обработка нажатия "VOTE" и отправка голоса
+        document.getElementById("voteForm").addEventListener('submit', function(event){
+            event.preventDefault();
+            const selected = document.querySelector('input[name="vote"]:checked');
+            if (!selected) {
+                alert("SELECT PLAYER");
+                return;
+            }
+            fetch('/game-session/vote', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({ 
+                    vote: selected.value,
+                    userId: currentUserId,
+                    roomId: roomId  
+                })
+            });
+        });
         // -------------------
         
         // Подключение при полной загрузке страницы

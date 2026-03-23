@@ -5,5 +5,6 @@ public enum MessageType {
     LEAVE,
     READY,
     UNREADY,
-    JOIN_GAME_SESSION
+    JOIN_GAME_SESSION,
+    VOTING_RESULT
 }

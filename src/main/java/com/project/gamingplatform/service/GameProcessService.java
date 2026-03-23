@@ -1,7 +1,9 @@
 package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.dto.BunkerCardList;
+import com.project.gamingplatform.dto.MessageType;
 import com.project.gamingplatform.dto.PlayerCardsDTO;
+import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.*;
 import com.project.gamingplatform.repository.*;
 import com.project.gamingplatform.websocket.WebSocketService;
@@ -131,6 +133,16 @@ public class GameProcessService {
         data.put("userId", card.getUserId());
         data.put("cards", bunkerCards);
         webSocketService.showCard(data, card.getRoomId());
+    }
+
+    //получение определение и возврат данных выбывшего игрока
+    public UsersDTO getDeadPlayer(int roomId) {
+        UsersDTO user = new UsersDTO();
+        user.setUserId(2);
+        System.out.println("User ID: " + user.getUserId());
+
+        user.setMessageType(MessageType.VOTING_RESULT);
+        return user;
     }
 }
 

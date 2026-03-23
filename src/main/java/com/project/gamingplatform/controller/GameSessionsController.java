@@ -3,9 +3,14 @@ package com.project.gamingplatform.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.service.*;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -21,14 +26,14 @@ public class GameSessionsController {
     private final UsersService usersService;
     private final ChatService chatService;
     private final GameProcessService gameProcessService;
-    private final SimpMessagingTemplate simpMessagingTemplate;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    public GameSessionsController(GameRoomsService gameRoomsService, UsersService usersService, ChatService chatService, GameProcessService gameProcessService, SimpMessagingTemplate simpMessagingTemplate) {
+    public GameSessionsController(GameRoomsService gameRoomsService, UsersService usersService, ChatService chatService, GameProcessService gameProcessService, SimpMessagingTemplate messagingTemplate) {
         this.gameRoomsService = gameRoomsService;
         this.usersService = usersService;
         this.chatService = chatService;
         this.gameProcessService = gameProcessService;
-        this.simpMessagingTemplate = simpMessagingTemplate;
+        this.messagingTemplate = messagingTemplate;
     }
 
     //    @GetMapping("/join/{roomId}/{userId}")
@@ -74,6 +79,21 @@ public class GameSessionsController {
     @MessageMapping("/show.card")
     public void processDisplayCardsFromClient(PlayerCardsDTO card) throws JsonProcessingException {
         gameProcessService.showCard(card); //изменение статуса карты и возврат по WebSocket
+    }
+
+    //метод реагирует, когда модератор нажимает VOTING RESULT и возвращает пользователя
+    @PatchMapping("/game-voting/{id}")
+    public ResponseEntity<Void> votingResult (@PathVariable("id") int roomId) {
+        UsersDTO user = gameProcessService.getDeadPlayer(roomId);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/vote")
+    public void newVote (@RequestBody VotesDTO votesDTO){
+        System.out.println("Голос игрока ID " + votesDTO.getUserId() + " на игрока ID " + votesDTO.getVote() + " в комнате ID " + votesDTO.getRoomId());
+//        messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
+//        return ResponseEntity.ok().build();
     }
 
 //    @PatchMapping("/join/{roomId}/{roomName}")

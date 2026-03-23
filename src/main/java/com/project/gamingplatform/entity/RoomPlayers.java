@@ -33,6 +33,9 @@ public class RoomPlayers {
     @Enumerated(EnumType.STRING)
     private RoleInRoom roleInRoom;
 
+    @Column(name = "is_dead", nullable = false)
+    private Boolean isDead = false;
+
     public RoomPlayers() {
     }
     public RoomPlayers(GameRooms room, Users user, RoleInRoom roleInRoom) {
@@ -89,6 +92,14 @@ public class RoomPlayers {
         this.roleInRoom = roleInRoom;
     }
 
+    public Boolean getDead() {
+        return isDead;
+    }
+
+    public void setDead(Boolean dead) {
+        isDead = dead;
+    }
+
     @Override
     public String toString() {
         return "RoomPlayers{" +
@@ -97,6 +108,7 @@ public class RoomPlayers {
                 ", joinedAt=" + joinedAt +
                 ", isReady=" + isReady +
                 ", roleInRoom=" + roleInRoom +
+                ", isDead=" + isDead +
                 '}';
     }
 }
