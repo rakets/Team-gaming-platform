@@ -27,13 +27,15 @@ public class GameSessionsController {
     private final ChatService chatService;
     private final GameProcessService gameProcessService;
     private final SimpMessagingTemplate messagingTemplate;
+    private final VotesService votesService;
 
-    public GameSessionsController(GameRoomsService gameRoomsService, UsersService usersService, ChatService chatService, GameProcessService gameProcessService, SimpMessagingTemplate messagingTemplate) {
+    public GameSessionsController(GameRoomsService gameRoomsService, UsersService usersService, ChatService chatService, GameProcessService gameProcessService, SimpMessagingTemplate messagingTemplate, VotesService votesService) {
         this.gameRoomsService = gameRoomsService;
         this.usersService = usersService;
         this.chatService = chatService;
         this.gameProcessService = gameProcessService;
         this.messagingTemplate = messagingTemplate;
+        this.votesService = votesService;
     }
 
     //    @GetMapping("/join/{roomId}/{userId}")
@@ -89,11 +91,15 @@ public class GameSessionsController {
         return ResponseEntity.ok().build();
     }
 
+//    метод получения голоса
     @PostMapping("/vote")
-    public void newVote (@RequestBody VotesDTO votesDTO){
-        System.out.println("Голос игрока ID " + votesDTO.getUserId() + " на игрока ID " + votesDTO.getVote() + " в комнате ID " + votesDTO.getRoomId());
-//        messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
-//        return ResponseEntity.ok().build();
+    public ResponseEntity<Void> newVote (@RequestBody VotesDTO vote){
+        System.out.println("Голос игрока ID " + vote.getUserId() + " на игрока ID " + vote.getVote() + " в комнате ID " + vote.getRoomId());
+        if (votesService.newVote(vote)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
 //    @PatchMapping("/join/{roomId}/{roomName}")

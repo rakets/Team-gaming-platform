@@ -301,4 +301,12 @@
     background: #f37d89;
     opacity: 0.9;
 }
+
+.errorVote {
+    color: #dc3545;
+}
+
+.successVote {
+    color: rgb(31, 183, 31);
+}
 /* оформление карточек игрока (своих карточек) */

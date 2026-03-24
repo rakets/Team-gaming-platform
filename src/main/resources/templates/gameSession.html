@@ -64,7 +64,8 @@
 
     <!-- voting  -->
     <form id="voteForm">
-        <div th:each="player : ${players}">
+        <p id="myVote"></p>
+        <div th:each="player : ${players}" th:if="${currentUser.userId != player.userId}">
             <input type="radio"
                 th:id="'player-' + ${player.userId}"
                 name="vote"
@@ -629,12 +630,15 @@
             }
         }
 
-        // обработка нажатия "VOTE" и отправка голоса
+        // обработка нажатия "VOTE", отправка голоса, получени ответа сервера
         document.getElementById("voteForm").addEventListener('submit', function(event){
             event.preventDefault();
             const selected = document.querySelector('input[name="vote"]:checked');
+            const myVote = document.getElementById("myVote");
             if (!selected) {
-                alert("SELECT PLAYER");
+                myVote.classList = '';
+                myVote.innerHTML = "<b>PLEASE SELECT OPTION</b>";
+                myVote.classList.add("errorVote");
                 return;
             }
             fetch('/game-session/vote', {
@@ -648,6 +652,18 @@
                     userId: currentUserId,
                     roomId: roomId  
                 })
+            }).then(response => {
+                if (response.ok) {
+                    myVote.classList = '';
+                    myVote.classList.add("successVote");
+                    myVote.innerHTML = "<b>YOUR VOTE IS ACCEPTED :)</b>";
+                    document.getElementById('voteForm').reset();
+                } else {
+                    myVote.classList = '';
+                    myVote.classList.add("errorVote");
+                    myVote.innerHTML = "<b>YOU CAN VOTE ONCE IN THE ROUND</b>";
+                    document.getElementById('voteForm').reset();
+                }
             });
         });
         // -------------------
