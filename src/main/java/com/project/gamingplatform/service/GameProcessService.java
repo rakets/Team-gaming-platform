@@ -135,15 +135,15 @@ public class GameProcessService {
         webSocketService.showCard(data, card.getRoomId());
     }
 
-    //получение определение и возврат данных выбывшего игрока
-    public UsersDTO getDeadPlayer(int roomId) {
-        UsersDTO user = new UsersDTO();
-        user.setUserId(2);
-        System.out.println("User ID: " + user.getUserId());
-
-        user.setMessageType(MessageType.VOTING_RESULT);
-        return user;
-    }
+//    //получение определение и возврат данных выбывшего игрока
+//    public UsersDTO getDeadPlayer(int roomId) {
+//        UsersDTO user = new UsersDTO();
+//        user.setUserId(2);
+//        System.out.println("User ID: " + user.getUserId());
+//
+//        user.setMessageType(MessageType.VOTING_RESULT);
+//        return user;
+//    }
 }
 
 

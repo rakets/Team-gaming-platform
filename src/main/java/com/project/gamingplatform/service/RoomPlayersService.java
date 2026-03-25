@@ -22,14 +22,9 @@ public class RoomPlayersService {
     private final PlayerCardsRepository playerCardsRepository;
     private final PlayerRolesRepository playerRolesRepository;
     private final GameSessionsRepository gameSessionsRepository;
+    private final VotesRepository votesRepository;
 
-    public RoomPlayersService(RoomPlayersRepository roomPlayersRepository,
-                              GameRoomsRepository gameRoomsRepository,
-                              WebSocketService webSocketService,
-                              GameSessionsService gameSessionsService,
-                              PlayerCardsRepository playerCardsRepository,
-                              PlayerRolesRepository playerRolesRepository,
-                              GameSessionsRepository gameSessionsRepository) {
+    public RoomPlayersService(RoomPlayersRepository roomPlayersRepository, GameRoomsRepository gameRoomsRepository, WebSocketService webSocketService, GameSessionsService gameSessionsService, PlayerCardsRepository playerCardsRepository, PlayerRolesRepository playerRolesRepository, GameSessionsRepository gameSessionsRepository, VotesRepository votesRepository) {
         this.roomPlayersRepository = roomPlayersRepository;
         this.gameRoomsRepository = gameRoomsRepository;
         this.webSocketService = webSocketService;
@@ -37,6 +32,7 @@ public class RoomPlayersService {
         this.playerCardsRepository = playerCardsRepository;
         this.playerRolesRepository = playerRolesRepository;
         this.gameSessionsRepository = gameSessionsRepository;
+        this.votesRepository = votesRepository;
     }
 
     // save RoomPlayer and adding as MODERATOR
@@ -87,6 +83,7 @@ public class RoomPlayersService {
         playerCardsRepository.deleteAllBySession(gameSessions);
         //смена статуса game session
         gameSessionsService.updateGameSessionStatus(SessionGameStatus.WAITING, roomId);
+        votesRepository.deleteAllBySession(gameSessionsRepository.getGameSessionsByRoomId(roomId));
     }
 
     // ОТ GameRoomsService -> бд

@@ -83,17 +83,21 @@ public class GameSessionsController {
         gameProcessService.showCard(card); //изменение статуса карты и возврат по WebSocket
     }
 
-    //метод реагирует, когда модератор нажимает VOTING RESULT и возвращает пользователя
+    //метод реагирует, когда модератор нажимает 'VOTING RESULT' и возвращает пользователя
     @PatchMapping("/game-voting/{id}")
-    public ResponseEntity<Void> votingResult (@PathVariable("id") int roomId) {
-        UsersDTO user = gameProcessService.getDeadPlayer(roomId);
+    public ResponseEntity<Void> votingResult(@PathVariable("id") int roomId) {
+        UsersDTO user = votesService.getDeadPlayer(roomId);
+        if (user.getUserId().equals(0)) {       //ситуация, если игрок имеет id 0 (не определен, голосование не прошло)
+            messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
+            return ResponseEntity.badRequest().build();
+        }
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
         return ResponseEntity.ok().build();
     }
 
-//    метод получения голоса
+    //метод реагирует, когда игрок нажимает 'VOTE'
     @PostMapping("/vote")
-    public ResponseEntity<Void> newVote (@RequestBody VotesDTO vote){
+    public ResponseEntity<Void> newVote(@RequestBody VotesDTO vote) {
         System.out.println("Голос игрока ID " + vote.getUserId() + " на игрока ID " + vote.getVote() + " в комнате ID " + vote.getRoomId());
         if (votesService.newVote(vote)) {
             return ResponseEntity.ok().build();

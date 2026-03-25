@@ -74,7 +74,7 @@
                 th:text="${player.username}">
             </label>
         </div>
-        <!-- pass -->
+        <!-- pass
         <div>
             <input type="radio"
                 id="vote-0"
@@ -83,7 +83,7 @@
             <label for="vote-0"
                 th:text="PASS">
             </label>
-        </div>
+        </div> -->
         <button type="submit" class="btn btn-danger">VOTE</button>
     </form>
 
@@ -333,11 +333,22 @@
                     break;
 
                 case "VOTING_RESULT":
-                    document.getElementById("user-" + message.userId).classList.add('dead');
+                    displayVotingResult(message);
                     break;
                 default:
                     console.warn("Unknown websocket message type:", message.messageType);
             }
+        }
+
+        //обработка WebSocket сообщения с сервера, когда модератор нажал 'VOTING RESULT'  
+        function displayVotingResult(message) {
+            if(message.userId != 0) {
+                document.getElementById("user-" + message.userId).classList.add('dead');
+            }
+            let myVote = document.getElementById("myVote");
+            myVote.classList = '';
+            myVote.textContent = '';
+            document.getElementById('voteForm').reset();
         }
 
         function showJoinNotification(message) {
@@ -614,7 +625,9 @@
             }).then(response => {
                 if (response.ok) {
                     console.log('User marked as DEAD in BD');
-                }
+                } else (
+                    alert("SESSION NEED NEW VOTING OR NOT ALL PLAYERS VOTED")
+                )
             }).catch(err => console.error(err));
         }
 
