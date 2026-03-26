@@ -54,13 +54,13 @@ public class VotesService {
     public UsersDTO getDeadPlayer(int roomId) {
         GameSessions gameSession = gameSessionsRepository.getGameSessionsByRoomId(roomId);
         List<VoteResult> voteResultList = votesRepository.getTargetUserAndSumVotes(gameSession.getSessionId(), gameSession.getCurrentRound());
-        System.out.println("GOLOSOVANIE: ");
-        System.out.println(voteResultList);
+//        System.out.println("GOLOSOVANIE: ");
+//        System.out.println(voteResultList);
 
         List<RoomPlayers> playersInRoom = roomPlayersRepository.findAllRoomPlayersByRoomId(roomId);
         List<Votes> allVotesInRound = votesRepository.findAllVotesBySessionAndRoundNum(gameSession, gameSession.getCurrentRound());
-        System.out.println("All Votes, size: " + allVotesInRound.size());
-        System.out.println("allVotesInRound");
+//        System.out.println("All Votes, size: " + allVotesInRound.size());
+//        System.out.println("allVotesInRound");
         int userId = 0;
         Long voteCount = Long.valueOf(0);
 
@@ -75,14 +75,17 @@ public class VotesService {
             }
         }
 
-        System.out.println("UserID: " + userId + " count:  " + voteCount);
+//        System.out.println("UserID: " + userId + " count:  " + voteCount);
         UsersDTO user = new UsersDTO();
         user.setUserId(userId);
         user.setMessageType(MessageType.VOTING_RESULT);
-        System.out.println("User ID: " + user.getUserId());
+//        System.out.println("User ID: " + user.getUserId());
         //если голосование не прошло (ID выбранного игрока 0), то чистим историю голосов
+        //если голосование прошло, то даем игроку статус 'DEAD'
         if (userId == 0) {
             votesRepository.deleteAllBySessionAndRoundNum(gameSession, gameSession.getCurrentRound());
+        } else {
+            roomPlayersRepository.updateDeadStatusByRoomIdUserId(roomId, userId);
         }
         return user;
     }

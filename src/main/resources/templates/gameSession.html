@@ -65,7 +65,8 @@
     <!-- voting  -->
     <form id="voteForm">
         <p id="myVote"></p>
-        <div th:each="player : ${players}" th:if="${currentUser.userId != player.userId}">
+        <!-- убираем из вариантов голосования 'себя' и 'DEAD' игроков  -->
+        <div th:each="player : ${players}" th:if="${currentUser.userId != player.userId && player.deadStatus.name() != 'DEAD'}">
             <input type="radio"
                 th:id="'player-' + ${player.userId}"
                 name="vote"
@@ -98,7 +99,8 @@
         <h3>Игроки в комнате:</h3>
         <div id="players-container" class="row">
             <div th:each="player : ${players}" class="col-md-4 player-card">
-                <div class="card" th:id="'user-' + ${player.userId}">
+                <!-- если игрок DEAD, то даем его карточке стиль -->
+                <div class="card" th:id="'user-' + ${player.userId}" th:classappend="${player.deadStatus.name() == 'DEAD'} ? ' dead' : ''">
                 <div class="info-dot">i
                     <div class="tooltip-content">
                         <p><b><u>Profession</u>:</b><span th:text="${player.revealedBunkerCards?.profession} !=null

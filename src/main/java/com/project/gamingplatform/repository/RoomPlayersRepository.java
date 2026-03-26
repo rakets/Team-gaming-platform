@@ -40,4 +40,10 @@ public interface RoomPlayersRepository extends JpaRepository<RoomPlayers, RoomPl
 
     @Query("SELECT COUNT(r) = 0 FROM RoomPlayers r WHERE r.id.roomId = :roomId AND r.isReady <> true")
     boolean isAllUserReadyInRoom(@Param("roomId") int roomId);
+
+    // указание статуса is_dead
+    @Modifying
+    @Transactional
+    @Query("UPDATE RoomPlayers rp SET rp.isDead = true WHERE rp.user.userId = :userId AND rp.room.roomId = :roomId")
+    void updateDeadStatusByRoomIdUserId(@Param("roomId") int roomId, @Param("userId") int userId);
 }

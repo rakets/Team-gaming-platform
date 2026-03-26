@@ -89,19 +89,27 @@ public class UsersService {
 
             whoIsModerator(usersDTO, gameRoomsDTO);
             isUserReadyInRoom(roomPlayers.getIsReady(), usersDTO);
+            isUserDead(roomPlayers.getDead(), usersDTO);
 
             usersDTOList.add(usersDTO);
         }
+        System.out.println("uzery: " + usersDTOList);
         return usersDTOList;
     }
 
-    public void isUserReadyInRoom(boolean statusReady, UsersDTO usersDTO) {
+    private void isUserReadyInRoom(boolean statusReady, UsersDTO usersDTO) {
         if (statusReady) {
             usersDTO.setReadyStatus(ReadyStatus.READY);
         }
     }
 
-    public void whoIsModerator(UsersDTO usersDTO, GameRoomsDTO gameRoomsDTO) {
+    private void isUserDead(boolean statusDead, UsersDTO user) {
+        if (statusDead) {
+            user.setDeadStatus(DeadStatus.DEAD);
+        }
+    }
+
+    private void whoIsModerator(UsersDTO usersDTO, GameRoomsDTO gameRoomsDTO) {
         if (gameRoomsDTO.getCreatedBy().equals(usersDTO.getUserId())) {
             usersDTO.setGameRole(RoleInRoom.MODERATOR);
         }

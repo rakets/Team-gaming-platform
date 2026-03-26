@@ -14,6 +14,8 @@ public class UsersDTO {
 //    для кнопки Ready
     private ReadyStatus readyStatus = ReadyStatus.UNREADY;
 
+    private DeadStatus deadStatus = DeadStatus.ALIVE;
+
     private MessageType messageType; // JOIN / LEAVE / READY / UNREADY / JOIN_GAME_SESSION
 
     // bunker cards
