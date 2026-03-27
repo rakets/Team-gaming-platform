@@ -1,9 +1,6 @@
 package com.project.gamingplatform.service;
 
-import com.project.gamingplatform.dto.MessageType;
-import com.project.gamingplatform.dto.UsersDTO;
-import com.project.gamingplatform.dto.VoteResult;
-import com.project.gamingplatform.dto.VotesDTO;
+import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.entity.GameSessions;
 import com.project.gamingplatform.entity.RoomPlayers;
 import com.project.gamingplatform.entity.Users;
@@ -86,6 +83,7 @@ public class VotesService {
             votesRepository.deleteAllBySessionAndRoundNum(gameSession, gameSession.getCurrentRound());
         } else {
             roomPlayersRepository.updateDeadStatusByRoomIdUserId(roomId, userId);
+            user.setDeadStatus(DeadStatus.DEAD);
         }
         return user;
     }

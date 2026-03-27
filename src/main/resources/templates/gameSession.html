@@ -150,8 +150,8 @@
                         <p class="card-text">Role: <span th:text="${player.gameRole}">PLAYER</span></p>
                         <p class="card-text">Status:
                             <span th:id="'user-status-' + ${player.userId}"
-                                th:classappend="${player.readyStatus.name() == 'READY'} ? ' bg-success text-white' : ''"
-                                th:text="${player.readyStatus}">
+                                th:classappend="${player.deadStatus.name() == 'DEAD'} ? ' bg-danger text-white' : ' bg-success text-white'"
+                                th:text="${player.deadStatus}">
                             </span>
                         </p>
                     </div>
@@ -363,6 +363,9 @@
         function displayVotingResult(message) {
             if(message.userId != 0) {
                 document.getElementById("user-" + message.userId).classList.add('dead');
+                let deadStatus = document.getElementById("user-status-" + message.userId);
+                deadStatus.textContent = message.deadStatus;
+                deadStatus.classList.add("bg-danger", "text-white");
             }
             let myVote = document.getElementById("myVote");
             myVote.classList = '';
@@ -374,7 +377,7 @@
             var userId = message.userId;
             var username = message.username;
             var gameRole = message.gameRole;
-            var readyStatus = message.readyStatus;
+            var deadStatus = message.deadStatus;
             console.log("message:", message);
 
             if (message.messageType === "JOIN") {
@@ -388,14 +391,14 @@
                     console.log("player is already , skeep");
                     return;
                 } else {
-                    let statusClass = (readyStatus === 'READY') ? ' bg-success text-white' : '';
+                    let statusClass = (deadStatus === 'DEAD') ? ' bg-danger text-white' : ' bg-success text-white';
                     var newPlayerHtml = `
                                 <div class="col-md-4 player-card">
                                                         <div class="card" id="user-${userId}"> <div class="card-body">
                                                                 <h5 class="card-title">${username}</h5>
                                                                 <p class="card-text">Role: <span>${gameRole}</span></p>
                                                                 <p class="card-text">Status: 
-                                                                    <span id="user-status-${userId}" class="${statusClass}">${readyStatus}</span>
+                                                                    <span id="user-status-${userId}" class="${statusClass}">${deadStatus}</span>
                                                                 </p>
                                                         </div>
                                                         </div>
