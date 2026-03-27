@@ -83,7 +83,10 @@ public class RoomPlayersService {
         playerCardsRepository.deleteAllBySession(gameSessions);
         //смена статуса game session
         gameSessionsService.updateGameSessionStatus(SessionGameStatus.WAITING, roomId);
-        votesRepository.deleteAllBySession(gameSessionsRepository.getGameSessionsByRoomId(roomId));
+        //установка раунда 1
+        gameSessionsRepository.updateGameSessionsCurrentRound(1,gameSessions.getSessionId());
+        //удаление всех голосов в данной сессии
+        votesRepository.deleteAllBySession(gameSessions);
     }
 
     // ОТ GameRoomsService -> бд
