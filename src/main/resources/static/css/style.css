@@ -301,6 +301,7 @@
     background: #f37d89;
     opacity: 0.9;
 }
+/* оформление карточек игрока (своих карточек) */
 
 .errorVote {
     color: #dc3545;
@@ -309,4 +310,9 @@
 .successVote {
     color: rgb(31, 183, 31);
 }
-/* оформление карточек игрока (своих карточек) */
+
+.nextRound {
+    border-radius: auto;
+    background: gold;
+    color: black;
+}

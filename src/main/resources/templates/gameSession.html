@@ -18,9 +18,14 @@
 
     <header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
         <span class="navbar-brand">Game Session : <label th:text="${room.roomName}"></label></span>
+        <span id="currentRound" class="navbar-brand">Round : <label th:text="${room.currentRound}"></label></span>
         <a class="light" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
         <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
     </header>
+
+    <button id="nextRoundBtn" type="button" class="btn btn-danger hidden" th:classappend="${currentUser.gameRole.name() == 'MODERATOR'} ? '' : ' hidden'">
+        NEXT ROUND
+    </button>
     
     <button id="resultBtn" type="button" class="btn btn-danger" th:classappend="${currentUser.gameRole.name() == 'MODERATOR'} ? '' : ' hidden'">
         VOTING RESULT
@@ -171,6 +176,7 @@
         var stompClient = null;
         var roomId = [[${ room.roomId }]];
         var roomName = [[${ room.roomName }]]; // для LiveKit
+        var currentRound = [[${ room.currentRound }]];
         console.log('Room Name: ', roomName);
 
         var currentUserId = [[${ currentUser.userId }]];
@@ -337,9 +343,20 @@
                 case "VOTING_RESULT":
                     displayVotingResult(message);
                     break;
+
+                case "NEXT_ROUND":
+                    displayNextRound(message.nextRound);
+                    break;
+
                 default:
                     console.warn("Unknown websocket message type:", message.messageType);
             }
+        }
+
+        //отображение нового раунда
+        function displayNextRound(roundNum) {
+            document.getElementById("currentRound").textContent = "Round: " + roundNum;
+            document.getElementById("currentRound").classList.add("nextRound");
         }
 
         //обработка WebSocket сообщения с сервера, когда модератор нажал 'VOTING RESULT'  
@@ -627,8 +644,31 @@
             }).then(response => {
                 if (response.ok) {
                     console.log('User marked as DEAD in BD');
+                    document.getElementById("nextRoundBtn").classList.remove("hidden");
+                    document.getElementById("resultBtn").classList.add("hidden");
                 } else (
                     alert("SESSION NEED NEW VOTING OR NOT ALL PLAYERS VOTED")
+                )
+            }).catch(err => console.error(err));
+        }
+
+        // обработка нажатия кнопки 'NEXT ROUND'
+        document.getElementById("nextRoundBtn").addEventListener('click', startNextRound);
+        
+        function startNextRound(){
+            fetch("/game-session/next-round/" + currentRound + "/" + roomId, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    [header]: token
+                },
+                body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
+            }).then(response => {
+                if (response.ok) {
+                    document.getElementById("nextRoundBtn").classList.add("hidden");
+                    document.getElementById("resultBtn").classList.remove("hidden");
+                } else (
+                    alert("SORRY. SERVER ERROR. PLEASE TRY AGAIN")
                 )
             }).catch(err => console.error(err));
         }

@@ -146,6 +146,8 @@ public class GameRoomsService {
         } else {
             gameRoomsDTO.setAllUsersIsReady(false);
         }
+        GameSessions gameSessions = gameSessionsRepository.getGameSessionsByRoomId(roomId);
+        gameRoomsDTO.setCurrentRound(gameSessions.getCurrentRound());
         webSocketService.joinToGameRoom(gameRoomsDTO); //websocket
 
         return gameRoomsDTO;

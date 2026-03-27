@@ -108,6 +108,7 @@ public class RoomPlayersService {
         return roomPlayersRepository.isUserReadyInRoom(roomId, userId);
     }
 
+    @Transactional
     public boolean areAllUserReadyInRoom(int roomId) {
         if (roomPlayersRepository.isAllUserReadyInRoom(roomId)) {
             log.info("All players are ready in room ID: " + roomId);

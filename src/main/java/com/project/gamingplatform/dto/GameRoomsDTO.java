@@ -26,4 +26,5 @@ public class GameRoomsDTO {
 
     private List<UsersDTO> usersInRoom; //list of users in this room
     private boolean allUsersIsReady; //for checking if all players in game room are READY and show button JOIN game session if you restart page.
+    private int currentRound;
 }

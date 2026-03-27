@@ -124,6 +124,14 @@ public class WebSocketService {
         messagingTemplate.convertAndSend("/topic/room/" + roomId, usersDTO);
     }
 
+    //обновление значения раунда у всех игроков
+    public void updateRound(int round, int roomId){
+        UsersDTO user = new UsersDTO();
+        user.setMessageType(MessageType.NEXT_ROUND);
+        user.setNextRound(round);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
+    }
+
     // отмена удаления (вызываем из WebSocketConfig при входе игрока)
     public void cancelPendingRemoval(Integer userId) {
         ScheduledFuture<?> task = pendingRemovals.get(userId);

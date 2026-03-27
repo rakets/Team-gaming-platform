@@ -13,6 +13,7 @@
 <img src="https://img.shields.io/badge/MySQL-8-blue?style=for-the-badge&logo=mysql" alt="MySQL" />
 <img src="https://img.shields.io/badge/Redis-FF4438?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
 <img src="https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white" alt="Hibernate" />
+<img src="https://img.shields.io/badge/Jakarta%20Persistence-FF6600?style=for-the-badge&logo=jakartaee&logoColor=white" alt="JPA" />
 
 <img src="https://img.shields.io/badge/Thymeleaf-Template-darkgreen?style=for-the-badge&logo=thymeleaf" alt="Thymeleaf" />
 <img src="https://img.shields.io/badge/HTML-5-E34F26?style=for-the-badge&logo=html5" alt="HTML5" />

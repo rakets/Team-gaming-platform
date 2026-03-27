@@ -28,14 +28,22 @@ public class GameSessionsController {
     private final GameProcessService gameProcessService;
     private final SimpMessagingTemplate messagingTemplate;
     private final VotesService votesService;
+    private final GameSessionsService gameSessionsService;
 
-    public GameSessionsController(GameRoomsService gameRoomsService, UsersService usersService, ChatService chatService, GameProcessService gameProcessService, SimpMessagingTemplate messagingTemplate, VotesService votesService) {
+    public GameSessionsController(GameRoomsService gameRoomsService,
+                                  UsersService usersService,
+                                  ChatService chatService,
+                                  GameProcessService gameProcessService,
+                                  SimpMessagingTemplate messagingTemplate,
+                                  VotesService votesService,
+                                  GameSessionsService gameSessionsService) {
         this.gameRoomsService = gameRoomsService;
         this.usersService = usersService;
         this.chatService = chatService;
         this.gameProcessService = gameProcessService;
         this.messagingTemplate = messagingTemplate;
         this.votesService = votesService;
+        this.gameSessionsService = gameSessionsService;
     }
 
     //    @GetMapping("/join/{roomId}/{userId}")
@@ -100,6 +108,17 @@ public class GameSessionsController {
     public ResponseEntity<Void> newVote(@RequestBody VotesDTO vote) {
         System.out.println("Голос игрока ID " + vote.getUserId() + " на игрока ID " + vote.getVote() + " в комнате ID " + vote.getRoomId());
         if (votesService.newVote(vote)) {
+            return ResponseEntity.ok().build();
+        } else {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    //метод срабатывает, когда MODERATOR нажимает 'NEXT ROUND'
+    @PatchMapping("/next-round/{currentRound}/{roomId}")
+    public ResponseEntity<Void> nextRound(@PathVariable("currentRound") int currentRound,
+                                          @PathVariable("roomId") int roomId){
+        if (gameSessionsService.nextRound(currentRound, roomId)) {
             return ResponseEntity.ok().build();
         } else {
             return ResponseEntity.badRequest().build();
