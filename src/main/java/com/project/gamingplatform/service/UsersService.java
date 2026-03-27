@@ -3,6 +3,7 @@ package com.project.gamingplatform.service;
 import com.project.gamingplatform.dto.*;
 import com.project.gamingplatform.entity.*;
 import com.project.gamingplatform.repository.BunkerCardsRepository;
+import com.project.gamingplatform.repository.RoomPlayersRepository;
 import com.project.gamingplatform.repository.UsersRepository;
 import com.project.gamingplatform.util.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +24,15 @@ public class UsersService {
     private final RoomPlayersService roomPlayersService;
     private final BunkerCardsService bunkerCardsService;
     private final BunkerCardsRepository bunkerCardsRepository;
+    private final RoomPlayersRepository roomPlayersRepository;
 
-    public UsersService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, RoomPlayersService roomPlayersService, BunkerCardsService bunkerCardsService, BunkerCardsRepository bunkerCardsRepository) {
+    public UsersService(UsersRepository usersRepository, PasswordEncoder passwordEncoder, RoomPlayersService roomPlayersService, BunkerCardsService bunkerCardsService, BunkerCardsRepository bunkerCardsRepository, RoomPlayersRepository roomPlayersRepository) {
         this.usersRepository = usersRepository;
         this.passwordEncoder = passwordEncoder;
         this.roomPlayersService = roomPlayersService;
         this.bunkerCardsService = bunkerCardsService;
         this.bunkerCardsRepository = bunkerCardsRepository;
+        this.roomPlayersRepository = roomPlayersRepository;
     }
 
     public Users addNew(Users users) {
@@ -55,9 +58,11 @@ public class UsersService {
         Users currentUser = getCurrentUser();
         UsersDTO usersDTO = convertEntityUserToDto(currentUser);
 
-        boolean statusReady = roomPlayersService.isUserReadyInRoom(gameRoomsDTO.getRoomId(), usersDTO.getUserId());
-        isUserReadyInRoom(statusReady, usersDTO);
-
+        RoomPlayers roomPlayer = roomPlayersRepository.findByUser_UserIdAndRoom_RoomId(usersDTO.getUserId(), gameRoomsDTO.getRoomId());
+//        boolean statusReady = roomPlayersService.isUserReadyInRoom(gameRoomsDTO.getRoomId(), usersDTO.getUserId());
+//        isUserReadyInRoom(statusReady, usersDTO);
+        isUserReadyInRoom(roomPlayer.getIsReady(), usersDTO);
+        isUserDead(roomPlayer.getDead(), usersDTO);
         whoIsModerator(usersDTO, gameRoomsDTO);
 
         return usersDTO;

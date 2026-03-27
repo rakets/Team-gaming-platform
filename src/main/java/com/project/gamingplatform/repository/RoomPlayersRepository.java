@@ -46,4 +46,6 @@ public interface RoomPlayersRepository extends JpaRepository<RoomPlayers, RoomPl
     @Transactional
     @Query("UPDATE RoomPlayers rp SET rp.isDead = true WHERE rp.user.userId = :userId AND rp.room.roomId = :roomId")
     void updateDeadStatusByRoomIdUserId(@Param("roomId") int roomId, @Param("userId") int userId);
+
+    RoomPlayers findByUser_UserIdAndRoom_RoomId(Integer userId, Integer roomId);
 }

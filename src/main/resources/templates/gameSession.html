@@ -68,7 +68,8 @@
     </div>
 
     <!-- voting  -->
-    <form id="voteForm">
+    <form id="voteForm" th:class="${currentUser.deadStatus.name() == 'DEAD'} ? 'hidden' : ''">
+        <!-- информация о голосовании -->
         <p id="myVote"></p>
         <!-- убираем из вариантов голосования 'себя' и 'DEAD' игроков  -->
         <div th:each="player : ${players}" th:if="${currentUser.userId != player.userId && player.deadStatus.name() != 'DEAD'}">
