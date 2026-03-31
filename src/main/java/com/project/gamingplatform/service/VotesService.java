@@ -54,13 +54,16 @@ public class VotesService {
 //        System.out.println("GOLOSOVANIE: ");
 //        System.out.println(voteResultList);
 
-        List<RoomPlayers> playersInRoom = roomPlayersRepository.findAllRoomPlayersByRoomId(roomId);
+        //получаем список живых голосующих(что бы проверить позже, все ли проголосовали)
+        List<RoomPlayers> playersInRoom = roomPlayersRepository.findAliveRoomPlayersByRoomId(roomId);
+        //получаем список всех голосов в раунде
         List<Votes> allVotesInRound = votesRepository.findAllVotesBySessionAndRoundNum(gameSession, gameSession.getCurrentRound());
 //        System.out.println("All Votes, size: " + allVotesInRound.size());
 //        System.out.println("allVotesInRound");
         int userId = 0;
         Long voteCount = Long.valueOf(0);
 
+//        если размеры списков равны - это значит, что все игроки проголосовали
         if (playersInRoom.size() == allVotesInRound.size()) {
             for (VoteResult result : voteResultList) {
                 if (result.getCount() > voteCount) { //случай, если несколько пользователей, с разным кол-вом голосов

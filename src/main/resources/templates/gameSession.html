@@ -349,9 +349,18 @@
                     displayNextRound(message.nextRound);
                     break;
 
+                case "GAME_RESULT":
+                    displayGameResult(message.winners);
+                    break;
                 default:
                     console.warn("Unknown websocket message type:", message.messageType);
+                    break;
             }
+        }
+
+        //отображение результатом игры и скрытие кнопки NEXT ROUND
+        function displayGameResult(winnersList) {
+            alert(winnersList[0].username + " and " + winnersList[1].username + " won !");
         }
 
         //отображение нового раунда
@@ -365,13 +374,18 @@
             if(message.userId != 0) {
                 document.getElementById("user-" + message.userId).classList.add('dead');
                 let deadStatus = document.getElementById("user-status-" + message.userId);
+                deadStatus.classList.add('bg-danger', 'text-white');
                 deadStatus.textContent = message.deadStatus;
-                deadStatus.classList.add("bg-danger", "text-white");
             }
             let myVote = document.getElementById("myVote");
             myVote.classList = '';
             myVote.textContent = '';
-            document.getElementById('voteForm').reset();
+            if (message.userId != currentUserId) {
+                document.getElementById('voteForm').reset();
+            } else {
+                document.getElementById('voteForm').classList.add('hidden');
+            }
+            // добавить исчезновение выбывшего игрока
         }
 
         function showJoinNotification(message) {
@@ -647,12 +661,26 @@
                 body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
             }).then(response => {
                 if (response.ok) {
-                    console.log('User marked as DEAD in BD');
-                    document.getElementById("nextRoundBtn").classList.remove("hidden");
-                    document.getElementById("resultBtn").classList.add("hidden");
-                } else (
+                    response.json().then(data => {
+                        console.log("response status: ", data);
+                        switch (data) {
+                            case "IN_PROGRESS":
+                                console.log("User marked as DEAD");
+                                document.getElementById("nextRoundBtn").classList.remove("hidden");
+                                document.getElementById("resultBtn").classList.add("hidden");
+                                break;
+                            case "FINISHED":
+                                console.log('Game is finished');
+                                document.getElementById("resultBtn").classList.add("hidden");
+                                break;
+                            default:
+                                console.warn("Unknown result response");
+                                break;
+                        }
+                    });
+                } else {
                     alert("SESSION NEED NEW VOTING OR NOT ALL PLAYERS VOTED")
-                )
+                }
             }).catch(err => console.error(err));
         }
 

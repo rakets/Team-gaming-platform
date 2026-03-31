@@ -2,15 +2,11 @@ package com.project.gamingplatform.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.gamingplatform.dto.*;
+import com.project.gamingplatform.entity.SessionGameStatus;
 import com.project.gamingplatform.service.*;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -29,6 +25,7 @@ public class GameSessionsController {
     private final SimpMessagingTemplate messagingTemplate;
     private final VotesService votesService;
     private final GameSessionsService gameSessionsService;
+    private final GameResultsService gameResultsService;
 
     public GameSessionsController(GameRoomsService gameRoomsService,
                                   UsersService usersService,
@@ -36,7 +33,8 @@ public class GameSessionsController {
                                   GameProcessService gameProcessService,
                                   SimpMessagingTemplate messagingTemplate,
                                   VotesService votesService,
-                                  GameSessionsService gameSessionsService) {
+                                  GameSessionsService gameSessionsService,
+                                  GameResultsService gameResultsService) {
         this.gameRoomsService = gameRoomsService;
         this.usersService = usersService;
         this.chatService = chatService;
@@ -44,6 +42,7 @@ public class GameSessionsController {
         this.messagingTemplate = messagingTemplate;
         this.votesService = votesService;
         this.gameSessionsService = gameSessionsService;
+        this.gameResultsService = gameResultsService;
     }
 
     //    @GetMapping("/join/{roomId}/{userId}")
@@ -93,14 +92,23 @@ public class GameSessionsController {
 
     //метод реагирует, когда модератор нажимает 'VOTING RESULT' и возвращает пользователя
     @PatchMapping("/game-voting/{id}")
-    public ResponseEntity<Void> votingResult(@PathVariable("id") int roomId) {
+    public ResponseEntity<SessionGameStatus> votingResult(@PathVariable("id") int roomId) {
         UsersDTO user = votesService.getDeadPlayer(roomId);
-        if (user.getUserId().equals(0)) {       //ситуация, если игрок имеет id 0 (не определен, голосование не прошло)
+        GameResultsResponse resultResponse = gameResultsService.getGameResult(roomId);
+        //ситуация, если игрок имеет id 0 (не определен, голосование не прошло)
+        if (user.getUserId().equals(0)) {
             messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
+            //возврат ответа, с статусом сессии IN_PROGRESS
             return ResponseEntity.badRequest().build();
         }
+        //отправка выбывшего игрока всем игрокам
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
-        return ResponseEntity.ok().build();
+        //если статус сессии FINISHED, то отправка всем результатов игры
+        if (resultResponse.getGameStatus().equals(SessionGameStatus.FINISHED)) {
+            messagingTemplate.convertAndSend("/topic/room/" + roomId, resultResponse);
+        }
+        //возврат ответа, с статусом сессии FINISHED/IN_PROGRESS и на фронтенде происходит обработка
+        return ResponseEntity.ok(resultResponse.getGameStatus());
     }
 
     //метод реагирует, когда игрок нажимает 'VOTE'
@@ -117,7 +125,7 @@ public class GameSessionsController {
     //метод срабатывает, когда MODERATOR нажимает 'NEXT ROUND'
     @PatchMapping("/next-round/{currentRound}/{roomId}")
     public ResponseEntity<Void> nextRound(@PathVariable("currentRound") int currentRound,
-                                          @PathVariable("roomId") int roomId){
+                                          @PathVariable("roomId") int roomId) {
         if (gameSessionsService.nextRound(currentRound, roomId)) {
             return ResponseEntity.ok().build();
         } else {

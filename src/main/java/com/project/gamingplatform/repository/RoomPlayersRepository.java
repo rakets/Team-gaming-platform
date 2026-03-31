@@ -32,8 +32,13 @@ public interface RoomPlayersRepository extends JpaRepository<RoomPlayers, RoomPl
     @Query("UPDATE RoomPlayers r SET r.isReady = false WHERE r.id.userId = :userId AND r.id.roomId = :roomId")
     void updateUserAsUnready(@Param("userId") int userId, @Param("roomId") int roomId);
 
+    //получение всех RoomPlayers из комнаты
     @Query("SELECT r FROM RoomPlayers r WHERE r.id.roomId = :roomId")
     List<RoomPlayers> findAllRoomPlayersByRoomId(@Param("roomId") int roomId);
+
+    //получение только живых RoomPlayers из комнаты
+    @Query("SELECT r FROM RoomPlayers r WHERE r.id.roomId = :roomId AND r.isDead = false")
+    List<RoomPlayers> findAliveRoomPlayersByRoomId(@Param("roomId") int roomId);
 
     @Query("SELECT r.isReady FROM RoomPlayers r WHERE r.id.userId = :userId AND r.id.roomId = :roomId")
     boolean isUserReadyInRoom(@Param("roomId") int roomId, @Param("userId") int userId);

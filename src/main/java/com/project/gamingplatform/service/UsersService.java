@@ -156,5 +156,18 @@ public class UsersService {
         currentUser.setUnrevealedBunkerCards(unrevealCards);
         return currentUser;
     }
+
+    // метод получает список живых игроков комнаты и если их осталось 2, то возвращает список
+    public List<UsersDTO> getWinners(int roomId) {
+        List<Users> winners = usersRepository.findAlivePLayersByRoomId(roomId);
+        if (winners.size() == 2) {
+            List<UsersDTO> winnersDTO = new ArrayList<>();
+            for (Users user : winners) {
+                winnersDTO.add(convertEntityUserToDto(user));
+            }
+            return winnersDTO;
+        }
+        return null;
+    }
 }
 
