@@ -18,8 +18,11 @@ public class GameResults {
     private Date endedAt;
 
     //связь с GameSession
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id", unique = true, nullable = false, insertable = true, updatable = true)
+//    @OneToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "session_id", unique = true, nullable = false, insertable = true, updatable = true)
+//    private GameSessions gameSessions;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "session_id", nullable = false)
     private GameSessions gameSessions;
 
     //связь с Roles
@@ -73,7 +76,7 @@ public class GameResults {
 
     @Override
     public String toString() {
-        return "GameResults{" +
+        return "GameResultsRepository{" +
                 "resulId=" + resulId +
                 ", endedAt=" + endedAt +
                 ", gameSessions=" + gameSessions +

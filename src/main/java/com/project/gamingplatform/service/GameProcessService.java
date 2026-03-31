@@ -108,7 +108,7 @@ public class GameProcessService {
     private void distributionGameRolesInBunker(GameSessions gameSession,
                                               List<RoomPlayers> roomPlayersList) {
 //        Roles role = rolesRepository.findRolesByRoleName(RolesInGameSession.SURVIVOR);
-        Roles role = rolesRepository.findRolesByRoleName("Survivour");
+        Roles role = rolesRepository.findRolesByRoleName("Survivor");
 
         //list of all game roles
         List<PlayerRoles> playerRolesList = new ArrayList<>();

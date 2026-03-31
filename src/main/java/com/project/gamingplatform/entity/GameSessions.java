@@ -37,8 +37,10 @@ public class GameSessions {
     private GameRooms gameRooms;
 
     //связь с GameResult
-    @OneToOne(mappedBy = "gameSessions")
-    private GameResults gameResults;
+//    @OneToOne(mappedBy = "gameSessions")
+//    private GameResults gameResults;
+    @OneToMany(mappedBy = "gameSessions", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GameResults> gameResults = new ArrayList<>();
 
     //Связь с PlayerRoles
     @OneToMany(mappedBy = "session", cascade = CascadeType.ALL, orphanRemoval = true)
