@@ -147,13 +147,13 @@ public class UsersService {
         List<BunkerCards> revealedBunkerCards = bunkerCardsRepository.getBunkerCardsByUserIdRoomIdRevealedStatus(currentUser.getUserId(), gameRoomsDTO.getRoomId(), true);
         BunkerCardList revealCards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(revealedBunkerCards);
         currentUser.setRevealedBunkerCards(revealCards);
-        // game info cards
-        GameSessionInfo gameSessionInfo = bunkerCardsService.getGameSessionInfoCards(revealedBunkerCards);
-        currentUser.setGameSessionInfo(gameSessionInfo);
         // unrevealed game cards
         List<BunkerCards> unrevealedBunkerCards = bunkerCardsRepository.getBunkerCardsByUserIdRoomIdRevealedStatus(currentUser.getUserId(), gameRoomsDTO.getRoomId(), false);
         BunkerCardList unrevealCards = bunkerCardsService.getBunkerCardsDTOByUserIdRoomId(unrevealedBunkerCards);
         currentUser.setUnrevealedBunkerCards(unrevealCards);
+        // game info cards
+        GameSessionInfo gameSessionInfo = bunkerCardsService.getGameSessionInfoCards(unrevealedBunkerCards);
+        currentUser.setGameSessionInfo(gameSessionInfo);
         return currentUser;
     }
 
