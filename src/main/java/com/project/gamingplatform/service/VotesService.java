@@ -82,7 +82,7 @@ public class VotesService {
             user.setUserId(userId);
             votesRepository.deleteAllBySessionAndRoundNum(gameSession, gameSession.getCurrentRound());
         } else {
-            roomPlayersRepository.updateDeadStatusByRoomIdUserId(roomId, userId);
+            roomPlayersRepository.updateDeadStatusByRoomIdUserId(roomId, userId, true);
             user = usersService.findById(userId);
             user.setDeadStatus(DeadStatus.DEAD);
         }
