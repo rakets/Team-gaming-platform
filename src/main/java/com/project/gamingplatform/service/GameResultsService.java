@@ -38,26 +38,30 @@ public class GameResultsService {
     }
 
     @Transactional
-    public SessionGameStatus getGameResult(int roomId){
+    public SessionGameStatus getGameResult(int roomId) {
         List<UsersDTO> winners = usersService.getWinners(roomId);
         ServerMessage serverMessage = new ServerMessage();
-//        если список победителей не пуст, то вернет FINISH
-        if ( winners != null ) {
-            saveGameResult(roomId);
+        // если список победителей не пуст, то вернет FINISH
+        if (winners != null) {
+            GameSessions gameSession = gameSessionsRepository.getGameSessionsByRoomId(roomId);
+            // сохранение результатов игры
+            saveGameResult(roomId, gameSession);
+            // установление статуса сессии FINISHED
+            gameSessionsRepository.updateGameSessionStatus(SessionGameStatus.FINISHED, gameSession.getSessionId());
+            // сбор и передача данных на вебсокет
             serverMessage.setUsersList(winners);
             serverMessage.setMessageType(MessageType.GAME_RESULT);
             webSocketService.sendGameResult(serverMessage, roomId);
             return SessionGameStatus.FINISHED;
         }
-//        случай, если список победителей не пуст
+        // случай, если список победителей не пуст
         return SessionGameStatus.IN_PROGRESS;
     }
 
     @Transactional
     //сохранение 2 игроков в таблицу game_results
-    public void saveGameResult(int roomId) {
+    public void saveGameResult(int roomId, GameSessions gameSession) {
         List<Users> winners = usersRepository.findAlivePLayersByRoomId(roomId);
-        GameSessions gameSession = gameSessionsRepository.getGameSessionsByRoomId(roomId);
         Roles role = rolesRepository.findRolesByRoleName("Survivor");
         for (Users user : winners) {
             GameResults gameResult = new GameResults();
