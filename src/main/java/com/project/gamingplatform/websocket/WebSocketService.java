@@ -132,6 +132,24 @@ public class WebSocketService {
         messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
     }
 
+    // отправка результатов голосования
+    public void sendVotingResult(UsersDTO deadUser, int roomId) {
+        //получение только живых игроков
+        List<UsersDTO> aliveUsers = usersService.findAllALiveUsersByRoomId(roomId);
+
+        ServerMessage serverMessage = new ServerMessage();
+        serverMessage.setMessageType(MessageType.VOTING_RESULT);
+        serverMessage.setPlayer(deadUser);
+        serverMessage.setUsersList(aliveUsers);
+
+        messagingTemplate.convertAndSend("/topic/room/" + roomId, serverMessage);
+    }
+
+    // отправка списка выигравших игроков
+    public void sendGameResult(ServerMessage serverMessage, int roomId) {
+        messagingTemplate.convertAndSend("/topic/room/" + roomId, serverMessage);
+    }
+
     // отмена удаления (вызываем из WebSocketConfig при входе игрока)
     public void cancelPendingRemoval(Integer userId) {
         ScheduledFuture<?> task = pendingRemovals.get(userId);

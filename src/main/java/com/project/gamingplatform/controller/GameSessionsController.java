@@ -94,21 +94,13 @@ public class GameSessionsController {
     @PatchMapping("/game-voting/{id}")
     public ResponseEntity<SessionGameStatus> votingResult(@PathVariable("id") int roomId) {
         UsersDTO user = votesService.getDeadPlayer(roomId);
-        GameResultsResponse resultResponse = gameResultsService.getGameResult(roomId);
+        SessionGameStatus sessionGameStatus = gameResultsService.getGameResult(roomId);
         //ситуация, если игрок имеет id 0 (не определен, голосование не прошло)
         if (user.getUserId().equals(0)) {
-            messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
-            //возврат ответа, с статусом сессии IN_PROGRESS
-            return ResponseEntity.badRequest().build();
-        }
-        //отправка выбывшего игрока всем игрокам
-        messagingTemplate.convertAndSend("/topic/room/" + roomId, user);
-        //если статус сессии FINISHED, то отправка всем результатов игры
-        if (resultResponse.getGameStatus().equals(SessionGameStatus.FINISHED)) {
-            messagingTemplate.convertAndSend("/topic/room/" + roomId, resultResponse);
+            return ResponseEntity.noContent().build();
         }
         //возврат ответа, с статусом сессии FINISHED/IN_PROGRESS и на фронтенде происходит обработка
-        return ResponseEntity.ok(resultResponse.getGameStatus());
+        return ResponseEntity.ok(sessionGameStatus);
     }
 
     //метод реагирует, когда игрок нажимает 'VOTE'

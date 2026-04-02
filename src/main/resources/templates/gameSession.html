@@ -81,16 +81,6 @@
                 th:text="${player.username}">
             </label>
         </div>
-        <!-- pass
-        <div>
-            <input type="radio"
-                id="vote-0"
-                name="vote"
-                value="0">
-            <label for="vote-0"
-                th:text="PASS">
-            </label>
-        </div> -->
         <button type="submit" class="btn btn-danger">VOTE</button>
     </form>
 
@@ -350,7 +340,7 @@
                     break;
 
                 case "GAME_RESULT":
-                    displayGameResult(message.winners);
+                    displayGameResult(message.usersList);
                     break;
                 default:
                     console.warn("Unknown websocket message type:", message.messageType);
@@ -358,7 +348,7 @@
             }
         }
 
-        //отображение результатом игры и скрытие кнопки NEXT ROUND
+        //отображение результата игры
         function displayGameResult(winnersList) {
             alert(winnersList[0].username + " and " + winnersList[1].username + " won !");
         }
@@ -370,22 +360,60 @@
         }
 
         //обработка WebSocket сообщения с сервера, когда модератор нажал 'VOTING RESULT'  
+        //обновление окна голосования
         function displayVotingResult(message) {
-            if(message.userId != 0) {
-                document.getElementById("user-" + message.userId).classList.add('dead');
-                let deadStatus = document.getElementById("user-status-" + message.userId);
-                deadStatus.classList.add('bg-danger', 'text-white');
-                deadStatus.textContent = message.deadStatus;
+            var players= message.usersList;
+            console.log(players);
+            var deadPlayer = message.player;
+            console.log(deadPlayer);
+            if (deadPlayer.userId == 0) {
+                var myVote = document.getElementById("myVote");
+                myVote.classList = '';
+                myVote.textContent = '';
+                return;
             }
-            let myVote = document.getElementById("myVote");
-            myVote.classList = '';
-            myVote.textContent = '';
-            if (message.userId != currentUserId) {
-                document.getElementById('voteForm').reset();
-            } else {
-                document.getElementById('voteForm').classList.add('hidden');
+
+            document.getElementById("user-" + deadPlayer.userId).classList.add('dead');
+            let deadStatus = document.getElementById("user-status-" + deadPlayer.userId);
+            deadStatus.classList.add('bg-danger', 'text-white');
+            deadStatus.textContent = deadPlayer.deadStatus;
+            
+            // исчезновение выбывшего игрока
+            // обновление вариантов выбора
+            const form = document.getElementById("voteForm");
+            form.innerHTML = '';
+            players.forEach(player => {
+                if (player.deadStatus === "DEAD" || player.userId == currentUserId) return;
+                    const wrapper = document.createElement("div");
+                    const p = document.createElement("p");
+                    p.id = "myVote";
+                    const input = document.createElement("input");
+                    input.type = "radio";
+                    input.name = "vote";
+                    input.value = player.userId;
+                    input.id = "player-" + player.userId;
+
+                    const label = document.createElement("label");
+                    label.htmlFor = input.id;
+                    label.textContent = player.username;
+
+                    wrapper.appendChild(p);
+                    wrapper.appendChild(input);
+                    wrapper.appendChild(label);
+                    form.appendChild(wrapper);
+            });
+            // кнопка отправки
+            const button = document.createElement("button");
+            button.type = "submit";
+            button.className = "btn btn-danger";
+            button.textContent = "VOTE";
+            form.appendChild(button);
+            button.addEventListener("submit", sendVote);
+
+            // исчезновение окна голосования
+            if (deadPlayer.userId == currentUserId) {
+                form.classList.add('hidden');
             }
-            // добавить исчезновение выбывшего игрока
         }
 
         function showJoinNotification(message) {
@@ -660,6 +688,9 @@
                 },
                 body: JSON.stringify({}) // пустой объект, просто чтобы Spring правильно распознал PATCH
             }).then(response => {
+                if (response.status === 204) {
+                    alert("SESSION NEED NEW VOTING OR NOT ALL PLAYERS VOTED")
+                }
                 if (response.ok) {
                     response.json().then(data => {
                         console.log("response status: ", data);
@@ -678,8 +709,6 @@
                                 break;
                         }
                     });
-                } else {
-                    alert("SESSION NEED NEW VOTING OR NOT ALL PLAYERS VOTED")
                 }
             }).catch(err => console.error(err));
         }
@@ -717,8 +746,11 @@
             }
         }
 
-        // обработка нажатия "VOTE", отправка голоса, получени ответа сервера
-        document.getElementById("voteForm").addEventListener('submit', function(event){
+        // обработка нажатия "VOTE"
+        document.getElementById("voteForm").addEventListener('submit', sendVote);
+        
+        //отправка голоса, получени ответа сервера
+        function sendVote(event){
             event.preventDefault();
             const selected = document.querySelector('input[name="vote"]:checked');
             const myVote = document.getElementById("myVote");
@@ -752,7 +784,7 @@
                     document.getElementById('voteForm').reset();
                 }
             });
-        });
+        };
         // -------------------
         
         // Подключение при полной загрузке страницы

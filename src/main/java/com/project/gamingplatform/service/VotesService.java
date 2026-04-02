@@ -9,6 +9,7 @@ import com.project.gamingplatform.repository.GameSessionsRepository;
 import com.project.gamingplatform.repository.RoomPlayersRepository;
 import com.project.gamingplatform.repository.UsersRepository;
 import com.project.gamingplatform.repository.VotesRepository;
+import com.project.gamingplatform.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +21,20 @@ public class VotesService {
     private final UsersRepository usersRepository;
     private final VotesRepository votesRepository;
     private final RoomPlayersRepository roomPlayersRepository;
+    private final WebSocketService webSocketService;
+    private final UsersService usersService;
 
-    public VotesService(GameSessionsRepository gameSessionsRepository, UsersRepository usersRepository, VotesRepository votesRepository, RoomPlayersRepository roomPlayersRepository) {
+    public VotesService(GameSessionsRepository gameSessionsRepository,
+                        UsersRepository usersRepository,
+                        VotesRepository votesRepository,
+                        RoomPlayersRepository roomPlayersRepository,
+                        WebSocketService webSocketService, UsersService usersService) {
         this.gameSessionsRepository = gameSessionsRepository;
         this.usersRepository = usersRepository;
         this.votesRepository = votesRepository;
         this.roomPlayersRepository = roomPlayersRepository;
+        this.webSocketService = webSocketService;
+        this.usersService = usersService;
     }
 
     // проверка есть ли голос в раунде и сохранение нового голоса
@@ -35,9 +44,6 @@ public class VotesService {
         if (votesRepository.existsByUserVoter_UserIdAndRoundNum(voteDTO.getUserId(), gameSession.getCurrentRound())) {
             return false;
         } else {
-//            if (voteDTO.getVote().equals(0)) {
-//                return true;
-//            }
             Users userVoter = usersRepository.findById(voteDTO.getUserId()).orElseThrow(() -> new RuntimeException("User not found with id: " + voteDTO.getUserId()));
             Users userTarget = usersRepository.findById(voteDTO.getVote()).orElseThrow(() -> new RuntimeException("User not found with id: " + voteDTO.getVote()));
             Votes vote = new Votes(gameSession.getCurrentRound(), gameSession, userVoter, userTarget);
@@ -51,19 +57,14 @@ public class VotesService {
     public UsersDTO getDeadPlayer(int roomId) {
         GameSessions gameSession = gameSessionsRepository.getGameSessionsByRoomId(roomId);
         List<VoteResult> voteResultList = votesRepository.getTargetUserAndSumVotes(gameSession.getSessionId(), gameSession.getCurrentRound());
-//        System.out.println("GOLOSOVANIE: ");
-//        System.out.println(voteResultList);
-
         //получаем список живых голосующих(что бы проверить позже, все ли проголосовали)
         List<RoomPlayers> playersInRoom = roomPlayersRepository.findAliveRoomPlayersByRoomId(roomId);
         //получаем список всех голосов в раунде
         List<Votes> allVotesInRound = votesRepository.findAllVotesBySessionAndRoundNum(gameSession, gameSession.getCurrentRound());
-//        System.out.println("All Votes, size: " + allVotesInRound.size());
-//        System.out.println("allVotesInRound");
         int userId = 0;
         Long voteCount = Long.valueOf(0);
-
-//        если размеры списков равны - это значит, что все игроки проголосовали
+//      если размеры списков равны - это значит, что все игроки проголосовали
+//      определяется у кого больше голосов
         if (playersInRoom.size() == allVotesInRound.size()) {
             for (VoteResult result : voteResultList) {
                 if (result.getCount() > voteCount) { //случай, если несколько пользователей, с разным кол-вом голосов
@@ -74,20 +75,18 @@ public class VotesService {
                 }
             }
         }
-
-//        System.out.println("UserID: " + userId + " count:  " + voteCount);
         UsersDTO user = new UsersDTO();
-        user.setUserId(userId);
-        user.setMessageType(MessageType.VOTING_RESULT);
-//        System.out.println("User ID: " + user.getUserId());
         //если голосование не прошло (ID выбранного игрока 0), то чистим историю голосов
         //если голосование прошло, то даем игроку статус 'DEAD'
         if (userId == 0) {
+            user.setUserId(userId);
             votesRepository.deleteAllBySessionAndRoundNum(gameSession, gameSession.getCurrentRound());
         } else {
             roomPlayersRepository.updateDeadStatusByRoomIdUserId(roomId, userId);
+            user = usersService.findById(userId);
             user.setDeadStatus(DeadStatus.DEAD);
         }
+        webSocketService.sendVotingResult(user, roomId);
         return user;
     }
 }

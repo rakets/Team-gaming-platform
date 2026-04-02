@@ -169,5 +169,17 @@ public class UsersService {
         }
         return null;
     }
+
+    // метод получает список живых игроков комнаты
+    public List<UsersDTO> findAllALiveUsersByRoomId(int roomId) {
+        List<RoomPlayers> roomPlayersList = roomPlayersRepository.findAliveRoomPlayersByRoomId(roomId);
+        List<UsersDTO> usersDTOList = new ArrayList<>();
+        for (RoomPlayers roomPlayers : roomPlayersList) {
+            UsersDTO usersDTO = convertEntityUserToDto(roomPlayers.getUser());
+            isUserDead(roomPlayers.getDead(), usersDTO);
+            usersDTOList.add(usersDTO);
+        }
+        return usersDTOList;
+    }
 }
 

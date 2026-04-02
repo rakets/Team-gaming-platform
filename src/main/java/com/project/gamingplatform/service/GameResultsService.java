@@ -1,16 +1,17 @@
 package com.project.gamingplatform.service;
 
-import com.project.gamingplatform.dto.GameResultsResponse;
+import com.project.gamingplatform.dto.MessageType;
+import com.project.gamingplatform.dto.ServerMessage;
 import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.*;
 import com.project.gamingplatform.repository.GameResultsRepository;
 import com.project.gamingplatform.repository.GameSessionsRepository;
 import com.project.gamingplatform.repository.RolesRepository;
 import com.project.gamingplatform.repository.UsersRepository;
+import com.project.gamingplatform.websocket.WebSocketService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.Role;
 import java.util.List;
 
 @Service
@@ -20,28 +21,36 @@ public class GameResultsService {
     private final UsersRepository usersRepository;
     private final GameResultsRepository gameResultsRepository;
     private final RolesRepository rolesRepository;
+    private final WebSocketService webSocketService;
 
     public GameResultsService(UsersService usersService,
                               GameSessionsRepository gameSessionsRepository,
                               UsersRepository usersRepository,
-                              GameResultsRepository gameResultsRepository, RolesRepository rolesRepository) {
+                              GameResultsRepository gameResultsRepository,
+                              RolesRepository rolesRepository,
+                              WebSocketService webSocketService) {
         this.usersService = usersService;
         this.gameSessionsRepository = gameSessionsRepository;
         this.usersRepository = usersRepository;
         this.gameResultsRepository = gameResultsRepository;
         this.rolesRepository = rolesRepository;
+        this.webSocketService = webSocketService;
     }
 
     @Transactional
-    public GameResultsResponse getGameResult(int roomId){
+    public SessionGameStatus getGameResult(int roomId){
         List<UsersDTO> winners = usersService.getWinners(roomId);
-        GameResultsResponse resultsResponse = new GameResultsResponse(winners);
+        ServerMessage serverMessage = new ServerMessage();
+//        если список победителей не пуст, то вернет FINISH
         if ( winners != null ) {
-            resultsResponse.setGameStatus(SessionGameStatus.FINISHED);
             saveGameResult(roomId);
-            return resultsResponse;
+            serverMessage.setUsersList(winners);
+            serverMessage.setMessageType(MessageType.GAME_RESULT);
+            webSocketService.sendGameResult(serverMessage, roomId);
+            return SessionGameStatus.FINISHED;
         }
-        return resultsResponse;
+//        случай, если список победителей не пуст
+        return SessionGameStatus.IN_PROGRESS;
     }
 
     @Transactional

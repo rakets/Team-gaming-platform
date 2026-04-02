@@ -59,5 +59,4 @@ public class GameSessionsService {
         }
         return false;
     }
-
 }
