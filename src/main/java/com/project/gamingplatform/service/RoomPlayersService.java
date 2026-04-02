@@ -77,6 +77,8 @@ public class RoomPlayersService {
         roomPlayersRepository.deleteAllPlayersExceptModerator(roomId);
         //установка статуса UNREADY у модератора
         roomPlayersRepository.updateUserAsUnready(userId, roomId);
+        //установка alive статуса у модератора
+        roomPlayersRepository.updateDeadStatusByRoomIdUserId(roomId, userId, false);
         //удаление всех игроков из player roles и player cards
         GameSessions gameSessions = gameSessionsRepository.getGameSessionsByRoomId(roomId);
         playerRolesRepository.deleteAllBySession(gameSessions);
