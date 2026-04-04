@@ -62,13 +62,9 @@ public class GameRoomsService {
         gameSessionsRepository.save(gameSessions);
     }
 
-    public List<GameRoomsDTO> findAllGameRoomsByUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-        Users users = userDetails.getUser();
-
-        List<GameRooms> gameRoomsList = gameRoomsRepository.findAllByCreatedBy(users);
-
+    //получение всех комнат игрока
+    public List<GameRoomsDTO> findAllGameRoomsByUser(Users currentUser ) {
+        List<GameRooms> gameRoomsList = gameRoomsRepository.findAllByCreatedBy(currentUser);
         List<GameRoomsDTO> gameRoomsDTOList = new ArrayList<GameRoomsDTO>();
         for (GameRooms gameRoom : gameRoomsList) {
             gameRoomsDTOList.add(convertEntityGameRoomToDto(gameRoom));

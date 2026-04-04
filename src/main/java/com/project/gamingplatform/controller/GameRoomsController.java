@@ -4,11 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.gamingplatform.dto.ChatMessageDTO;
 import com.project.gamingplatform.dto.GameRoomsDTO;
 import com.project.gamingplatform.dto.UsersDTO;
+import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.service.*;
+import com.project.gamingplatform.util.CustomUserDetails;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -57,7 +61,11 @@ public class GameRoomsController {
 
     @GetMapping("/myRoom")
     public String getAllRoomsByUser(Model model) {
-        List<GameRoomsDTO> gameRoomsDTOList = gameRoomsService.findAllGameRoomsByUser();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Users currentUser = userDetails.getUser();
+        List<GameRoomsDTO> gameRoomsDTOList = gameRoomsService.findAllGameRoomsByUser(currentUser);
+        model.addAttribute("currentUserId", currentUser.getUserId());
         model.addAttribute("rooms", gameRoomsDTOList);
         return "roomsList";
     }

@@ -22,17 +22,6 @@
         <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
     </header>
 
-    <!--clean room-->
-    <div th:if="${currentUser.gameRole.name() == 'MODERATOR'}">
-        <form
-            th:action="@{/dashboard/clean-room/{roomId}/{userId}(roomId=${room.roomId}, userId=${currentUser.userId})}"
-            th:method="delete">
-            <button type="submit" class="btn btn-warning">
-                Clean Room
-            </button>
-        </form>
-    </div>
-
     <!-- Ready -->
     <button id="readyBtn" type="button" class="btn btn-success"
         th:classappend="${currentUser.readyStatus.name() == 'READY'} ? ' hidden' : ''">
