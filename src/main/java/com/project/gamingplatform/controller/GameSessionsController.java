@@ -70,7 +70,7 @@ public class GameSessionsController {
 //        return "gameSession";
 //    }
     @GetMapping("/join/{roomId}/{userId}")
-    public String getGameSession(Model model,
+    public String joinGameSession(Model model,
                                  @PathVariable("roomId") int roomId,
                                  @PathVariable("userId") int currentUserId) throws JsonProcessingException {
         GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(roomId);

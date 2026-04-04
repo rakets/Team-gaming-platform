@@ -54,7 +54,7 @@
                 </p>
             </div>
 
-            <a th:href="@{/dashboard/join-room/{id}(id=${room.roomId})}"
+            <a th:href="@{/dashboard/join-room/{roomId}/{userId} (roomId=${room.roomId}, userId=${currentUserId})}"
                class="btn btn-success">
                 Join Room
             </a>

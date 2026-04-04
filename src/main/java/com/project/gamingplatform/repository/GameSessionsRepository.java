@@ -35,4 +35,7 @@ public interface GameSessionsRepository extends JpaRepository<GameSessions, Inte
     @Query("UPDATE GameSessions g SET g.currentRound = :round WHERE g.sessionId = :sessionId")
     void updateGameSessionsCurrentRound(@Param("round") int round,
                                         @Param("sessionId") Integer sessionId);
+    // метод получения статуса гровой сессии
+    @Query("SELECT g.status from GameSessions g WHERE g.gameRooms.roomId = :roomId")
+    SessionGameStatus getGameSessionsStatusByGameRoomId(@Param("roomId") Integer roomId);
 }

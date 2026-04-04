@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.project.gamingplatform.dto.ChatMessageDTO;
 import com.project.gamingplatform.dto.GameRoomsDTO;
 import com.project.gamingplatform.dto.UsersDTO;
+import com.project.gamingplatform.entity.SessionGameStatus;
 import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.service.*;
 import com.project.gamingplatform.util.CustomUserDetails;
@@ -19,6 +20,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/dashboard")
@@ -29,15 +31,18 @@ public class GameRoomsController {
     private final RoomPlayersService roomPlayersService;
     private final UsersService usersService;
     private final ChatService chatService;
+    private final GameSessionsService gameSessionsService;
 
     public GameRoomsController(GameRoomsService gameRoomsService,
                                RoomPlayersService roomPlayersService,
                                UsersService usersService,
-                               ChatService chatService) {
+                               ChatService chatService,
+                               GameSessionsService gameSessionsService) {
         this.gameRoomsService = gameRoomsService;
         this.roomPlayersService = roomPlayersService;
         this.usersService = usersService;
         this.chatService = chatService;
+        this.gameSessionsService = gameSessionsService;
     }
 
     @GetMapping("/room/new")
@@ -74,32 +79,46 @@ public class GameRoomsController {
     public String searchGameRoom(Model model,
                                  @RequestParam(value = "roomName", required = false) String roomName) {
         log.info("Search initiated for room : room {}", roomName);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Users currentUser = userDetails.getUser();
         GameRoomsDTO gameRoomsDTO = gameRoomsService.findGameRoomByRoomName(roomName);
+        model.addAttribute("currentUserId", currentUser.getUserId());
         model.addAttribute("roomName", roomName);
         model.addAttribute("room", gameRoomsDTO);
         return "dashboard";
     }
 
-    @GetMapping("/join-room/{id}")
+    @GetMapping("/join-room/{roomId}/{userId}")
     public String joinGameRoom(Model model,
-                               @PathVariable("id") int id) throws JsonProcessingException {
-        GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(id);
-        List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
-        UsersDTO currentUser = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
-
-        List<ChatMessageDTO> chatHistory = chatService.getChatHistory(id);
-
-        model.addAttribute("currentUser", currentUser);
-        model.addAttribute("players", usersDTOList);
-        model.addAttribute("room", gameRoomsDTO);
-        model.addAttribute("chatHistory", chatHistory);
-        return "gameRoom";
+                               @PathVariable("roomId") int roomId,
+                               @PathVariable("userId") int userId) throws JsonProcessingException {
+        // получение статуса сессии и находится ли игрок в списке игроков, когда сессия запущена.
+        Map<String, Object> statuses = gameSessionsService.isGameSessionInProgressAndPlayerInList(roomId, userId);
+        // если игрок в списке игроков и сессия в статусе IN_PROGRESS, то игрок сразу перемещается в сессию
+        if ((boolean) statuses.get("isUserCanJOIN")) {
+            return "redirect:/game-session/join/" + roomId + "/" + userId;
+        }
+        // если сессия в статусе WAITING, то игрок перемещается в лобби(game room)
+        if (statuses.get("sessionStatus") == SessionGameStatus.WAITING) {
+            GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(roomId);
+            List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
+            UsersDTO currentUser = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
+            List<ChatMessageDTO> chatHistory = chatService.getChatHistory(roomId);
+            model.addAttribute("currentUser", currentUser);
+            model.addAttribute("players", usersDTOList);
+            model.addAttribute("room", gameRoomsDTO);
+            model.addAttribute("chatHistory", chatHistory);
+            return "gameRoom";
+        }
+        // если ни одно условие не выполнено, то игрок перемещается в окно поиска комнаты
+        return "redirect:/dashboard/";
     }
 
     @DeleteMapping("/clean-room/{roomId}/{userId}")
     public String cleanGameRoom(@PathVariable("roomId") int roomId, @PathVariable("userId") int userId){
         roomPlayersService.cleanRoomPlayers(roomId, userId);
-        return "redirect:/dashboard/join-room/" + roomId;
+        return "redirect:/dashboard/join-room/" + roomId + "/" + userId;
     }
 
 //    public UserActivityDTO addUser(@DestinationVariable("id") int id,

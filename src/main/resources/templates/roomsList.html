@@ -36,7 +36,7 @@
                     </p>
                 </div>
 
-                <a th:href="@{/dashboard/join-room/{id}(id=${room.roomId})}" class="btn btn-success">JOIN GAME</a>
+                <a th:href="@{/dashboard/join-room/{roomId}/{userId}(roomId=${room.roomId}, userId=${currentUserId})}" class="btn btn-success">JOIN GAME</a>
                 <form
                     th:action="@{/dashboard/clean-room/{roomId}/{userId}(roomId=${room.roomId}, userId=${currentUserId})}"
                     th:method="delete">

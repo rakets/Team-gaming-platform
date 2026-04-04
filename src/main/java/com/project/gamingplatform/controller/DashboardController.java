@@ -1,6 +1,8 @@
 package com.project.gamingplatform.controller;
 
+import com.project.gamingplatform.entity.Users;
 import com.project.gamingplatform.service.UsersService;
+import com.project.gamingplatform.util.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,12 +21,10 @@ public class DashboardController {
 
     @GetMapping("/dashboard/")
     public String showDashboard(Model model) {
-//      Object currentUser = usersService.getCurrentUser();
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUserName = authentication.getName();
-        System.out.println("dashboard user: " + currentUserName);
-        model.addAttribute("username", currentUserName);
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+        Users currentUser = userDetails.getUser();
+        model.addAttribute("username", currentUser.getUsername());
         return "dashboard";
     }
 }
