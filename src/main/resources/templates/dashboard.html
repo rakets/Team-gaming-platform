@@ -12,21 +12,25 @@
 
 <body>
 
-<header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-    <span class="navbar-brand">Game Rooms</span>
-    <div class="collapse navbar-collapse" id="navbarToggler">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+<header class="navbar navbar-expand-lg navbar-dark bg-dark px-4 d-flex justify-content-between align-items-center">
+    <div class="navbar-brand m-0"><span>Game Platform</span></div>
+    <span id="currentRound" class="navbar-brand mx-auto text-center">
+        <label th:text="${username}"></label>
+    </span>
+    <div class="d-flex align-items-center gap-3">
+        <!-- edit profile (add in future) -->
+        <!-- <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/player-profile/}">
-                    <i class="fa-solid fa-pencil"></i>Edit Profile</a>
+                <i class="fa-solid fa-pencil"></i>Edit Profile</a>
             </li>
-        </ul>
+        </ul> -->
+        <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
     </div>
-    <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
 </header>
 
+
 <div class="container mt-4">
-    <p>Hello <label th:text="${username}"></label></p>
     <!-- Заголовок -->
     <h2 class="mb-3">Game Rooms Dashboard</h2>
 

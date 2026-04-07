@@ -84,6 +84,7 @@ public class GameRoomsController {
         Users currentUser = userDetails.getUser();
         GameRoomsDTO gameRoomsDTO = gameRoomsService.findGameRoomByRoomName(roomName);
         model.addAttribute("currentUserId", currentUser.getUserId());
+        model.addAttribute("username", currentUser.getUsername());
         model.addAttribute("roomName", roomName);
         model.addAttribute("room", gameRoomsDTO);
         return "dashboard";
