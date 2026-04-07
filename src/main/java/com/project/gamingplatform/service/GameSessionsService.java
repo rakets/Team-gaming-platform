@@ -74,7 +74,7 @@ public class GameSessionsService {
         return false;
     }
 
-    // метод проверки, является ли статус сессии IN_PROGRESS
+    // метод проверки, является ли статус сессии IN_PROGRESS и игрок находится в списке игроков сессии
     @Transactional
     public Map<String, Object> isGameSessionInProgressAndPlayerInList(int roomId, int userId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
