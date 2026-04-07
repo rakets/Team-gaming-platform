@@ -373,13 +373,6 @@
                 myVote.textContent = '';
                 return;
             }
-            // изменение статуса в информации игрока, если выбыл текущий игрок
-            if (deadPlayer.userId == currentUserId) {
-                let deadStatus = document.getElementById("current-user-status");
-                deadStatus.classList = "";
-                deadStatus.classList.add('bg-danger', 'text-white');
-                deadStatus.textContent = "DEAD";
-            }
             //изменение карточки выбывшего игрока
             document.getElementById("user-" + deadPlayer.userId).classList.add('dead');
             let deadStatus = document.getElementById("user-status-" + deadPlayer.userId);
@@ -420,7 +413,13 @@
 
             // исчезновение окна голосования
             if (deadPlayer.userId == currentUserId) {
+                // скрытие формы голосования
                 form.classList.add('hidden');
+                // изменение статуса в информации игрока, если выбыл текущий игрок
+                let deadStatus = document.getElementById("current-user-status");
+                deadStatus.classList = "";
+                deadStatus.classList.add('bg-danger', 'text-white');
+                deadStatus.textContent = "DEAD";
             }
         }
 
