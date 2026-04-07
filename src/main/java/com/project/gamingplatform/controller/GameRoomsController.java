@@ -121,9 +121,16 @@ public class GameRoomsController {
     }
 
     @DeleteMapping("/clean-room/{roomId}/{userId}")
-    public String cleanGameRoom(@PathVariable("roomId") int roomId, @PathVariable("userId") int userId){
+    public String newGameRoom(@PathVariable("roomId") int roomId, @PathVariable("userId") int userId){
         roomPlayersService.cleanRoomPlayers(roomId, userId);
         return "redirect:/dashboard/join-room/" + roomId + "/" + userId;
+    }
+
+    // метод удаления комнаты (связанная с ней сессия тоже будет удалена)
+    @DeleteMapping("/delete-game-room/{roomId}")
+    public String deleteGameRoom(@PathVariable("roomId") int roomId) {
+        gameRoomsService.deleteGameRoom(roomId);
+        return "redirect:/dashboard/myRoom";
     }
 
 //    public UserActivityDTO addUser(@DestinationVariable("id") int id,

@@ -62,6 +62,12 @@ public class GameRoomsService {
         gameSessionsRepository.save(gameSessions);
     }
 
+    //метод удаления комнаты
+    @Transactional
+    public void deleteGameRoom(int roomId) {
+        gameRoomsRepository.deleteById(roomId);
+    }
+
     //получение всех комнат игрока
     public List<GameRoomsDTO> findAllGameRoomsByUser(Users currentUser ) {
         List<GameRooms> gameRoomsList = gameRoomsRepository.findAllByCreatedBy(currentUser);
