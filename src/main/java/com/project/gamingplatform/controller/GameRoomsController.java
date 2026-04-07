@@ -100,9 +100,9 @@ public class GameRoomsController {
         if ((boolean) statuses.get("isUserCanJOIN")) {
             return "redirect:/game-session/join/" + roomId + "/" + userId;
         }
+        GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(roomId);
         // если сессия в статусе WAITING, то игрок перемещается в лобби(game room)
         if (statuses.get("sessionStatus") == SessionGameStatus.WAITING) {
-            GameRoomsDTO gameRoomsDTO = gameRoomsService.joinToGameRoom(roomId);
             List<UsersDTO> usersDTOList = usersService.findAllUsersByGameRoom(gameRoomsDTO);
             UsersDTO currentUser = usersService.getCurrentUsersDtoRegardingCurrentRoom(gameRoomsDTO);
             List<ChatMessageDTO> chatHistory = chatService.getChatHistory(roomId);
@@ -111,6 +111,10 @@ public class GameRoomsController {
             model.addAttribute("room", gameRoomsDTO);
             model.addAttribute("chatHistory", chatHistory);
             return "gameRoom";
+        }
+        // если ни одно условие не выполнено, то модератор перемещается в окно списка своих групп
+        if (gameRoomsDTO.getCreatedBy().equals(userId)) {
+            return "redirect:/dashboard/myRoom";
         }
         // если ни одно условие не выполнено, то игрок перемещается в окно поиска комнаты
         return "redirect:/dashboard/";
