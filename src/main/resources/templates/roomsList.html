@@ -8,21 +8,23 @@
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 
 <body>
 
-<header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-    <span class="navbar-brand">Game Rooms</span>
-    <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
+<header class="navbar navbar-expand-lg navbar-dark bg-dark px-4 d-flex justify-content-between align-items-center">
+    <div class="navbar-brand m-0">
+        <span class="pointer" onclick="window.location='/dashboard/'">Game Platform</span>
+    </div>
+    <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-light" onclick="window.location='/dashboard/'">Back to Dashboard</button>
+        <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
+    </div>
 </header>
 
-<a class="" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
-
 <div class="container mt-4">
-    <p>Hello <label th:text="${username}"></label></p>
-
-    <h2 class="mb-3">Game Rooms Dashboard</h2>
+    <h2 class="mb-3">My Game Rooms</h2>
 
     <!-- list of game rooms -->
     <div th:if="${rooms != null}">

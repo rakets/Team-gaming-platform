@@ -316,3 +316,8 @@
     background: gold;
     color: black;
 }
+
+/* стиль курсора, при наведении на что-то */
+.pointer {
+    cursor: pointer;
+}
