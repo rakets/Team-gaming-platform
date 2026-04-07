@@ -15,21 +15,29 @@
 </head>
 
 <body>
-
-    <header class="navbar navbar-expand-lg navbar-dark bg-dark px-4">
-        <span class="navbar-brand">Game Session : <label th:text="${room.roomName}"></label></span>
-        <span id="currentRound" class="navbar-brand">Round : <label th:text="${room.currentRound}"></label></span>
-        <a class="light" th:href="@{/dashboard/}" method="get">Back to Dashboard</a>
-        <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
+    <header class="navbar navbar-expand-lg navbar-dark bg-dark px-4 d-flex justify-content-between align-items-center">
+        <div class="navbar-brand m-0">
+            <span><label th:text="${room.roomName}"></label></span>
+        </div>
+        <span id="currentRound" class="navbar-brand mx-auto text-center">Round : <label th:text="${room.currentRound}"></label></span>
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn btn-outline-light" onclick="window.location='/dashboard/'">Back to Dashboard</button>
+            <button class="btn btn-outline-light" onclick="window.location='/logout'">Logout</button>
+        </div>
     </header>
-
-    <button id="nextRoundBtn" type="button" class="btn btn-danger hidden" th:classappend="${currentUser.gameRole.name() == 'MODERATOR'} ? '' : ' hidden'">
-        NEXT ROUND
-    </button>
+    <div>
     
-    <button id="resultBtn" type="button" class="btn btn-danger" th:classappend="${currentUser.gameRole.name() == 'MODERATOR'} ? '' : ' hidden'">
-        VOTING RESULT
-    </button>
+    <div class="d-flex justify-content-between align-items-center">
+        <button id="resultBtn" type="button" class="btn btn-danger" th:classappend="${currentUser.gameRole.name() == 'MODERATOR'} ? '' : ' hidden'">
+            VOTING RESULT
+        </button>
+        <button id="nextRoundBtn" type="button" class="btn btn-danger hidden" th:classappend="${currentUser.gameRole.name() == 'MODERATOR'} ? '' : ' hidden'">
+            NEXT ROUND
+        </button>
+        <div class="d-flex gap-2">
+            <a class="" th:href="@{/dashboard/}">Back to Dashboard</a>
+        </div>
+    </div>
 
     <!-- информация о сценарие(бункере и катастрофе) -->
     <div id="scenarioInfo" class="scenario"></div>
