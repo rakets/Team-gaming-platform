@@ -201,9 +201,9 @@
             };
             console.log('headers: ', headers);
 
-            // Настройка Heartbeat (в миллисекундах)
-            // incoming: 10000 (ждем от сервера каждые 10 сек)
-            // outgoing: 10000 (шлем на сервер каждые 10 сек)
+            // настройка Heartbeat (в миллисекундах)
+            // incoming: 5000 (ждем от сервера каждые 5 сек)
+            // outgoing: 5000 (шлем на сервер каждые 5 сек)
             stompClient.heartbeat.outgoing = 5000;
             stompClient.heartbeat.incoming = 5000;
 
@@ -324,15 +324,6 @@
                 case "LEAVE":
                     showJoinNotification(message);
                     break;
-                
-                case "READY":
-                case "UNREADY":
-                    showReadyNotification(message);
-                    break;
-
-                case "JOIN_GAME_SESSION":
-                    showGameSessionButton();
-                    break;
 
                 case "VOTING_RESULT":
                     displayVotingResult(message);
@@ -345,6 +336,7 @@
                 case "GAME_RESULT":
                     displayGameResult(message.usersList);
                     break;
+
                 default:
                     console.warn("Unknown websocket message type:", message.messageType);
                     break;

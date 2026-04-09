@@ -39,38 +39,5 @@
         <button type="submit">Зарегистрироваться</button>
     </form>
 </div>
-
-<!--
-  Пример контроллера (Java) - положите этот код в @Controller, чтобы показывать форму и обрабатывать POST.
-  Не вставляйте в шаблон — это комментарий с подсказкой.
-
-  @Controller
-  @RequestMapping("/users")
-  public class UsersWebController {
-
-      private final UsersService usersService;
-
-      @Autowired
-      public UsersWebController(UsersService usersService) {
-          this.usersService = usersService;
-      }
-
-      @GetMapping("/register")
-      public String showRegistrationForm(Model model) {
-          model.addAttribute("user", new Users());
-          return "register"; // имя шаблона registerForm.html
-      }
-
-      @PostMapping("/register")
-      public String processRegistration(@ModelAttribute("user") Users user, BindingResult result, Model model) {
-          if (result.hasErrors()) {
-              return "register";
-          }
-          usersService.addNew(user); // сохраняем
-          return "redirect:/users/success"; // или куда нужно
-      }
-  }
--->
-
 </body>
 </html>

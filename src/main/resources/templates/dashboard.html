@@ -19,6 +19,7 @@
     </span>
     <div class="d-flex align-items-center gap-3">
         <!-- edit profile (add in future) -->
+        
         <!-- <ul class="navbar-nav me-auto mb-2 mb-lg-0">
             <li class="nav-item">
                 <a class="nav-link" th:href="@{/player-profile/}">
@@ -31,10 +32,9 @@
 
 
 <div class="container mt-4">
-    <!-- Заголовок -->
     <h2 class="mb-3">Game Rooms Dashboard</h2>
 
-    <!-- Поиск игровой комнаты -->
+    <!-- search game room -->
     <form th:action="@{/dashboard/searchRoom}" method="get" class="mb-4">
         <div class="input-group">
             <input type="text" name="roomName" class="form-control" placeholder="Search for a game room...">

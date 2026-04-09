@@ -183,9 +183,6 @@
             }).then(response => {
                 if (response.ok) {
                     console.log('User marked as READY in BD');
-                    // кнопка отключается после клика
-                    //                $('#readyBtn').hide();
-                    //                $('#unreadyBtn').fadeIn();
                     $('#readyBtn').addClass('hidden');
                     $('#unreadyBtn').removeClass('hidden');
                 }
@@ -204,9 +201,6 @@
             }).then(response => {
                 if (response.ok) {
                     console.log('User marked as UNREADY in BD');
-                    // кнопка отключается после клика
-                    //                $('#unreadyBtn').hide();
-                    //                $('#readyBtn').fadeIn();
                     $('#unreadyBtn').addClass('hidden');
                     $('#readyBtn').removeClass('hidden');
                 }
@@ -343,27 +337,10 @@
             gameSession.classList.remove('hidden');
         }
 
-        document.getElementById('gameSessionBtn').addEventListener('click', joinGameSession);;
+        document.getElementById('gameSessionBtn').addEventListener('click', joinGameSession);
 
         // присоединиться к Game Session
         function joinGameSession(){
-            // let way = '/game-session/join/' + roomId + '/' + roomName;
-            // if (currentUserGameRole === 'MODERATOR') {
-            //     fetch(way, {
-            //         method: 'PATCH',
-            //         headers: {
-            //             'Content-Type': 'application/json',
-            //             [header]: token
-            //         },
-            //         body: JSON.stringify({})
-            //     }).then(response => {
-            //         if(response.ok){
-            //             window.location.href = way;
-            //         }
-            //     }); 
-            // } else {
-            //     window.location.href = way;
-            // }
             window.location.href = '/game-session/join/' + roomId + '/' + currentUserId;;
         }
 
@@ -426,7 +403,6 @@
 
             if (username === currentUsername) {
                 //замена статуса у себя
-                //            $('#current-user-status').text(message.readyStatus);
                 currentUserStatus.textContent = readyStatus;
 
                 if (readyStatus == 'READY') {
@@ -512,36 +488,6 @@
                 micEnabled = false;
             }
         }
-        
-        // ------------ вкл / выкл камеры / микро одной кнопкой
-        //document.getElementById("video").addEventListener('click', videoOn);
-        //document.getElementById("sound").addEventListener('click', videoOff);
-//
-        // async function videoOn() {
-        //     if (!room) return;
-        //     // запрос разрешений + публикация
-        //     await room.localParticipant.enableCameraAndMicrophone();
-        //     // получаем локальный видео-трек
-        //     const videoPub =
-        //     room.localParticipant.videoTrackPublications.values()
-        //         .next().value;
-        //     const localVideoTrack = videoPub.track;
-        //     addTrack(localVideoTrack, room.localParticipant.identity, true);
-        // };
-
-        // function videoOff() {
-        //     if (!room) return;
-        //     room.localParticipant.videoTrackPublications.forEach(pub => {
-        //         pub.track?.stop();
-        //         room.localParticipant.unpublishTrack(pub.track);
-        //     });
-        //     room.localParticipant.audioTrackPublications.forEach(pub => {
-        //         pub.track?.stop();
-        //         room.localParticipant.unpublishTrack(pub.track);
-        //     });
-        //     removeVideoContainer(room.localParticipant.identity);
-        // };
-        // ------------ вкл / выкл камеры / микро одной кнопкой
 
         function configureUrls() {
         // If APPLICATION_SERVER_URL is not configured, use default value from OpenVidu Local deployment
