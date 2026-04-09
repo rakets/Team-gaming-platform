@@ -34,7 +34,7 @@ public class BunkerCardsService {
         cards.put(CardType.CHARACTER, bunkerCardsRepository.getBunkerCardsByCardType(CardType.CHARACTER, countPlayers));
         cards.put(CardType.SKILL, bunkerCardsRepository.getBunkerCardsByCardType(CardType.SKILL, countPlayers));
 
-        cards.put(CardType.BUNKER_INFO, bunkerCardsRepository.getBunkerCardsByCardType(CardType.BUNKER_INFO, 1));
+        cards.put(CardType.BUNKER, bunkerCardsRepository.getBunkerCardsByCardType(CardType.BUNKER, 1));
         cards.put(CardType.CATASTROPHE, bunkerCardsRepository.getBunkerCardsByCardType(CardType.CATASTROPHE, 1));
         return cards;
     }
@@ -75,7 +75,7 @@ public class BunkerCardsService {
         GameSessionInfo bunkerCardList = new GameSessionInfo();
         for (BunkerCards bunkerCard : bunkerCardsList) {
             switch (bunkerCard.getCardType()) {
-                case CardType.BUNKER_INFO:
+                case CardType.BUNKER:
                     bunkerCardList.setBunkerInfo(convertEntityToDTO(bunkerCard));
                     break;
                 case CardType.CATASTROPHE:

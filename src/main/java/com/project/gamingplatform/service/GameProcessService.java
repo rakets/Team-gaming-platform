@@ -1,9 +1,7 @@
 package com.project.gamingplatform.service;
 
 import com.project.gamingplatform.dto.BunkerCardList;
-import com.project.gamingplatform.dto.MessageType;
 import com.project.gamingplatform.dto.PlayerCardsDTO;
-import com.project.gamingplatform.dto.UsersDTO;
 import com.project.gamingplatform.entity.*;
 import com.project.gamingplatform.repository.*;
 import com.project.gamingplatform.websocket.WebSocketService;
@@ -49,7 +47,7 @@ public class GameProcessService {
         List<BunkerCards> character = cards.get(CardType.CHARACTER);
         List<BunkerCards> skill = cards.get(CardType.SKILL);
 
-        BunkerCards bunkerInfo = cards.get(CardType.BUNKER_INFO).getFirst();
+        BunkerCards bunkerInfo = cards.get(CardType.BUNKER).getFirst();
         BunkerCards catastrophe = cards.get(CardType.CATASTROPHE).getFirst();
 
         // check room players

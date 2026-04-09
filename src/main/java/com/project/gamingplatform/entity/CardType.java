@@ -8,6 +8,6 @@ public enum CardType {
     LUGGAGE,
     CHARACTER,
     SKILL,
-    BUNKER_INFO,
+    BUNKER,
     CATASTROPHE
 }
