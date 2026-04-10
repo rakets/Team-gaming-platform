@@ -1,42 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <title>Register</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Register</title>
-    <style>
-        body { font-family: Arial, sans-serif; background:#f7f7f7; }
-        .container { max-width:420px; margin:60px auto; background:#fff; padding:24px; border-radius:8px; box-shadow:0 6px 18px rgba(0,0,0,0.06); }
-        label { display:block; margin-bottom:6px; font-weight:600; }
-        input[type=text], input[type=email], input[type=password] { width:100%; padding:10px 12px; margin-bottom:12px; border:1px solid #ddd; border-radius:6px; }
-        .error { color:#b00020; font-size:0.9em; margin-top:-8px; margin-bottom:8px; }
-        button { width:100%; padding:10px; border:none; border-radius:6px; background:#007bff; color:#fff; font-weight:700; cursor:pointer; }
-        h2 { margin-top:0; }
-    </style>
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/style-reg.css}"/>
 </head>
 <body>
 <div class="container">
-    <h2>Регистрация</h2>
-
-    <!-- Thymeleaf form: expect model attribute named "user" (th:object="${user}") -->
+    <h2>Registration</h2>
     <form th:action="@{/register/new}"
           th:object="${user}" method="post">
         <!-- CSRF token (Spring Security) -->
         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
 
         <label for="username">Nickname</label>
-        <input id="username" type="text" th:field="*{username}" placeholder="Введите никнейм" />
+        <input id="username" type="text" th:field="*{username}" placeholder="Write your nickname" />
         <div class="error" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
 
         <label for="email">Email</label>
-        <input id="email" type="email" th:field="*{email}" placeholder="example@mail.com" />
+        <input id="email" type="email" th:field="*{email}" placeholder="example@gmail.com" />
         <div class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
 
         <label for="password">Password</label>
-        <input id="password" type="password" th:field="*{password}" placeholder="Введите пароль" />
+        <input id="password" type="password" th:field="*{password}" placeholder="Write password" />
         <div class="error" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
 
-        <button type="submit">Зарегистрироваться</button>
+        <button type="submit">Register</button>
     </form>
 </div>
 </body>

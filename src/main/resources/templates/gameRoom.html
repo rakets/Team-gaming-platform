@@ -47,7 +47,6 @@
 
     <div class="container mt-4 game-layout">
         <!--Player data-->
-        <!-- <div class="container mt-4"> -->
         <div class="player-info">
             <p> Player : <label th:text="${currentUser.username}"></label></p>
             <div id="page-data" th:data-username="${currentUser.username}"></div>
@@ -63,7 +62,6 @@
         <div id="layout-container"></div> 
 
         <!--    chat-->
-        <!-- <div class="container mt-4 chat"> -->
         <div class="chat">
             <div class="messages" id="messages">
                 <div th:each="message : ${chatHistory}" th:class="${currentUser.userId == message.senderId} ? 'messages_client' : 'messages_server'">

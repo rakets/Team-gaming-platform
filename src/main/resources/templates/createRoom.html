@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
     <link rel="stylesheet" th:href="@{/webjars/font-awesome/css/all.css}">
-    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="stylesheet" th:href="@{/css/new-room.css}">
 </head>
 
 <body>
@@ -23,51 +23,61 @@
     </div>
 </header>
 
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-5 col-lg-4">
+<div class="page-wrapper">
 
-            <div class="card shadow border-0 rounded-3">
-                <div class="card-body p-4">
+    <div class="card shadow border-0 rounded-3">
 
-                    <h3 class="text-center mb-4 fw-bold">Create New Room</h3>
+        <div class="card-body p-4">
 
-                    <form th:action="@{/dashboard/room/new}" th:object="${room}" method="post">
+            <h2 class="fw-bold mb-4">Create New Room</h2>
 
-                        <div class="mb-3">
-                            <label for="roomName" class="form-label fw-bold">Room name</label>
-                            <input id="roomName"
-                                   type="text"
-                                   class="form-control"
-                                   th:field="*{roomName}"
-                                   th:classappend="${#fields.hasErrors('roomName')} ? 'is-invalid' : ''"
-                                   placeholder="Enter room name" />
+            <form th:action="@{/dashboard/room/new}" th:object="${room}" method="post">
 
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('roomName')}" th:errors="*{roomName}"></div>
-                        </div>
+                <!-- Room name -->
+                <div class="mb-3">
+                    <label for="roomName" class="form-label fw-bold">Room name</label>
+                    <input id="roomName"
+                           type="text"
+                           class="form-control"
+                           th:field="*{roomName}"
+                           th:classappend="${#fields.hasErrors('roomName')} ? 'is-invalid' : ''"
+                           placeholder="Enter room name">
 
-                        <div class="mb-3">
-                            <label for="numPlayers" class="form-label fw-bold">Number of players</label>
-                            <input id="numPlayers"
-                                   type="number"
-                                   class="form-control"
-                                   th:field="*{numPlayers}"
-                                   th:classappend="${#fields.hasErrors('numPlayers')} ? 'is-invalid' : ''"
-                                   placeholder="4"
-                                   min="4" max="10"/>
-
-                            <div class="invalid-feedback" th:if="${#fields.hasErrors('numPlayers')}" th:errors="*{numPlayers}"></div>
-                        </div>
-
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary fw-bold py-2">Create room</button>
-                        </div>
-
-                    </form>
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('roomName')}"
+                         th:errors="*{roomName}">
+                    </div>
                 </div>
-            </div>
+
+                <!-- Players -->
+                <div class="mb-3">
+                    <label for="numPlayers" class="form-label fw-bold">Number of players</label>
+                    <input id="numPlayers"
+                           type="number"
+                           class="form-control"
+                           th:field="*{numPlayers}"
+                           th:classappend="${#fields.hasErrors('numPlayers')} ? 'is-invalid' : ''"
+                           placeholder="4"
+                           min="4" max="10">
+
+                    <div class="invalid-feedback"
+                         th:if="${#fields.hasErrors('numPlayers')}"
+                         th:errors="*{numPlayers}">
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary fw-bold py-2">
+                        Create room
+                    </button>
+                </div>
+
+            </form>
+
         </div>
     </div>
+
 </div>
 <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 </body>

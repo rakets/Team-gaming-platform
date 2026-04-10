@@ -1,74 +1,19 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
+    <title>Login</title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Вход в систему</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f7f7f7;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .login-container {
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.1);
-            width: 360px;
-        }
-        h2 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-        }
-        input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-        }
-        button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            border: none;
-            color: white;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .error {
-            color: #b00020;
-            text-align: center;
-            margin-bottom: 10px;
-        }
-    </style>
+    <link rel="stylesheet" type="text/css" media="all" th:href="@{/css/style-login.css}"/>
 </head>
 <body>
 <div class="login-container">
     <h2>Authorization</h2>
-    <form th:action="@{/login}"
-          th:object="${user}"
-          method="post">
-
+    <form th:action="@{/login}" th:object="${user}" method="post">
         <label for="username">Login</label>
-        <input type="text" id="username" name="username" placeholder="write login" required>
-
+        <input type="text" id="username" name="username" placeholder="Write your login" required>
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" placeholder="write password" required>
-
+        <input type="password" id="password" name="password" placeholder="Write your password" required>
         <button type="submit">Log in</button>
     </form>
 </div>

@@ -28,19 +28,16 @@
 
 <div class="container mt-4">
     <h2 class="mb-3">My Game Rooms</h2>
-
     <!-- list of game rooms -->
     <div th:if="${rooms != null}">
         <div th:each="room : ${rooms}" class="card mb-2">
             <div class="card-body d-flex justify-content-between align-items-center">
-
                 <div>
                     <h5 th:text="${room.roomName}">Room Name</h5>
                     <p class="mb-0">
                         Players: <span th:text="${room.numPlayers}">0</span> / <span>10</span>
                     </p>
                 </div>
-
                 <a th:href="@{/dashboard/join-room/{roomId}/{userId}(roomId=${room.roomId}, userId=${currentUserId})}" class="btn btn-success">JOIN GAME</a>
                 <form
                     th:action="@{/dashboard/clean-room/{roomId}/{userId}(roomId=${room.roomId}, userId=${currentUserId})}"
@@ -60,7 +57,6 @@
     <div th:if="${rooms == null or #lists.isEmpty(rooms)}">
         <p class="text-muted">No rooms found.</p>
     </div>
-
 </div>
     <script th:src="@{/webjars/bootstrap/js/bootstrap.min.js}"></script>
 </body>

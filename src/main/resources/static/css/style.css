@@ -41,10 +41,6 @@
     background-color: #6c757d; /* muted */
 }
 
-/*.btn-control.off.mic {*/
-/*    background-color: gray;*/
-/*}*/
-
 /*-------- chat --------*/
 .messages_client,
 .messages_server {
@@ -72,7 +68,7 @@
 
 .game-layout {
     display: flex;
-    gap: 20px;              /* расстояние между колонками */
+    gap: 20px;           
     align-items: flex-start;
 }
 
@@ -80,20 +76,11 @@
 .player-info {
     width: 50%;
     min-width: 250px;
-
-    /* занимает всё доступное место */
-    /* flex: 1;                    */
-    /* max-width: 400px */
 }
 
 .player-card {
     position: relative;
 }
-
-/* правая колонка */
-/* .chat {
-    width: 70%;
-} */
 
 /* карточки в подсказке */
 .tooltip-content {
@@ -111,11 +98,11 @@
 }
 
 .player-card:hover .tooltip-content {
-    display: block; /* Показываем при наведении на карточку */
+    display: block; /* показываем при наведении на карточку */
 }
 
 /* ----- кнопка подсказки ----- */
-/* Стили самой точки */
+/* стили самой точки */
 .info-dot {
     position: absolute;
     top: 10px;
@@ -153,7 +140,7 @@
     z-index: 10;
 }
 
-/* Маленький треугольник под подсказкой */
+/* маленький треугольник под подсказкой */
 .info-dot::before {
     content: '';
     position: absolute;
@@ -176,14 +163,8 @@
 /* --------- кнопка подсказки ------- */
 
 .chat {
-    /* background-color: rgb(222, 217, 211); */
-    /* border: 1px; */
-    /* border-color: black; */
-    /* border-radius: 5px; */
-
-    /* width: 400px;               */
     width: 50%;
-    height: 250px;             /* общая высота */
+    height: 250px;           
     background-color: rgb(222, 217, 211);
     border: 1px solid black;
     border-radius: 5px;
@@ -194,7 +175,6 @@
 .messages {
     display: flex;
     flex-direction: column;
-
     flex: 1;                   /* занимает всё доступное место */
     overflow-y: auto;          /* вертикальная прокрутка */
     padding: 10px;
@@ -207,7 +187,7 @@
     padding: 10px;
 }
 
-/* Мелкий шрифт для времени */
+/* мелкий шрифт для времени */
 .messages_client span,
 .messages_server span {
     font-size: 0.75em;
@@ -240,7 +220,6 @@
     font-size: 1.1em;
     color: #333;
 }
-/* оформление сценария игры*/
 
 /* оформление карточек игрока (своих карточек) */
 /* Контейнер для всех карточек */
