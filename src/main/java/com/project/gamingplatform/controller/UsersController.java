@@ -6,12 +6,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -26,6 +29,7 @@ public class UsersController {
         this.usersService = usersService;
     }
 
+    // метод перехода на станицу регистрации
     @GetMapping("/register")
     public String register(Model model) {
         model.addAttribute("user", new Users());
@@ -33,12 +37,29 @@ public class UsersController {
         return "registerForm";
     }
 
+    // метод регистрации нового пользователя / возврата ошибки
     @PostMapping("/register/new")
-    public String userRegistration(@Valid Users users){
-        usersService.addNew(users);
-        System.out.println("data is saved");
-        return "redirect:/login";
+    public String userRegistration(@Valid @ModelAttribute("user") Users user, BindingResult bindingResult, Model model){
+        // обработка ошибки, если выслать пустую форму
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("user", user);
+            model.addAttribute("error", "Error with registration");
+            return "registerForm";
+        }
+        try {
+            usersService.addNew(user);
+            return "redirect:/login";
+        } catch (DataIntegrityViolationException e) {
+            model.addAttribute("user", user);
+            model.addAttribute("error", "User already exists");
+            return "registerForm";
+        } catch (Exception e) {
+            model.addAttribute("user", user);
+            model.addAttribute("error", "Error with registration");
+            return "registerForm";
+        }
     }
+
     @GetMapping("/login")
     public String login(){
         System.out.println("user start login");
