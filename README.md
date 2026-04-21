@@ -285,7 +285,7 @@ gamingplatform/
   <img src="./docs/game_lobby_page.png" width="600" hight="350"/>
 </p>
 <p align="center">
-  <img src="./docs/game_lobby_page2.png.png" width="600" hight="350"/>
+  <img src="./docs/game_lobby_page2.png" width="600" hight="350"/>
 </p>
 
 ---
