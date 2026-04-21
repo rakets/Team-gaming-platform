@@ -49,7 +49,7 @@
 * **Spring Boot:** 3.4.11
 * **Spring Security, Hibernate, JPA**
 * **Apache-Maven:** 4.0.0
-* **Database:** MySQL, Redis
+* **Database:** MySQL, Redis (chat handling).
 * **Frontend:** Thymeleaf, HTML5, CSS3, JavaScript, Bootstrap 
 * **WebSocket, LiveKit**
 
@@ -283,6 +283,9 @@ gamingplatform/
 
 <p align="center">
   <img src="./docs/game_lobby_page.png" width="600" hight="350"/>
+</p>
+<p align="center">
+  <img src="./docs/game_lobby_page2.png.png" width="600" hight="350"/>
 </p>
 
 ---
