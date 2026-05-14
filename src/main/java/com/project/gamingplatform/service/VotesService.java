@@ -28,7 +28,8 @@ public class VotesService {
                         UsersRepository usersRepository,
                         VotesRepository votesRepository,
                         RoomPlayersRepository roomPlayersRepository,
-                        WebSocketService webSocketService, UsersService usersService) {
+                        WebSocketService webSocketService,
+                        UsersService usersService) {
         this.gameSessionsRepository = gameSessionsRepository;
         this.usersRepository = usersRepository;
         this.votesRepository = votesRepository;
@@ -37,11 +38,11 @@ public class VotesService {
         this.usersService = usersService;
     }
 
-    // проверка есть ли голос в раунде и сохранение нового голоса
+    // checking if there is a voice in the round and saving a new voice
     @Transactional
     public boolean newVote(VotesDTO voteDTO) {
         GameSessions gameSession = gameSessionsRepository.getGameSessionsByRoomId(voteDTO.getRoomId());
-        if (votesRepository.existsByUserVoter_UserIdAndRoundNum(voteDTO.getUserId(), gameSession.getCurrentRound())) {
+        if (votesRepository.existsByUserVoter_UserIdAndRoundNumAndSession_SessionId(voteDTO.getUserId(), gameSession.getCurrentRound(), gameSession.getSessionId())) {
             return false;
         } else {
             Users userVoter = usersRepository.findById(voteDTO.getUserId()).orElseThrow(() -> new RuntimeException("User not found with id: " + voteDTO.getUserId()));
@@ -52,32 +53,32 @@ public class VotesService {
         }
     }
 
-    //получение определение и возврат данных выбывшего игрока
+    // receiving determining and returning data of the eliminated player
     @Transactional
     public UsersDTO getDeadPlayer(int roomId) {
         GameSessions gameSession = gameSessionsRepository.getGameSessionsByRoomId(roomId);
         List<VoteResult> voteResultList = votesRepository.getTargetUserAndSumVotes(gameSession.getSessionId(), gameSession.getCurrentRound());
-        //получаем список живых голосующих(что бы проверить позже, все ли проголосовали)
+        // we get a list of live voters (to check later if everyone voted)
         List<RoomPlayers> playersInRoom = roomPlayersRepository.findAliveRoomPlayersByRoomId(roomId);
-        //получаем список всех голосов в раунде
+        // we get a list of all the votes in the round
         List<Votes> allVotesInRound = votesRepository.findAllVotesBySessionAndRoundNum(gameSession, gameSession.getCurrentRound());
         int userId = 0;
         Long voteCount = Long.valueOf(0);
-//      если размеры списков равны - это значит, что все игроки проголосовали
-//      определяется у кого больше голосов
+        // if the list sizes are equal, it means that all the players have voted.
+        // it is determined who has the most votes
         if (playersInRoom.size() == allVotesInRound.size()) {
             for (VoteResult result : voteResultList) {
-                if (result.getCount() > voteCount) { //случай, если несколько пользователей, с разным кол-вом голосов
+                if (result.getCount() > voteCount) { // in case there are several users with different votes
                     userId = result.getTargetId();
                     voteCount = result.getCount();
-                } else if (result.getCount().equals(voteCount)) { //случай, если несколько игроков с одинаковым кол-вом голосов
+                } else if (result.getCount().equals(voteCount)) { // in case there are several players with the same number of votes
                     userId = 0;
                 }
             }
         }
         UsersDTO user = new UsersDTO();
-        //если голосование не прошло (ID выбранного игрока 0), то чистим историю голосов
-        //если голосование прошло, то даем игроку статус 'DEAD'
+        // if the vote did not pass (the selected player's ID is 0), then we clean the voting history.
+        // if the vote has passed, then we give the player the status of 'DEAD'.
         if (userId == 0) {
             user.setUserId(userId);
             votesRepository.deleteAllBySessionAndRoundNum(gameSession, gameSession.getCurrentRound());

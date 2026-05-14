@@ -16,27 +16,28 @@ import java.util.List;
 
 @Repository
 public interface VotesRepository extends JpaRepository<Votes, Integer> {
-    // проверка голосовал ли игрок в этом раунде за кого-то
-    boolean existsByUserVoter_UserIdAndRoundNum(Integer voterID, Integer roundNum);
+    // "has player voted in round for someone" checking
+//    boolean existsByUserVoter_UserIdAndRoundNum(Integer voterID, Integer roundNum);
+    boolean existsByUserVoter_UserIdAndRoundNumAndSession_SessionId(Integer voterID, Integer roundNum, Integer sessionId);
 
-    //метод получает список <ID игрока | кол-во голосов за него>
+    // method get list of VoteResult (player ID, vote count)
     @Query(value = "SELECT v.target_id AS targetId, COUNT(v.vote_id) AS count " +
             "FROM votes v " +
             "WHERE v.session_id = :sessionId AND v.round_num = :roundNum " +
             "GROUP BY v.target_id",
             nativeQuery = true)
     List<VoteResult> getTargetUserAndSumVotes(@Param("sessionId") int sessionId,
-                                               @Param("roundNum") int round);
+                                              @Param("roundNum") int round);
 
-    //метод получает кол-во голосов в сессии в раунде
+    // method get vote count of the session in current round
     List<Votes> findAllVotesBySessionAndRoundNum(GameSessions sessions, int round);
 
-    //метод очистки голосов в раунде
+    // method for remowing votes in the round
     @Modifying
     @Transactional
     void deleteAllBySessionAndRoundNum(GameSessions gameSessions, int round);
 
-    //метод очистки голосов во всей сессии
+    // method for remowing votes in the session
     @Modifying
     @Transactional
     void deleteAllBySession(GameSessions gameSessions);
