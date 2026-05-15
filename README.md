@@ -57,7 +57,30 @@
 
 ## 🚀 How to Run the Project
 
-1.  The manual will be added in the future.
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/rakets/Team-gaming-platform.git
+    ```
+2.  **Go to the project folder:**
+    ```bash
+    cd Team-gaming-platform
+    ```
+3.  **Build the project:**
+    ```bash
+    mvn clean install
+    ```
+6.  **Run the Docker:**
+
+  <p> You need have Docker app on you computer.</p>
+
+  <p> Open terminal in the project's folder.</p>
+
+    ```bash
+    docker-compose up -d
+    ```
+
+  <p> Server will be available at `http://localhost:8081`.</p>
+    
 
 ---
 
