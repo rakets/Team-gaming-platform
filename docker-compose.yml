@@ -1,0 +1,79 @@
+version: '3.8'
+
+services:
+#  spring
+  spring-app:
+    build: . # take dockerfile from current folder
+    container_name: spring-backend
+    ports:
+      # my_computer_port : port_into_container
+      - "8081:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/gameplatformnew?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=123456
+      - SPRING_DATA_REDIS_HOST=redis
+      - SPRING_DATA_REDIS_PORT=6379
+      - LIVEKIT_URL=http://livekit:7880
+      - LIVEKIT_API_KEY=devkey
+      - LIVEKIT_API_SECRET=my_super_long_livekit_secret_123456
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+      livekit:
+        condition: service_started
+    networks:
+      - app-network
+
+#  mySQL
+  mysql:
+    build: ./mysql # take dockerfile from folder /mysql
+    container_name: mysql-db
+    ports:
+      - "3307:3306"
+    environment:
+      - SPRING_DATASOURCE_USERNAME=root
+      - MYSQL_DATABASE=gameplatformnew
+      - MYSQL_ROOT_PASSWORD=123456
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 5
+    networks:
+      - app-network
+
+#  Redis
+  redis:
+    build: ./redis
+    container_name: redis-cache
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - app-network
+
+#  LiveKit
+  livekit:
+    build: ./livekit
+    container_name: livekit-server
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+    depends_on:
+      - redis
+    networks:
+      - app-network
+
+volumes:
+  mysql-data:
+  redis-data:
+
+networks:
+  app-network:
+    driver: bridge
