@@ -281,7 +281,7 @@ gamingplatform/
   <img src="./docs/dashboard_page.png" width="600" hight="350"/>
 </p>
 <p align="center">
-  <img src="./docs/dashboard_page_2.png.png" width="600" hight="350"/>
+  <img src="./docs/dashboard_page_2.png" width="600" hight="350"/>
 </p>
 
 ---
